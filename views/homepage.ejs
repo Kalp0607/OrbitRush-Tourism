@@ -20,17 +20,69 @@
         color: #333;
       }
 
-      /* Hero Section */
+      /* Hero Section with Dynamic Background */
       .hero {
-        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-          url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80");
-        background-size: cover;
-        background-position: center;
+        position: relative;
         height: 90vh;
         display: flex;
         align-items: center;
         color: white;
         text-align: center;
+        overflow: hidden;
+      }
+
+      .hero-backgrounds {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+      }
+
+      .hero-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0;
+        transition: opacity 1.5s ease-in-out;
+      }
+
+      .hero-background.active {
+        opacity: 1;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: -1;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+        animation: fadeInUp 1s ease-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .hero-content h1 {
@@ -47,6 +99,7 @@
         margin-left: auto;
         margin-right: auto;
         opacity: 0.95;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
       }
 
       .hero-buttons {
@@ -91,6 +144,297 @@
       .btn-outline-hero:hover {
         background: white;
         color: #333;
+      }
+
+      .hero-indicators {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 2;
+      }
+
+      .indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        border: 2px solid white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .indicator.active {
+        background: white;
+        transform: scale(1.2);
+      }
+
+      /* PERFECT FEATURED TOURS CAROUSEL */
+      .featured-section {
+        padding: 5rem 0;
+        background: #f8f9fa;
+      }
+
+      .section-title {
+        text-align: center;
+        margin-bottom: 4rem;
+      }
+
+      .section-title h2 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1rem;
+      }
+
+      .section-subtitle {
+        font-size: 1.2rem;
+        color: #666;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      /* PERFECT CAROUSEL CONTAINER */
+      .carousel-container {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 40px;
+      }
+
+      .carousel-viewport {
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+      }
+
+      .carousel-track {
+        display: flex;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+        backface-visibility: hidden;
+        perspective: 1000px;
+      }
+
+      .carousel-slide {
+        flex: 0 0 auto;
+        padding: 0 15px;
+      }
+
+      /* RESPONSIVE CARD SIZES - PERFECT FIT */
+      @media (min-width: 1024px) {
+        .carousel-slide {
+          width: calc(100% / 3);
+        }
+      }
+
+      @media (min-width: 768px) and (max-width: 1023px) {
+        .carousel-slide {
+          width: calc(100% / 2);
+        }
+      }
+
+      @media (max-width: 767px) {
+        .carousel-slide {
+          width: 100%;
+        }
+      }
+
+      /* BEAUTIFUL TOUR CARDS */
+      .tour-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transform: translateZ(0);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .tour-card:hover {
+        transform: translateY(-6px) translateZ(0);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+      }
+
+      .tour-image {
+        height: 240px;
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .tour-card:hover .tour-image {
+        transform: scale(1.03);
+      }
+
+      .tour-card-body {
+        padding: 2rem 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .tour-content {
+        flex-grow: 1;
+      }
+
+      .tour-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.8rem;
+        line-height: 1.3;
+        min-height: 2.6rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .tour-location {
+        color: #666;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+      }
+
+      .tour-location i {
+        color: #007bff;
+        font-size: 1rem;
+      }
+
+      .tour-price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #007bff;
+        margin-bottom: 1.5rem;
+      }
+
+      .btn-tour {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        align-self: flex-start;
+      }
+
+      .btn-tour:hover {
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        color: white;
+      }
+
+      /* ELEGANT SMALL CAROUSEL NAVIGATION */
+      .carousel-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        margin-top: 2.5rem;
+      }
+
+      .carousel-dots {
+        display: flex;
+        gap: 0.7rem;
+      }
+
+      .carousel-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(0, 123, 255, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .carousel-dot.active {
+        background: #007bff;
+        transform: scale(1.5);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+      }
+
+      .carousel-dot:hover {
+        background: rgba(0, 123, 255, 0.6);
+        transform: scale(1.2);
+      }
+
+      /* SMALL ELEGANT ARROWS */
+      .carousel-arrow {
+        background: rgba(255, 255, 255, 0.9);
+        color: #007bff;
+        border: 1px solid rgba(0, 123, 255, 0.2);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .carousel-arrow:hover {
+        background: #007bff;
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        border-color: #007bff;
+      }
+
+      .carousel-arrow:active {
+        transform: scale(0.95);
+      }
+
+      /* EMPTY STATE */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        margin: 2rem auto;
+        max-width: 600px;
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        color: #007bff;
+        margin-bottom: 1.5rem;
+        opacity: 0.7;
+      }
+
+      .empty-state h3 {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 1rem;
+        font-weight: 600;
+      }
+
+      .empty-state p {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
       }
 
       /* Why Choose Us Section */
@@ -174,192 +518,7 @@
         font-weight: 600;
       }
 
-      /* Featured Tours - Perfect Card Alignment */
-      .featured-section {
-        padding: 5rem 0;
-        background: white;
-      }
-
-      .section-title {
-        text-align: center;
-        margin-bottom: 4rem;
-      }
-
-      .section-title h2 {
-        font-size: 2.8rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 1rem;
-      }
-
-      .section-subtitle {
-        font-size: 1.2rem;
-        color: #666;
-        max-width: 600px;
-        margin: 0 auto;
-      }
-
-      /* Card Grid Container */
-      .row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 2rem;
-      }
-
-      .col-lg-4 {
-        flex: 1;
-        min-width: 300px;
-        display: flex;
-      }
-
-      /* Card Structure */
-      .tour-card {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .tour-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-      }
-
-      .tour-image {
-        height: 250px;
-        width: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-        flex-shrink: 0; /* Prevents image from shrinking */
-      }
-
-      .tour-card:hover .tour-image {
-        transform: scale(1.05);
-      }
-
-      .tour-card-body {
-        padding: 2rem;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        justify-content: space-between;
-      }
-
-      /* Content Section */
-      .tour-content {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-      }
-
-      .tour-title {
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 1rem;
-        min-height: 3.5rem; /* Fixed height for title area */
-        display: flex;
-        align-items: flex-start;
-        line-height: 1.3;
-      }
-
-      .tour-location {
-        color: #666;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.95rem;
-        height: 1.5rem; /* Fixed height for location */
-      }
-
-      .tour-price {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #007bff;
-        margin-bottom: 1.5rem;
-        height: 2rem; /* Fixed height for price */
-        display: flex;
-        align-items: center;
-      }
-
-      /* Button always at bottom */
-      .btn-tour {
-        background: #007bff;
-        color: white;
-        border: none;
-        padding: 0.8rem 1.8rem;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-top: auto;
-        align-self: flex-start;
-      }
-
-      .btn-tour:hover {
-        background: #0056b3;
-        color: white;
-        transform: translateY(-1px);
-      }
-
-      /* Empty State */
-      .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-      }
-
-      .empty-state i {
-        font-size: 4rem;
-        color: #ddd;
-        margin-bottom: 1.5rem;
-      }
-
-      .empty-state h3 {
-        font-size: 1.8rem;
-        color: #333;
-        margin-bottom: 1rem;
-      }
-
-      .empty-state p {
-        color: #666;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-      }
-
-      /* Empty State */
-      .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-      }
-
-      .empty-state i {
-        font-size: 4rem;
-        color: #ddd;
-        margin-bottom: 1.5rem;
-      }
-
-      .empty-state h3 {
-        font-size: 1.8rem;
-        color: #333;
-        margin-bottom: 1rem;
-      }
-
-      .empty-state p {
-        color: #666;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-      }
-
-      /* Responsive */
+      /* RESPONSIVE DESIGN */
       @media (max-width: 768px) {
         .hero-content h1 {
           font-size: 2.5rem;
@@ -391,6 +550,30 @@
           width: 50px;
           height: 50px;
         }
+
+        .hero-indicators {
+          bottom: 20px;
+        }
+
+        .carousel-container {
+          padding: 0 20px;
+        }
+
+        .carousel-nav {
+          margin-top: 2rem;
+          gap: 1.5rem;
+        }
+
+        .carousel-arrow {
+          width: 28px;
+          height: 28px;
+          font-size: 0.8rem;
+        }
+
+        .carousel-dot {
+          width: 6px;
+          height: 6px;
+        }
       }
     </style>
   </head>
@@ -398,8 +581,70 @@
   <body>
     <%- include("partials/nav") %>
 
-    <!-- Hero Section -->
+    <!-- Hero Section with Dynamic Background -->
     <section class="hero">
+      <div class="hero-backgrounds">
+        <div
+          class="hero-background active"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+          "
+        ></div>
+        <div
+          class="hero-background"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+          "
+        ></div>
+        <div
+          class="hero-background"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+          "
+        ></div>
+        <div
+          class="hero-background"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1439066615861-d1af74d74000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+          "
+        ></div>
+        <div
+          class="hero-background"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+          "
+        ></div>
+        <div
+          class="hero-background"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+          "
+        ></div>
+        <div
+          class="hero-background"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+          "
+        ></div>
+        <div
+          class="hero-background"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+          "
+        ></div>
+      </div>
+
+      <div class="hero-indicators">
+        <div class="indicator active" data-slide="0"></div>
+        <div class="indicator" data-slide="1"></div>
+        <div class="indicator" data-slide="2"></div>
+        <div class="indicator" data-slide="3"></div>
+        <div class="indicator" data-slide="4"></div>
+        <div class="indicator" data-slide="5"></div>
+        <div class="indicator" data-slide="6"></div>
+        <div class="indicator" data-slide="7"></div>
+      </div>
+
       <div class="container">
         <div class="hero-content">
           <h1>Discover Amazing Destinations</h1>
@@ -435,7 +680,7 @@
       </div>
     </section>
 
-    <!-- Featured Tours -->
+    <!-- Featured Tours - PERFECT SMOOTH CAROUSEL -->
     <section class="featured-section">
       <div class="container">
         <div class="section-title">
@@ -462,47 +707,62 @@
           <% } %>
         </div>
         <% } else { %>
-        <div class="row">
-          <% tours.slice(0, 3).forEach(tour => { %>
-          <div class="col-lg-4">
-            <div class="tour-card">
-              <img
-                src="<%= tour.coverImage || '/images/default-tour.jpg' %>"
-                alt="<%= tour.name %>"
-                class="tour-image"
-              />
-              <div class="tour-card-body">
-                <div class="tour-content">
-                  <h3 class="tour-title"><%= tour.name %></h3>
-                  <div class="tour-location">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <%= tour.location %>
-                  </div>
-                  <div class="tour-price">
-                    ₹<%= tour.price.toLocaleString() %>
+        <div class="carousel-container">
+          <div class="carousel-viewport">
+            <div class="carousel-track" id="carouselTrack">
+              <% tours.forEach(function(tour, index) { %>
+              <div class="carousel-slide">
+                <div class="tour-card">
+                  <img
+                    src="<%= tour.coverImage || '/images/default-tour.jpg' %>"
+                    alt="<%= tour.name %>"
+                    class="tour-image"
+                  />
+                  <div class="tour-card-body">
+                    <div class="tour-content">
+                      <h3 class="tour-title"><%= tour.name %></h3>
+                      <div class="tour-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <%= tour.location %>
+                      </div>
+                      <div class="tour-price">
+                        ₹<%= tour.price.toLocaleString() %>
+                      </div>
+                    </div>
+                    <a
+                      href="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>"
+                      class="btn-tour"
+                    >
+                      View Details
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
                   </div>
                 </div>
-                <a
-                  href="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>"
-                  class="btn-tour"
-                >
-                  View Details
-                  <i class="fas fa-arrow-right"></i>
-                </a>
               </div>
+              <% }) %>
             </div>
           </div>
-          <% }) %>
-        </div>
 
-        <% if (tours.length > 3) { %>
-        <div class="text-center mt-5">
-          <a href="/tour" class="btn-hero btn-primary-hero">
-            <i class="fas fa-eye"></i>
-            View All Tours (<%= tours.length %>)
-          </a>
+          <!-- Elegant Small Navigation -->
+          <div class="carousel-nav">
+            <div class="carousel-arrow" id="prevBtn">
+              <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="carousel-dots" id="carouselDots">
+              <% var maxDots = tours.length > 3 ? tours.length - 2 :
+              tours.length; %> <% for (let i = 0; i < maxDots; i++) { %>
+              <div
+                class="carousel-dot <%= i === 0 ? 'active' : '' %>"
+                data-slide="<%= i %>"
+              ></div>
+              <% } %>
+            </div>
+            <div class="carousel-arrow" id="nextBtn">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
         </div>
-        <% } %> <% } %>
+        <% } %>
       </div>
     </section>
 
@@ -573,6 +833,146 @@
         </div>
       </div>
     </section>
+
     <%- include("partials/footer") %> <%- include("partials/scripts") %>
+
+    <!-- PERFECT CAROUSEL SCRIPT -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Hero Background Slideshow
+        const backgrounds = document.querySelectorAll(".hero-background");
+        const indicators = document.querySelectorAll(".indicator");
+        let currentIndex = 0;
+
+        function showSlide(index) {
+          backgrounds.forEach(function (bg) {
+            bg.classList.remove("active");
+          });
+          indicators.forEach(function (ind) {
+            ind.classList.remove("active");
+          });
+
+          backgrounds[index].classList.add("active");
+          indicators[index].classList.add("active");
+
+          currentIndex = index;
+        }
+
+        function nextSlide() {
+          const nextIndex = (currentIndex + 1) % backgrounds.length;
+          showSlide(nextIndex);
+        }
+
+        setInterval(nextSlide, 2000);
+
+        indicators.forEach(function (indicator, index) {
+          indicator.addEventListener("click", function () {
+            showSlide(index);
+          });
+        });
+
+        // PERFECT SMOOTH CAROUSEL
+        const carouselTrack = document.getElementById("carouselTrack");
+        const slides = document.querySelectorAll(".carousel-slide");
+        const dots = document.querySelectorAll(".carousel-dot");
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        if (!carouselTrack || slides.length === 0) return;
+
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        // Get slides to show based on screen size
+        function getSlidesToShow() {
+          if (window.innerWidth >= 1024) return Math.min(3, totalSlides);
+          if (window.innerWidth >= 768) return Math.min(2, totalSlides);
+          return 1;
+        }
+
+        let slidesToShow = getSlidesToShow();
+        const maxSlide = Math.max(0, totalSlides - slidesToShow);
+
+        function updateCarousel() {
+          const slideWidth = 100 / slidesToShow;
+          const translateX = -(currentSlide * slideWidth);
+
+          carouselTrack.style.transform = "translateX(" + translateX + "%)";
+
+          // Update dots
+          dots.forEach(function (dot, index) {
+            dot.classList.remove("active");
+            if (index === currentSlide) {
+              dot.classList.add("active");
+            }
+          });
+        }
+
+        function nextCarouselSlide() {
+          currentSlide = currentSlide >= maxSlide ? 0 : currentSlide + 1;
+          updateCarousel();
+        }
+
+        function prevCarouselSlide() {
+          currentSlide = currentSlide <= 0 ? maxSlide : currentSlide - 1;
+          updateCarousel();
+        }
+
+        // Auto-scroll every 4 seconds
+        let carouselInterval = setInterval(nextCarouselSlide, 4000);
+
+        // Manual navigation
+        if (nextBtn) {
+          nextBtn.addEventListener("click", function () {
+            clearInterval(carouselInterval);
+            nextCarouselSlide();
+            carouselInterval = setInterval(nextCarouselSlide, 4000);
+          });
+        }
+
+        if (prevBtn) {
+          prevBtn.addEventListener("click", function () {
+            clearInterval(carouselInterval);
+            prevCarouselSlide();
+            carouselInterval = setInterval(nextCarouselSlide, 4000);
+          });
+        }
+
+        // Dot navigation
+        dots.forEach(function (dot, index) {
+          dot.addEventListener("click", function () {
+            clearInterval(carouselInterval);
+            currentSlide = Math.min(index, maxSlide);
+            updateCarousel();
+            carouselInterval = setInterval(nextCarouselSlide, 4000);
+          });
+        });
+
+        // Pause on hover
+        const carouselContainer = document.querySelector(".carousel-container");
+        if (carouselContainer) {
+          carouselContainer.addEventListener("mouseenter", function () {
+            clearInterval(carouselInterval);
+          });
+
+          carouselContainer.addEventListener("mouseleave", function () {
+            carouselInterval = setInterval(nextCarouselSlide, 4000);
+          });
+        }
+
+        // Handle resize
+        window.addEventListener("resize", function () {
+          const newSlidesToShow = getSlidesToShow();
+          if (newSlidesToShow !== slidesToShow) {
+            slidesToShow = newSlidesToShow;
+            currentSlide = 0;
+            updateCarousel();
+          }
+        });
+
+        // Initialize
+        updateCarousel();
+      });
+    </script>
   </body>
 </html>
