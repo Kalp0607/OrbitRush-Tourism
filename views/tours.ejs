@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("partials/head") %>
+    <title>
+      Explore Tours - OrbitRush Tourism | Premium Travel Experiences
+    </title>
+    <style>
+      /* Modern Tour Listing Page - Built from Scratch */
+      .tours-page {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e293b 50%,
+          #334155 100%
+        );
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* Animated Background Pattern */
+      .tours-page::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 20% 80%,
+            rgba(120, 119, 198, 0.3) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(255, 119, 198, 0.15) 0%,
+            transparent 50%
+          );
+        animation: backgroundFloat 15s ease-in-out infinite alternate;
+        pointer-events: none;
+      }
+
+      @keyframes backgroundFloat {
+        0% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        100% {
+          transform: translateY(-20px) rotate(2deg);
+        }
+      }
+
+      /* Hero Section with Search */
+      .hero-section {
+        padding: 3rem 0 2rem;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-title {
+        font-size: 3.2rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 1rem;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        line-height: 1.1;
+      }
+
+      .hero-subtitle {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+      }
+
+      .search-bar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 60px;
+        padding: 1rem;
+        max-width: 500px;
+        margin: 0 auto 3rem;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        outline: none;
+        color: #333;
+      }
+
+      .search-input::placeholder {
+        color: #666;
+      }
+
+      .search-btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 1.5rem;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+      }
+
+      .search-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+      }
+
+      /* Tours Stats */
+      .tours-stats {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin-bottom: 3rem;
+        position: relative;
+        z-index: 2;
+      }
+
+      .stat-item {
+        text-align: center;
+        color: white;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #3b82f6;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Tours Grid Container */
+      .tours-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem 4rem;
+        position: relative;
+        z-index: 2;
+      }
+
+      .tours-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 2.5rem;
+        margin-top: 2rem;
+      }
+
+      /* Enhanced Tour Cards */
+      .tour-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1),
+          0 0 0 1px rgba(255, 255, 255, 0.2);
+        transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .tour-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.8s;
+      }
+
+      .tour-card:hover::before {
+        left: 100%;
+      }
+
+      .tour-card:hover {
+        transform: translateY(-15px) scale(1.02);
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.2),
+          0 0 0 1px rgba(255, 255, 255, 0.3);
+      }
+
+      .tour-image {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+      }
+
+      .tour-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s ease;
+      }
+
+      .tour-card:hover .tour-image img {
+        transform: scale(1.1) rotate(1deg);
+      }
+
+      .price-badge {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .tour-content {
+        padding: 2rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tour-location {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #3b82f6;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .tour-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+        min-height: 4rem;
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .tour-description {
+        color: #666;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex-grow: 1;
+        min-height: 5rem;
+      }
+
+      .tour-features {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .feature-tag {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid #e2e8f0;
+      }
+
+      .tour-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f1f5f9;
+        margin-top: auto;
+      }
+
+      .duration {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #64748b;
+        font-weight: 500;
+      }
+
+      .explore-btn {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      }
+
+      .explore-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        color: white;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: white;
+      }
+
+      .empty-icon {
+        font-size: 5rem;
+        opacity: 0.3;
+        margin-bottom: 2rem;
+        color: #3b82f6;
+      }
+
+      .empty-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+
+      .empty-description {
+        font-size: 1.1rem;
+        opacity: 0.8;
+        margin-bottom: 2rem;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* Admin Button */
+      .admin-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        padding: 1rem;
+        border-radius: 50%;
+        text-decoration: none;
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .admin-btn:hover {
+        transform: scale(1.1) rotate(10deg);
+        box-shadow: 0 15px 40px rgba(239, 68, 68, 0.6);
+        color: white;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.5rem;
+        }
+
+        .tours-stats {
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .tours-grid {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+
+        .search-bar {
+          max-width: 90%;
+        }
+
+        .tour-content {
+          padding: 1.5rem;
+        }
+
+        .tour-title {
+          min-height: auto;
+          font-size: 1.4rem;
+        }
+
+        .tour-description {
+          min-height: auto;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="tours-page">
+    <%- include("partials/nav") %>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <h1 class="hero-title">Discover Your Next Adventure</h1>
+      <p class="hero-subtitle">
+        Explore handpicked destinations and create unforgettable memories with
+        our premium travel experiences
+      </p>
+    </section>
+
+    <!-- Tours Grid -->
+    <section class="tours-container">
+      <% if (tours && tours.length > 0) { %>
+      <div class="tours-grid">
+        <% tours.forEach(tour => { %>
+        <article class="tour-card">
+          <div class="tour-image">
+            <img
+              src="<%= tour.coverImage || '/images/default-tour.jpg' %>"
+              alt="<%= tour.name %>"
+              loading="lazy"
+            />
+            <div class="price-badge">₹<%= tour.price.toLocaleString() %></div>
+          </div>
+
+          <div class="tour-content">
+            <div class="tour-location">
+              <i class="fas fa-map-marker-alt"></i>
+              <%= tour.location %>
+            </div>
+
+            <h2 class="tour-title"><%= tour.name %></h2>
+
+            <p class="tour-description"><%= tour.overview %></p>
+
+            <div class="tour-features">
+              <span class="feature-tag">Premium Experience</span>
+              <span class="feature-tag">Expert Guide</span>
+              <span class="feature-tag">All Inclusive</span>
+            </div>
+
+            <div class="tour-footer">
+              <div class="duration">
+                <i class="far fa-clock"></i>
+                <%= tour.duration %>
+              </div>
+
+              <a
+                href="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>"
+                class="explore-btn"
+              >
+                Explore Tour
+                <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </article>
+        <% }) %>
+      </div>
+      <% } else { %>
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-compass"></i>
+        </div>
+        <h2 class="empty-title">Amazing Adventures Coming Soon</h2>
+        <p class="empty-description">
+          We're crafting extraordinary travel experiences just for you. Check
+          back soon for incredible destinations and unforgettable journeys.
+        </p>
+        <% if (user && user.role === 'ADMIN') { %>
+        <a href="/tour/admin/create" class="explore-btn">
+          <i class="fas fa-plus"></i>
+          Create First Tour
+        </a>
+        <% } %>
+      </div>
+      <% } %>
+    </section>
+
+    <!-- Admin Button -->
+    <% if (user && user.role === 'ADMIN') { %>
+    <a href="/tour/admin/dashboard" class="admin-btn" title="Admin Dashboard">
+      <i class="fas fa-cog"></i>
+    </a>
+    <% } %> <%- include("partials/footer") %> <%- include("partials/scripts") %>
+  </body>
+</html>

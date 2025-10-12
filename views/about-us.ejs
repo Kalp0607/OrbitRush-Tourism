@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("partials/head") %>
+    <title>About Us - OrbitRush Tourism | Leading Travel Excellence</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        line-height: 1.6;
+        color: #1a1a1a;
+        background: #fff;
+      }
+
+      /* Executive Hero Section */
+      .executive-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        padding: 8rem 0;
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .executive-hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      .hero-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+      }
+
+      .hero-title {
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 2rem;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
+
+      .hero-subtitle {
+        font-size: 1.4rem;
+        font-weight: 300;
+        opacity: 0.9;
+        max-width: 800px;
+        margin: 0 auto 3rem;
+        line-height: 1.5;
+      }
+
+      .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3rem;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 2rem 0;
+        border-left: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .stat-item:first-child {
+        border-left: none;
+      }
+
+      .stat-number {
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 0.5rem;
+        color: #3b82f6;
+      }
+
+      .stat-label {
+        font-size: 0.95rem;
+        font-weight: 500;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Leadership Excellence Section */
+      .leadership-section {
+        padding: 8rem 0;
+        background: #fafafa;
+      }
+
+      .section-header {
+        text-align: center;
+        margin-bottom: 6rem;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .section-tag {
+        color: #3b82f6;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+      }
+
+      .section-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 2rem;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
+
+      .section-description {
+        font-size: 1.2rem;
+        color: #64748b;
+        line-height: 1.7;
+        font-weight: 400;
+      }
+
+      /* Executive Team Grid */
+      .executive-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .executive-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+        transition: all 0.4s ease;
+        position: relative;
+        border: 1px solid #f1f5f9;
+      }
+
+      .executive-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.12);
+      }
+
+      .executive-image {
+        height: 300px;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .executive-initials {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4rem;
+        font-weight: 900;
+        color: white;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .executive-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        padding: 2rem;
+        color: white;
+      }
+
+      .executive-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .executive-title {
+        font-size: 1rem;
+        opacity: 0.9;
+        font-weight: 500;
+      }
+
+      .executive-content {
+        padding: 3rem;
+      }
+
+      .executive-role {
+        background: #eff6ff;
+        color: #3b82f6;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+      }
+
+      .executive-bio {
+        color: #475569;
+        line-height: 1.7;
+        font-size: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .executive-specialties {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .specialty-tag {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        color: #64748b;
+        font-weight: 500;
+      }
+
+      /* Company DNA Section */
+      .dna-section {
+        padding: 8rem 0;
+        background: white;
+      }
+
+      .dna-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        align-items: center;
+      }
+
+      .dna-content h2 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 2rem;
+        line-height: 1.1;
+      }
+
+      .dna-content p {
+        font-size: 1.1rem;
+        color: #64748b;
+        line-height: 1.8;
+        margin-bottom: 2rem;
+      }
+
+      .dna-highlights {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .highlight-item {
+        padding: 1.5rem 0;
+      }
+
+      .highlight-number {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #3b82f6;
+        margin-bottom: 0.5rem;
+      }
+
+      .highlight-text {
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .dna-visual {
+        position: relative;
+      }
+
+      .dna-image {
+        width: 100%;
+        height: 500px;
+        object-fit: cover;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Excellence Metrics */
+      .metrics-section {
+        background: #0f172a;
+        color: white;
+        padding: 6rem 0;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 3rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .metric-item {
+        text-align: center;
+        padding: 2rem 0;
+      }
+
+      .metric-number {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: #3b82f6;
+        margin-bottom: 1rem;
+      }
+
+      .metric-label {
+        font-size: 1rem;
+        font-weight: 500;
+        opacity: 0.9;
+      }
+
+      /* Call to Excellence */
+      .cte-section {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        padding: 6rem 0;
+        text-align: center;
+        color: white;
+      }
+
+      .cte-content h2 {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+      }
+
+      .cte-content p {
+        font-size: 1.2rem;
+        margin-bottom: 3rem;
+        opacity: 0.9;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .btn-excellence {
+        background: white;
+        color: #3b82f6;
+        padding: 1.2rem 3rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+      }
+
+      .btn-excellence:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 40px rgba(255, 255, 255, 0.3);
+        color: #3b82f6;
+      }
+
+      /* Responsive Excellence */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.5rem;
+        }
+        .section-title {
+          font-size: 2.5rem;
+        }
+        .executive-grid,
+        .metrics-grid {
+          grid-template-columns: 1fr;
+        }
+        .dna-grid {
+          grid-template-columns: 1fr;
+          gap: 3rem;
+        }
+        .hero-stats {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <%- include("partials/nav") %>
+
+    <!-- Executive Hero Section -->
+    <section class="executive-hero">
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-badge">Industry Leaders Since 2024</div>
+          <h1 class="hero-title">Redefining Travel Excellence</h1>
+          <p class="hero-subtitle">
+            We are OrbitRush Tourism — where visionary leadership meets
+            unparalleled service excellence, creating transformative travel
+            experiences for discerning global travelers.
+          </p>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-number">50K+</div>
+              <div class="stat-label">Elite Travelers</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">200+</div>
+              <div class="stat-label">Global Destinations</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">99.8%</div>
+              <div class="stat-label">Client Satisfaction</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Leadership Excellence Section -->
+    <section class="leadership-section">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag">Executive Leadership</div>
+          <h2 class="section-title">Visionaries Driving Excellence</h2>
+          <p class="section-description">
+            Meet the exceptional leaders who founded OrbitRush Tourism with a
+            shared vision: to revolutionize the travel industry through
+            innovation, integrity, and uncompromising excellence.
+          </p>
+        </div>
+
+        <div class="executive-grid">
+          <!-- Shah Kalp -->
+          <div class="executive-card">
+            <div class="executive-image">
+              <div class="executive-initials">SK</div>
+              <div class="executive-overlay">
+                <div class="executive-name">Shah Kalp</div>
+                <div class="executive-title">
+                  Co-Founder & Chief Executive Officer
+                </div>
+              </div>
+            </div>
+            <div class="executive-content">
+              <div class="executive-role">Strategic Leadership</div>
+              <p class="executive-bio">
+                A visionary entrepreneur with a proven track record in scaling
+                premium service businesses. Kalp's strategic acumen and
+                customer-centric philosophy have positioned OrbitRush as the
+                industry's gold standard for luxury travel experiences.
+              </p>
+              <div class="executive-specialties">
+                <span class="specialty-tag">Business Strategy</span>
+                <span class="specialty-tag">Customer Excellence</span>
+                <span class="specialty-tag">Market Leadership</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Patel Rudra -->
+          <div class="executive-card">
+            <div class="executive-image">
+              <div class="executive-initials">PR</div>
+              <div class="executive-overlay">
+                <div class="executive-name">Patel Rudra</div>
+                <div class="executive-title">
+                  Co-Founder & Chief Technology Officer
+                </div>
+              </div>
+            </div>
+            <div class="executive-content">
+              <div class="executive-role">Technology Innovation</div>
+              <p class="executive-bio">
+                Technology visionary and digital transformation expert who
+                architects cutting-edge solutions. Rudra's innovative platforms
+                have revolutionized how modern travelers discover, plan, and
+                experience their journeys with seamless precision.
+              </p>
+              <div class="executive-specialties">
+                <span class="specialty-tag">Digital Innovation</span>
+                <span class="specialty-tag">Tech Architecture</span>
+                <span class="specialty-tag">User Experience</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Jha Prasoon -->
+          <div class="executive-card">
+            <div class="executive-image">
+              <div class="executive-initials">JP</div>
+              <div class="executive-overlay">
+                <div class="executive-name">Jha Prasoon</div>
+                <div class="executive-title">
+                  Co-Founder & Chief Operating Officer
+                </div>
+              </div>
+            </div>
+            <div class="executive-content">
+              <div class="executive-role">Operational Excellence</div>
+              <p class="executive-bio">
+                Operations mastermind with exceptional expertise in global
+                partnerships and service delivery. Prasoon's meticulous
+                attention to detail ensures every OrbitRush experience exceeds
+                expectations and sets new benchmarks for excellence.
+              </p>
+              <div class="executive-specialties">
+                <span class="specialty-tag">Global Operations</span>
+                <span class="specialty-tag">Strategic Partnerships</span>
+                <span class="specialty-tag">Service Excellence</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Company DNA Section -->
+    <section class="dna-section">
+      <div class="container">
+        <div class="dna-grid">
+          <div class="dna-content">
+            <h2>Our DNA is Excellence</h2>
+            <p>
+              Founded on the principles of uncompromising quality and innovative
+              thinking, OrbitRush Tourism has redefined what it means to be a
+              premium travel partner. We don't just plan trips — we craft
+              transformative experiences that create lasting memories and exceed
+              every expectation.
+            </p>
+            <p>
+              Our commitment to excellence permeates every aspect of our
+              operations, from our cutting-edge technology platforms to our
+              carefully curated global partnerships, ensuring our clients
+              receive nothing less than extraordinary.
+            </p>
+
+            <div class="dna-highlights">
+              <div class="highlight-item">
+                <div class="highlight-number">24/7</div>
+                <div class="highlight-text">Premium Support</div>
+              </div>
+              <div class="highlight-item">
+                <div class="highlight-number">100%</div>
+                <div class="highlight-text">Satisfaction Guarantee</div>
+              </div>
+            </div>
+          </div>
+          <div class="dna-visual">
+            <img
+              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80"
+              alt="Excellence in Action"
+              class="dna-image"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Excellence Metrics -->
+    <section class="metrics-section">
+      <div class="container">
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <div class="metric-number">5★</div>
+            <div class="metric-label">Average Rating</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-number">150+</div>
+            <div class="metric-label">Global Partners</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-number">98%</div>
+            <div class="metric-label">Repeat Clients</div>
+          </div>
+          <div class="metric-item">
+            <div class="metric-number">24h</div>
+            <div class="metric-label">Response Time</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Call to Excellence -->
+    <section class="cte-section">
+      <div class="container">
+        <div class="cte-content">
+          <h2>Experience the OrbitRush Difference</h2>
+          <p>
+            Join thousands of discerning travelers who have discovered why
+            OrbitRush Tourism is the definitive choice for extraordinary travel
+            experiences.
+          </p>
+          <a href="/tour" class="btn-excellence">
+            Explore Premium Destinations
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+    <%- include("partials/footer") %> <%- include("partials/scripts") %>
+  </body>
+</html>

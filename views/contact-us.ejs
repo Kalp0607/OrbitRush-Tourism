@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("partials/head") %>
+    <title>Contact Us - OrbitRush Tourism</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        line-height: 1.6;
+        color: #1a1a1a;
+        background: #fff;
+      }
+
+      /* Contact Methods Section */
+      .contact-methods {
+        padding: 8rem 0;
+        background: #fafafa;
+      }
+
+      .methods-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4rem;
+      }
+
+      .method-card {
+        background: white;
+        border-radius: 24px;
+        padding: 4rem 3rem;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+        transition: all 0.4s ease;
+        position: relative;
+        border: 1px solid #f1f5f9;
+      }
+
+      .method-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.12);
+      }
+
+      .method-icon {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
+      }
+
+      .method-icon svg {
+        width: 60px;
+        height: 60px;
+        fill: #64748b;
+        transition: all 0.3s ease;
+      }
+
+      .method-card:hover .method-icon {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        transform: scale(1.1);
+      }
+
+      .method-card:hover .method-icon svg {
+        fill: white;
+      }
+
+      .method-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 1rem;
+      }
+
+      .method-info {
+        font-size: 1.1rem;
+        color: #3b82f6;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        word-break: break-all;
+      }
+
+      .method-description {
+        color: #64748b;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+      }
+
+      .method-action {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .method-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        color: white;
+      }
+
+      /* Business Hours Section */
+      .hours-section {
+        background: #0f172a;
+        color: white;
+        padding: 6rem 0;
+        text-align: center;
+      }
+
+      .hours-content {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .hours-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+      }
+
+      .hours-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 3rem;
+        margin-top: 3rem;
+      }
+
+      .hours-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 2rem;
+      }
+
+      .hours-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #3b82f6;
+      }
+
+      .hours-time {
+        font-size: 1rem;
+        opacity: 0.9;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .methods-container {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
+        .hours-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <%- include("partials/nav") %>
+
+    <!-- Contact Methods Section -->
+    <section class="contact-methods">
+      <div class="container">
+        <div class="methods-container">
+          <!-- Phone Contact -->
+          <div class="method-card">
+            <div class="method-icon">
+              <!-- Phone SVG Icon -->
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
+                />
+              </svg>
+            </div>
+            <h3 class="method-title">Call Us</h3>
+            <p class="method-info">+91 7862801349</p>
+            <p class="method-description">
+              Speak directly with our travel specialists for immediate
+              assistance and personalized recommendations.
+            </p>
+            <a href="tel:+917862801349" class="method-action">
+              <i class="fas fa-phone"></i>
+              Call Now
+            </a>
+          </div>
+
+          <!-- Email Contact -->
+          <div class="method-card">
+            <div class="method-icon">
+              <!-- Email SVG Icon -->
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
+                />
+              </svg>
+            </div>
+            <h3 class="method-title">Email Us</h3>
+            <p class="method-info">orbitrushtourism@gmail.com</p>
+            <p class="method-description">
+              Send us detailed inquiries and receive comprehensive responses
+              from our expert travel consultants.
+            </p>
+            <a href="mailto:orbitrushtourism@gmail.com" class="method-action">
+              <i class="fas fa-envelope"></i>
+              Send Email
+            </a>
+          </div>
+
+          <!-- Office Visit -->
+          <div class="method-card">
+            <div class="method-icon">
+              <!-- Location SVG Icon -->
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                />
+              </svg>
+            </div>
+            <h3 class="method-title">Visit Us</h3>
+            <p class="method-info">Faculty of Technology</p>
+            <p class="method-description">
+              Visit our premium office for in-person consultations and
+              comprehensive travel planning sessions.
+            </p>
+            <a
+              href="https://maps.app.goo.gl/CQdDe2q5MaAtYxLu6"
+              target="_blank"
+              class="method-action"
+            >
+              <i class="fas fa-directions"></i>
+              Get Directions
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Business Hours -->
+    <section class="hours-section">
+      <div class="container">
+        <div class="hours-content">
+          <h2 class="hours-title">Business Hours</h2>
+          <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 3rem">
+            Our expert team is available to assist you during the following
+            hours
+          </p>
+
+          <div class="hours-grid">
+            <div class="hours-item">
+              <div class="hours-label">Monday - Friday</div>
+              <div class="hours-time">9:00 AM - 8:00 PM</div>
+            </div>
+            <div class="hours-item">
+              <div class="hours-label">Saturday - Sunday</div>
+              <div class="hours-time">10:00 AM - 6:00 PM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <%- include("partials/footer") %> <%- include("partials/scripts") %>
+  </body>
+</html>

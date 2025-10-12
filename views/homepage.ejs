@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("partials/head") %>
+    <title>OrbitRush Tourism - Discover Amazing Destinations</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+
+      /* Hero Section */
+      .hero {
+        background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+          url("https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80");
+        background-size: cover;
+        background-position: center;
+        height: 90vh;
+        display: flex;
+        align-items: center;
+        color: white;
+        text-align: center;
+      }
+
+      .hero-content h1 {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      .hero-content p {
+        font-size: 1.2rem;
+        margin-bottom: 2.5rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        opacity: 0.95;
+      }
+
+      .hero-buttons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn-hero {
+        padding: 1rem 2.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-primary-hero {
+        background: #007bff;
+        color: white;
+        border: 2px solid #007bff;
+      }
+
+      .btn-primary-hero:hover {
+        background: #0056b3;
+        border-color: #0056b3;
+        transform: translateY(-2px);
+        color: white;
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+      }
+
+      .btn-outline-hero {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+      }
+
+      .btn-outline-hero:hover {
+        background: white;
+        color: #333;
+      }
+
+      /* Why Choose Us Section */
+      .why-choose-section {
+        background: #f8f9fa;
+        padding: 5rem 0;
+        text-align: center;
+      }
+
+      .section-header {
+        margin-bottom: 4rem;
+      }
+
+      .section-brand {
+        color: #999;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        margin-bottom: 0.5rem;
+        font-weight: 400;
+      }
+
+      .section-header h2 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #333;
+        margin: 0;
+      }
+
+      .features-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .feature-item {
+        flex: 1;
+        padding: 2rem 1rem;
+      }
+
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+      }
+
+      .feature-icon img {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        filter: grayscale(0%) opacity(0.8);
+        transition: all 0.3s ease;
+      }
+
+      .feature-item:hover .feature-icon img {
+        filter: grayscale(0%) opacity(1);
+        transform: scale(1.1);
+      }
+
+      .feature-item h3 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+      }
+
+      .feature-item p {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      .feature-item p strong {
+        color: #333;
+        font-weight: 600;
+      }
+
+      /* Featured Tours - Perfect Card Alignment */
+      .featured-section {
+        padding: 5rem 0;
+        background: white;
+      }
+
+      .section-title {
+        text-align: center;
+        margin-bottom: 4rem;
+      }
+
+      .section-title h2 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1rem;
+      }
+
+      .section-subtitle {
+        font-size: 1.2rem;
+        color: #666;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      /* Card Grid Container */
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+      }
+
+      .col-lg-4 {
+        flex: 1;
+        min-width: 300px;
+        display: flex;
+      }
+
+      /* Card Structure */
+      .tour-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tour-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .tour-image {
+        height: 250px;
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+        flex-shrink: 0; /* Prevents image from shrinking */
+      }
+
+      .tour-card:hover .tour-image {
+        transform: scale(1.05);
+      }
+
+      .tour-card-body {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        justify-content: space-between;
+      }
+
+      /* Content Section */
+      .tour-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+
+      .tour-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+        min-height: 3.5rem; /* Fixed height for title area */
+        display: flex;
+        align-items: flex-start;
+        line-height: 1.3;
+      }
+
+      .tour-location {
+        color: #666;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        height: 1.5rem; /* Fixed height for location */
+      }
+
+      .tour-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #007bff;
+        margin-bottom: 1.5rem;
+        height: 2rem; /* Fixed height for price */
+        display: flex;
+        align-items: center;
+      }
+
+      /* Button always at bottom */
+      .btn-tour {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.8rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: auto;
+        align-self: flex-start;
+      }
+
+      .btn-tour:hover {
+        background: #0056b3;
+        color: white;
+        transform: translateY(-1px);
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 1.5rem;
+      }
+
+      .empty-state h3 {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 1rem;
+      }
+
+      .empty-state p {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 1.5rem;
+      }
+
+      .empty-state h3 {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 1rem;
+      }
+
+      .empty-state p {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero-content h1 {
+          font-size: 2.5rem;
+        }
+
+        .hero-buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .btn-hero {
+          width: 250px;
+        }
+
+        .section-title h2 {
+          font-size: 2.2rem;
+        }
+
+        .features-row {
+          flex-direction: column;
+          gap: 3rem;
+        }
+
+        .section-header h2 {
+          font-size: 2rem;
+        }
+
+        .feature-icon img {
+          width: 50px;
+          height: 50px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <%- include("partials/nav") %>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <h1>Discover Amazing Destinations</h1>
+          <p>
+            Explore breathtaking locations around the world with our carefully
+            curated tour packages. Create unforgettable memories and embark on
+            the adventure of a lifetime.
+          </p>
+
+          <div class="hero-buttons">
+            <a href="/tour" class="btn-hero btn-primary-hero">
+              <i class="fas fa-compass"></i>
+              Explore Tours
+            </a>
+            <% if (user && user.role === 'ADMIN') { %>
+            <a href="/tour/admin/dashboard" class="btn-hero btn-outline-hero">
+              <i class="fas fa-cog"></i>
+              Admin Dashboard
+            </a>
+            <% } else if (user) { %>
+            <span class="btn-hero btn-outline-hero" style="cursor: default">
+              <i class="fas fa-user"></i>
+              Welcome, <%= user.fullName %>
+            </span>
+            <% } else { %>
+            <a href="/user/signin" class="btn-hero btn-outline-hero">
+              <i class="fas fa-sign-in-alt"></i>
+              Sign In
+            </a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Tours -->
+    <section class="featured-section">
+      <div class="container">
+        <div class="section-title">
+          <h2>Featured Tours</h2>
+          <p class="section-subtitle">
+            Discover our most popular destinations and create memories that will
+            last a lifetime
+          </p>
+        </div>
+
+        <% if (tours.length === 0) { %>
+        <div class="empty-state">
+          <i class="fas fa-map-signs"></i>
+          <h3>No Tours Available Yet</h3>
+          <p>
+            Amazing destinations coming soon. Stay tuned for incredible
+            adventures!
+          </p>
+          <% if (user && user.role === 'ADMIN') { %>
+          <a href="/tour/admin/create" class="btn-hero btn-primary-hero">
+            <i class="fas fa-plus"></i>
+            Create First Tour
+          </a>
+          <% } %>
+        </div>
+        <% } else { %>
+        <div class="row">
+          <% tours.slice(0, 3).forEach(tour => { %>
+          <div class="col-lg-4">
+            <div class="tour-card">
+              <img
+                src="<%= tour.coverImage || '/images/default-tour.jpg' %>"
+                alt="<%= tour.name %>"
+                class="tour-image"
+              />
+              <div class="tour-card-body">
+                <div class="tour-content">
+                  <h3 class="tour-title"><%= tour.name %></h3>
+                  <div class="tour-location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <%= tour.location %>
+                  </div>
+                  <div class="tour-price">
+                    ₹<%= tour.price.toLocaleString() %>
+                  </div>
+                </div>
+                <a
+                  href="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>"
+                  class="btn-tour"
+                >
+                  View Details
+                  <i class="fas fa-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+
+        <% if (tours.length > 3) { %>
+        <div class="text-center mt-5">
+          <a href="/tour" class="btn-hero btn-primary-hero">
+            <i class="fas fa-eye"></i>
+            View All Tours (<%= tours.length %>)
+          </a>
+        </div>
+        <% } %> <% } %>
+      </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section class="why-choose-section">
+      <div class="container">
+        <div class="section-header">
+          <p class="section-brand">ORBITRUSH TOURISM</p>
+          <h2>Why must choose us</h2>
+        </div>
+
+        <div class="features-row">
+          <div class="feature-item">
+            <div class="feature-icon">
+              <img
+                src="https://thrillblazers.in/assets/images/guide.svg"
+                alt="Best Guide"
+              />
+            </div>
+            <h3>Best Guide,<br />Best Experience.</h3>
+            <p>
+              Your trip will be very <strong>memorable</strong> with the best
+              guide.
+            </p>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <img
+                src="https://thrillblazers.in/assets/images/ticket.svg"
+                alt="Special Tickets"
+              />
+            </div>
+            <h3>Always have<br />Special Tickets.</h3>
+            <p>
+              We always offer <strong>special tickets</strong> and we give them
+              to all customers.
+            </p>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <img
+                src="https://thrillblazers.in/assets/images/24.svg"
+                alt="24/7 Support"
+              />
+            </div>
+            <h3>Always Ready,<br />Support 24/7.</h3>
+            <p>
+              we always make time to <strong>ask questions</strong> anytime and
+              anywhere.
+            </p>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <img
+                src="https://thrillblazers.in/assets/images/wonderful.svg"
+                alt="Wonderful Places"
+              />
+            </div>
+            <h3>Wonderfull<br />Places</h3>
+            <p>
+              A tourist attraction is a <strong>place</strong> of interest that
+              tourists visit.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <%- include("partials/footer") %> <%- include("partials/scripts") %>
+  </body>
+</html>

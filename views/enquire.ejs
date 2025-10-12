@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Make an Enquiry | OrbitRush Tourism</title>
+    <%- include("partials/head") %>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      .enquiry-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin: 2rem auto;
+        max-width: 800px;
+      }
+
+      .enquiry-header {
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        color: white;
+        padding: 3rem 2rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .enquiry-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .enquiry-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+
+      .enquiry-header::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 30px solid transparent;
+        border-right: 30px solid transparent;
+        border-top: 20px solid #f7931e;
+      }
+
+      .enquiry-form {
+        padding: 3rem 2rem;
+      }
+
+      .form-section {
+        margin-bottom: 2.5rem;
+      }
+
+      .section-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .section-title i {
+        color: #667eea;
+        font-size: 1.2rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .form-control:disabled {
+        background: #e9ecef;
+        cursor: not-allowed;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+
+      .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.2rem 3rem;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+      }
+
+      .user-info {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+      }
+
+      .user-info h4 {
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
+      }
+
+      .user-info p {
+        margin: 0;
+        opacity: 0.9;
+      }
+
+      .alert {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+      }
+
+      .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      @media (max-width: 768px) {
+        .enquiry-container {
+          margin: 1rem;
+          border-radius: 15px;
+        }
+
+        .enquiry-header {
+          padding: 2rem 1.5rem;
+        }
+
+        .enquiry-header h1 {
+          font-size: 2rem;
+        }
+
+        .enquiry-form {
+          padding: 2rem 1.5rem;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <%- include("partials/nav") %>
+
+    <div class="container">
+      <div class="enquiry-container">
+        <!-- Header -->
+        <div class="enquiry-header">
+          <h1><i class="fas fa-paper-plane"></i> Make an Enquiry</h1>
+          <p>Tell us about your dream adventure and we'll make it happen!</p>
+        </div>
+
+        <!-- Form -->
+        <div class="enquiry-form">
+          <!-- User Info Display -->
+          <div class="user-info">
+            <h4><i class="fas fa-user"></i> Enquiring as:</h4>
+            <p><%= user.fullName %> (<%= user.email %>)</p>
+          </div>
+
+          <!-- Success/Error Messages -->
+          <% if (locals.success) { %>
+          <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> <%= success %>
+          </div>
+          <% } %> <% if (locals.error) { %>
+          <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> <%= error %>
+          </div>
+          <% } %>
+
+          <!-- Enquiry Form -->
+          <form action="/tour/enquire" method="POST">
+            <!-- Contact Details -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <i class="fas fa-address-book"></i>
+                Contact Details
+              </h3>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fullName" class="form-label">Full Name</label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    class="form-control"
+                    value="<%= user.fullName %>"
+                    disabled
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="email" class="form-label">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control"
+                    value="<%= user.email %>"
+                    disabled
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  class="form-control"
+                  placeholder="Enter your phone number"
+                  required
+                />
+              </div>
+            </div>
+
+            <!-- Tour Details -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <i class="fas fa-map-marked-alt"></i>
+                Tour Details
+              </h3>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="tourName" class="form-label">Select Tour</label>
+                  <select
+                    id="tourName"
+                    name="tourName"
+                    class="form-control"
+                    required
+                  >
+                    <option value="">Choose your adventure...</option>
+                    <% tours.forEach(tour => { %>
+                    <option value="<%= tour.name %>"><%= tour.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="numberOfPeople" class="form-label"
+                    >Number of People</label
+                  >
+                  <input
+                    type="number"
+                    id="numberOfPeople"
+                    name="numberOfPeople"
+                    class="form-control"
+                    min="1"
+                    value="1"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="preferredDate" class="form-label">
+                  Preferred Travel Date <small>(Optional)</small>
+                </label>
+                <input
+                  type="date"
+                  id="preferredDate"
+                  name="preferredDate"
+                  class="form-control"
+                  min="<%= new Date().toISOString().split('T')[0] %>"
+                />
+              </div>
+            </div>
+
+            <!-- Message -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <i class="fas fa-comment-dots"></i>
+                Your Message
+              </h3>
+
+              <div class="form-group">
+                <label for="message" class="form-label"
+                  >Tell us about your requirements</label
+                >
+                <textarea
+                  id="message"
+                  name="message"
+                  class="form-control"
+                  rows="5"
+                  placeholder="Tell us about your preferences, special requirements, questions, or anything else we should know..."
+                  required
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+              <button type="submit" class="btn-submit">
+                <i class="fas fa-paper-plane"></i>
+                Send Enquiry
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <%- include("partials/scripts") %>
+  </body>
+</html>
