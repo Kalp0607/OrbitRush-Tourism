@@ -426,6 +426,117 @@
         background: #e74c3c;
       }
 
+      /* UPDATED COMMENT & RATING STYLES */
+      .comment-form {
+        background: white;
+        border-radius: 15px;
+        padding: 2.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        border: 1px solid #e5e7eb;
+      }
+
+      .rating-section {
+        margin-bottom: 2rem;
+      }
+
+      .rating-label {
+        display: block;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+      }
+
+      .star-rating-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        transition: border-color 0.3s ease;
+      }
+
+      .star-rating-wrapper:hover {
+        border-color: #667eea;
+      }
+
+      .star-rating {
+        display: flex;
+        gap: 0.25rem;
+      }
+
+      .star {
+        font-size: 2.2rem;
+        color: #d1d5db;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+        line-height: 1;
+      }
+
+      .star:hover {
+        transform: scale(1.1);
+        color: #fbbf24;
+      }
+
+      .star.active {
+        color: #fbbf24;
+      }
+
+      .star.selected {
+        color: #f59e0b;
+      }
+
+      .rating-feedback {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-left: 1rem;
+      }
+
+      .rating-emoji {
+        font-size: 2rem;
+        transition: all 0.3s ease;
+      }
+
+      .rating-text {
+        font-size: 0.95rem;
+        color: #6b7280;
+        font-weight: 600;
+      }
+
+      .submit-review-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+
+      .submit-review-btn:enabled:hover {
+        background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      }
+
+      .submit-review-btn:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
       /* Reviews */
       .review-item {
         background: white;
@@ -433,39 +544,49 @@
         border-radius: 15px;
         margin-bottom: 1.5rem;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f1f5f9;
       }
 
       .review-header {
         display: flex;
         align-items: center;
+        gap: 1rem;
         margin-bottom: 1rem;
       }
 
       .reviewer-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
+        width: 45px;
+        height: 45px;
         background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
         font-weight: 600;
-        margin-right: 1rem;
+        font-size: 1.2rem;
+        flex-shrink: 0;
       }
 
-      .rating-stars {
-        color: #ffd700;
+      .review-stars {
+        display: flex;
+        gap: 0.2rem;
         margin-left: auto;
+        align-items: center;
       }
 
-      /* Form */
-      .comment-form {
-        background: white;
-        padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        margin-bottom: 2rem;
+      .review-stars .star {
+        font-size: 1.1rem;
+        color: #d1d5db;
+      }
+
+      .review-stars .star.filled {
+        color: #fbbf24;
+      }
+
+      .review-rating-emoji {
+        margin-left: 0.75rem;
+        font-size: 1.4rem;
       }
 
       .form-group {
@@ -474,16 +595,20 @@
 
       .form-control {
         width: 100%;
-        padding: 1rem;
-        border: 2px solid #e9ecef;
+        padding: 1.2rem;
+        border: 2px solid #e5e7eb;
         border-radius: 10px;
         font-size: 1rem;
         transition: border-color 0.3s ease;
+        font-family: inherit;
+        resize: vertical;
+        line-height: 1.5;
       }
 
       .form-control:focus {
         outline: none;
         border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
       }
 
       /* Gallery Slider Styles */
@@ -1013,33 +1138,81 @@
 
               <% if (user) { %>
               <div class="comment-form">
-                <h4 style="margin-bottom: 1.5rem; color: #2c3e50">
-                  Share Your Experience
+                <h4
+                  style="
+                    margin-bottom: 1.5rem;
+                    color: #2c3e50;
+                    font-weight: 600;
+                  "
+                >
+                  <i
+                    class="fas fa-star"
+                    style="color: #ffd700; margin-right: 0.5rem"
+                  ></i>
+                  Rate & Review This Tour
                 </h4>
+
                 <form
                   method="POST"
                   action="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>/comment"
                 >
-                  <div class="form-group">
+                  <!-- PROPER Star Rating Section -->
+                  <div class="rating-section">
+                    <label class="rating-label">Your Rating *</label>
+                    <div class="star-rating-wrapper">
+                      <div class="star-rating" id="starRating">
+                        <span class="star" data-rating="1">★</span>
+                        <span class="star" data-rating="2">★</span>
+                        <span class="star" data-rating="3">★</span>
+                        <span class="star" data-rating="4">★</span>
+                        <span class="star" data-rating="5">★</span>
+                      </div>
+                      <div class="rating-feedback">
+                        <span class="rating-emoji">😊</span>
+                        <span class="rating-text">Click to rate</span>
+                      </div>
+                      <input
+                        type="hidden"
+                        name="rating"
+                        id="ratingValue"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Review Text -->
+                  <div class="form-group" style="margin-top: 2rem">
+                    <label for="content" class="rating-label"
+                      >Your Review *</label
+                    >
                     <textarea
-                      class="form-control"
+                      id="content"
                       name="content"
                       rows="4"
-                      placeholder="Tell us about your experience..."
-                      style="resize: vertical"
+                      placeholder="Share your experience about this tour..."
+                      style="
+                        width: 100%;
+                        padding: 1rem;
+                        border: 2px solid #e5e7eb;
+                        border-radius: 8px;
+                        font-size: 1rem;
+                        line-height: 1.5;
+                        resize: vertical;
+                        font-family: inherit;
+                        transition: border-color 0.3s ease;
+                      "
+                      required
                     ></textarea>
                   </div>
+
                   <button
                     type="submit"
-                    class="btn btn-primary"
-                    style="
-                      background: linear-gradient(135deg, #667eea, #764ba2);
-                      border: none;
-                      padding: 0.8rem 2rem;
-                      border-radius: 25px;
-                    "
+                    class="submit-review-btn"
+                    disabled
+                    id="submitBtn"
                   >
-                    <i class="fas fa-paper-plane"></i> Post Review
+                    <i class="fas fa-paper-plane"></i>
+                    Post Your Review
                   </button>
                 </form>
               </div>
@@ -1051,23 +1224,31 @@
                     <%= comment.createdBy.fullName.charAt(0).toUpperCase() %>
                   </div>
                   <div>
-                    <h5 style="margin: 0; color: #2c3e50">
+                    <h5 style="margin: 0; color: #2c3e50; font-weight: 600">
                       <%= comment.createdBy.fullName %>
                     </h5>
-                    <small class="text-muted">
+                    <small class="text-muted" style="color: #6b7280">
                       <i class="far fa-calendar"></i>
                       <%= new
                       Date(comment.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric', month: 'long', day: 'numeric' }) %>
                     </small>
                   </div>
-                  <div class="rating-stars">
+                  <div class="review-stars">
                     <% for(let i = 1; i <= 5; i++) { %>
-                    <i class="fas fa-star"></i>
+                    <span
+                      class="star <%= comment.rating >= i ? 'filled' : '' %>"
+                      >★</span
+                    >
                     <% } %>
+                    <span class="review-rating-emoji">
+                      <%= comment.rating === 5 ? '🤩' : comment.rating === 4 ?
+                      '😊' : comment.rating === 3 ? '🙂' : comment.rating === 2
+                      ? '😐' : '😞' %>
+                    </span>
                   </div>
                 </div>
-                <p style="line-height: 1.7; color: #495057">
+                <p style="line-height: 1.7; color: #374151; margin: 0">
                   <%= comment.content %>
                 </p>
               </div>
@@ -1229,6 +1410,79 @@
     <%- include("partials/scripts") %>
 
     <script>
+      // Star rating with hover emoji changes
+      // FIXED Star rating - Left to Right order (1,2,3,4,5)
+      // Standard 5-Star Rating System
+      document.addEventListener("DOMContentLoaded", function () {
+        const stars = document.querySelectorAll(".star");
+        const ratingValue = document.getElementById("ratingValue");
+        const ratingEmoji = document.querySelector(".rating-emoji");
+        const ratingText = document.querySelector(".rating-text");
+        const submitBtn = document.getElementById("submitBtn");
+
+        const ratingData = {
+          1: { emoji: "😞", text: "Terrible" },
+          2: { emoji: "😐", text: "Poor" },
+          3: { emoji: "🙂", text: "Average" },
+          4: { emoji: "😊", text: "Good" },
+          5: { emoji: "🤩", text: "Excellent" },
+        };
+
+        let currentRating = 0;
+
+        function updateStars(rating, isHover = false) {
+          stars.forEach((star, index) => {
+            const starRating = parseInt(star.dataset.rating);
+            star.classList.remove("active", "selected");
+
+            if (starRating <= rating) {
+              star.classList.add(isHover ? "active" : "selected");
+            }
+          });
+        }
+
+        function updateFeedback(rating) {
+          if (rating > 0 && ratingData[rating]) {
+            ratingEmoji.textContent = ratingData[rating].emoji;
+            ratingText.textContent = ratingData[rating].text;
+            ratingEmoji.style.transform = "scale(1.2)";
+            setTimeout(() => {
+              ratingEmoji.style.transform = "scale(1)";
+            }, 200);
+          }
+        }
+
+        // Star click events
+        stars.forEach((star) => {
+          star.addEventListener("click", function () {
+            currentRating = parseInt(this.dataset.rating);
+            ratingValue.value = currentRating;
+            updateStars(currentRating);
+            updateFeedback(currentRating);
+            submitBtn.disabled = false;
+          });
+
+          star.addEventListener("mouseenter", function () {
+            const hoverRating = parseInt(this.dataset.rating);
+            updateStars(hoverRating, true);
+            updateFeedback(hoverRating);
+          });
+        });
+
+        // Reset on mouse leave
+        document
+          .querySelector(".star-rating")
+          .addEventListener("mouseleave", function () {
+            updateStars(currentRating);
+            if (currentRating > 0) {
+              updateFeedback(currentRating);
+            } else {
+              ratingEmoji.textContent = "😊";
+              ratingText.textContent = "Click to rate";
+            }
+          });
+      });
+
       function bookTour() {
         window.location.href = "/tour/enquire";
       }

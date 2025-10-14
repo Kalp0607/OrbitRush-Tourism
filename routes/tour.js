@@ -488,6 +488,7 @@ router.post("/:tourName/comment", async (req, res) => {
 
     await Comment.create({
       content: req.body.content,
+      rating: parseInt(req.body.rating),
       tourId: tour._id,
       createdBy: req.user._id,
     });
@@ -495,9 +496,10 @@ router.post("/:tourName/comment", async (req, res) => {
     const tourUrlName = tour.name.replace(/\s+/g, "-").toLowerCase();
     res.redirect(`/tour/${tourUrlName}`);
   } catch (error) {
-    res
-      .status(500)
-      .render("error", { message: "Error adding comment", user: req.user });
+    res.status(500).render("error", {
+      message: "Error adding comment",
+      user: req.user,
+    });
   }
 });
 
