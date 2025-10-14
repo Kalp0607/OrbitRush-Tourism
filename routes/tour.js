@@ -8,6 +8,13 @@ const Comment = require("../models/comments");
 const { requireAdmin } = require("../middlewares/authentication");
 const User = require("../models/user");
 const nodemailer = require("nodemailer");
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 //All tours function
 async function getTours() {
@@ -19,36 +26,59 @@ async function getTours() {
 }
 
 // Simple storage configuration - upload to general folder first
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadPath = path.resolve(`./public/uploads/tours/`);
+//All this is used for our storage of images but now we are using cloudinary so not needed
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     const uploadPath = path.resolve(`./public/uploads/tours/`);
 
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
-    }
+//     // Create directory if it doesn't exist
+//     if (!fs.existsSync(uploadPath)) {
+//       fs.mkdirSync(uploadPath, { recursive: true });
+//     }
 
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    const timestamp = Date.now();
-    const fileExt = path.extname(file.originalname);
-    const random = Math.random().toString(36).substr(2, 5);
+//     cb(null, uploadPath);
+//   },
+//   filename: function (req, file, cb) {
+//     const timestamp = Date.now();
+//     const fileExt = path.extname(file.originalname);
+//     const random = Math.random().toString(36).substr(2, 5);
 
-    let fileName;
-    if (file.fieldname === "coverImage") {
-      fileName = `cover-${timestamp}-${random}${fileExt}`;
-    } else if (file.fieldname === "moreImages") {
-      fileName = `gallery-${timestamp}-${random}${fileExt}`;
-    } else {
-      fileName = `${file.fieldname}-${timestamp}${fileExt}`;
-    }
+//     let fileName;
+//     if (file.fieldname === "coverImage") {
+//       fileName = `cover-${timestamp}-${random}${fileExt}`;
+//     } else if (file.fieldname === "moreImages") {
+//       fileName = `gallery-${timestamp}-${random}${fileExt}`;
+//     } else {
+//       fileName = `${file.fieldname}-${timestamp}${fileExt}`;
+//     }
 
-    cb(null, fileName);
-  },
-});
+//     cb(null, fileName);
+//   },
+// });
 
-// File filter for images only
+// // File filter for images only
+// const fileFilter = (req, file, cb) => {
+//   if (file.mimetype.startsWith("image/")) {
+//     cb(null, true);
+//   } else {
+//     cb(new Error("Only image files are allowed!"), false);
+//   }
+// };
+
+// const upload = multer({
+//   storage: storage,
+//   fileFilter: fileFilter,
+//   limits: {
+//     fileSize: 20 * 1024 * 1024, // 5MB limit per file
+//     files: 10, // Maximum 10 files total
+//   },
+// });
+
+// Cloudinary storage configuration
+// Change this - Replace your entire multer storage configuration
+const storage = multer.memoryStorage(); // ✅ This line replaces all your diskStorage code
+
+// Keep your fileFilter (no changes)
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
@@ -57,12 +87,13 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// Keep your upload config (no changes)
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 20 * 1024 * 1024, // 5MB limit per file
-    files: 10, // Maximum 10 files total
+    fileSize: 20 * 1024 * 1024,
+    files: 10,
   },
 });
 
@@ -381,17 +412,51 @@ router.post(
       } = req.body;
 
       // Handle file paths - simplified
+      //this is for local storage but now we are using cloudinary so not needed
+      // let coverImagePath = "";
+      // let moreImagesPaths = [];
+
+      // if (req.files && req.files["coverImage"]) {
+      //   coverImagePath = `/uploads/tours/${req.files["coverImage"][0].filename}`;
+      // }
+
+      // if (req.files && req.files["moreImages"]) {
+      //   moreImagesPaths = req.files["moreImages"].map(
+      //     (file) => `/uploads/tours/${file.filename}`
+      //   );
+      // }
+
+      // Upload images to Cloudinary
+      // Handle file uploads to Cloudinary
       let coverImagePath = "";
       let moreImagesPaths = [];
 
+      // Upload cover image to Cloudinary
       if (req.files && req.files["coverImage"]) {
-        coverImagePath = `/uploads/tours/${req.files["coverImage"][0].filename}`;
+        const result = await new Promise((resolve, reject) => {
+          cloudinary.uploader
+            .upload_stream({ folder: "tours/covers" }, (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            })
+            .end(req.files["coverImage"][0].buffer);
+        });
+        coverImagePath = result.secure_url;
       }
 
+      // Upload gallery images to Cloudinary
       if (req.files && req.files["moreImages"]) {
-        moreImagesPaths = req.files["moreImages"].map(
-          (file) => `/uploads/tours/${file.filename}`
-        );
+        for (const file of req.files["moreImages"]) {
+          const result = await new Promise((resolve, reject) => {
+            cloudinary.uploader
+              .upload_stream({ folder: "tours/gallery" }, (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              })
+              .end(file.buffer);
+          });
+          moreImagesPaths.push(result.secure_url);
+        }
       }
 
       // Process itinerary if it exists
