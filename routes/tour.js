@@ -140,7 +140,9 @@ router.get("/enquire", async (req, res) => {
 
   try {
     // Get all tours for dropdown
-    const tours = await Tour.find({}).select("name").sort({ name: 1 });
+    const tours = await Tour.find({})
+      .select("name availableDates")
+      .sort({ name: 1 });
 
     res.render("enquire", {
       user: req.user,
@@ -387,6 +389,7 @@ router.get("/admin/dashboard", requireAdmin, async (req, res) => {
 // POST Routes
 
 // 5. Create new tour (Admin only)
+// 5. Create new tour (Admin only)
 router.post(
   "/",
   requireAdmin,
@@ -409,25 +412,10 @@ router.post(
         included,
         excluded,
         itinerary,
+        availableDates, // ADD THIS LINE
       } = req.body;
 
-      // Handle file paths - simplified
-      //this is for local storage but now we are using cloudinary so not needed
-      // let coverImagePath = "";
-      // let moreImagesPaths = [];
-
-      // if (req.files && req.files["coverImage"]) {
-      //   coverImagePath = `/uploads/tours/${req.files["coverImage"][0].filename}`;
-      // }
-
-      // if (req.files && req.files["moreImages"]) {
-      //   moreImagesPaths = req.files["moreImages"].map(
-      //     (file) => `/uploads/tours/${file.filename}`
-      //   );
-      // }
-
-      // Upload images to Cloudinary
-      // Handle file uploads to Cloudinary
+      // Upload images to Cloudinary (keep existing code)
       let coverImagePath = "";
       let moreImagesPaths = [];
 
@@ -469,6 +457,21 @@ router.post(
         }));
       }
 
+      // ADD THIS: Process available dates
+      let processedDates = [];
+      if (availableDates) {
+        if (Array.isArray(availableDates)) {
+          processedDates = availableDates
+            .filter((date) => date && date.trim()) // Remove empty dates
+            .map((date) => new Date(date));
+        } else if (
+          typeof availableDates === "string" &&
+          availableDates.trim()
+        ) {
+          processedDates = [new Date(availableDates)];
+        }
+      }
+
       const tour = await Tour.create({
         name,
         location,
@@ -489,23 +492,28 @@ router.post(
           ? excluded.split("\n").filter((item) => item.trim())
           : [],
         itinerary: processedItinerary,
+        availableDates: processedDates, // ADD THIS LINE
       });
 
-      console.log("Tour created successfully:", tour.name); // Debug log
+      console.log("Tour created successfully:", tour.name);
 
       const tourUrlName = name.replace(/\s+/g, "-").toLowerCase();
       res.redirect(`/tour/${tourUrlName}`);
     } catch (error) {
       console.error("Error creating tour:", error);
       if (error.code === 11000) {
+        const tours = await getTours(); // ADD THIS LINE
         return res.status(400).render("admin/create-tour", {
           user: req.user,
+          tours, // ADD THIS
           error: "Tour name already exists. Please choose a different name.",
         });
       }
+      const tours = await getTours(); // ADD THIS LINE
       res.status(500).render("error", {
         message: "Error creating tour: " + error.message,
         user: req.user,
+        tours, // ADD THIS
       });
     }
   }

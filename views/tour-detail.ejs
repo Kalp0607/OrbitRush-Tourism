@@ -22,7 +22,7 @@
         line-height: 1.6;
       }
 
-      /* Hero Section - FIXED */
+      /* Hero Section */
       .hero-section {
         background: linear-gradient(
             135deg,
@@ -32,13 +32,13 @@
           url("<%= tour.coverImage %>");
         background-size: cover;
         background-position: center;
-        height: 70vh; /* Increased height */
+        height: 70vh;
         display: flex;
         align-items: center;
         color: white;
         position: relative;
         overflow: hidden;
-        padding: 2rem 0; /* Added padding */
+        padding: 2rem 0;
       }
 
       .hero-content {
@@ -50,14 +50,14 @@
       .hero-section h1 {
         font-size: 3.5rem;
         font-weight: 700;
-        margin-bottom: 1.5rem; /* Increased margin */
+        margin-bottom: 1.5rem;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        line-height: 1.2; /* Added line height */
+        line-height: 1.2;
       }
 
       .hero-location {
         font-size: 1.3rem;
-        margin-bottom: 2rem; /* Increased margin */
+        margin-bottom: 2rem;
         opacity: 0.9;
         display: flex;
         align-items: center;
@@ -66,26 +66,26 @@
 
       .hero-tags {
         display: flex;
-        gap: 1.5rem; /* Increased gap */
+        gap: 1.5rem;
         flex-wrap: wrap;
         justify-content: flex-start;
         align-items: center;
-        margin-top: 1rem; /* Added top margin */
+        margin-top: 1rem;
       }
 
       .hero-tag {
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
-        padding: 0.8rem 1.2rem; /* Increased padding */
+        padding: 0.8rem 1.2rem;
         border-radius: 25px;
-        font-size: 0.95rem; /* Slightly increased font size */
+        font-size: 0.95rem;
         border: 1px solid rgba(255, 255, 255, 0.3);
-        white-space: nowrap; /* Prevent text wrapping inside tags */
+        white-space: nowrap;
         display: flex;
         align-items: center;
         gap: 0.5rem;
         transition: all 0.3s ease;
-        margin-bottom: 0.5rem; /* Added bottom margin for wrapped items */
+        margin-bottom: 0.5rem;
       }
 
       .hero-tag:hover {
@@ -96,97 +96,6 @@
       .hero-tag i {
         font-size: 0.9rem;
         opacity: 0.9;
-      }
-
-      /* Responsive fixes for hero section */
-      @media (max-width: 1200px) {
-        .hero-section {
-          height: 75vh; /* More height on medium screens */
-        }
-
-        .hero-section h1 {
-          font-size: 3rem;
-          margin-bottom: 1.2rem;
-        }
-
-        .hero-location {
-          font-size: 1.2rem;
-          margin-bottom: 1.8rem;
-        }
-
-        .hero-tag {
-          font-size: 0.9rem;
-          padding: 0.7rem 1rem;
-        }
-      }
-
-      @media (max-width: 992px) {
-        .hero-section {
-          height: 80vh; /* Even more height on tablets */
-          padding: 3rem 0;
-        }
-
-        .hero-section h1 {
-          font-size: 2.8rem;
-        }
-
-        .hero-tags {
-          gap: 1rem;
-          justify-content: center; /* Center tags on tablet */
-        }
-      }
-
-      @media (max-width: 768px) {
-        .hero-section {
-          height: 85vh; /* Maximum height on mobile */
-          padding: 2rem 0;
-          text-align: center;
-        }
-
-        .hero-section h1 {
-          font-size: 2.5rem;
-          margin-bottom: 1rem;
-        }
-
-        .hero-location {
-          font-size: 1.1rem;
-          margin-bottom: 1.5rem;
-          justify-content: center;
-        }
-
-        .hero-tags {
-          gap: 0.8rem;
-          justify-content: center;
-          flex-direction: row; /* Keep horizontal on mobile */
-        }
-
-        .hero-tag {
-          font-size: 0.85rem;
-          padding: 0.6rem 0.9rem;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .hero-section {
-          height: 90vh; /* Maximum height for small phones */
-        }
-
-        .hero-section h1 {
-          font-size: 2rem;
-        }
-
-        .hero-tags {
-          gap: 0.5rem;
-          flex-direction: column; /* Stack vertically on very small screens */
-          align-items: center;
-        }
-
-        .hero-tag {
-          font-size: 0.8rem;
-          padding: 0.5rem 0.8rem;
-          min-width: 200px; /* Consistent width when stacked */
-          justify-content: center;
-        }
       }
 
       /* Main Content */
@@ -259,6 +168,120 @@
       .btn-book:hover {
         transform: translateY(-2px);
         box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+      }
+
+      /* Available Dates Section - NEW STYLES */
+      .dates-container {
+        margin-top: 1.5rem;
+      }
+
+      .dates-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .date-badge {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #dee2e6;
+        border-radius: 12px;
+        padding: 1rem 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.3s ease;
+        cursor: default;
+      }
+
+      .date-badge:hover {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+      }
+
+      .date-badge i {
+        font-size: 1.3rem;
+        color: #667eea;
+      }
+
+      .date-badge span {
+        font-size: 0.95rem;
+        color: #2c3e50;
+        font-weight: 500;
+      }
+
+      .show-more-wrapper {
+        text-align: center;
+        margin-top: 1rem;
+      }
+
+      .show-more-btn {
+        background: white;
+        border: 2px solid #667eea;
+        color: #667eea;
+        padding: 0.8rem 2rem;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .show-more-btn:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .show-more-btn i {
+        transition: transform 0.3s ease;
+      }
+
+      .show-more-btn.expanded i {
+        transform: rotate(180deg);
+      }
+
+      .dates-note {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+
+      .dates-note i {
+        color: #667eea;
+        font-size: 1.1rem;
+      }
+
+      .dates-note span {
+        color: #6c757d;
+        font-size: 0.95rem;
+      }
+
+      .no-dates-message {
+        text-align: center;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 15px;
+        color: #6c757d;
+        font-style: italic;
+      }
+
+      .no-dates-message i {
+        font-size: 3rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+        display: block;
       }
 
       /* Quick Info Cards */
@@ -339,30 +362,178 @@
         margin-bottom: 0.5rem;
       }
 
-      /* Gallery */
-      .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+      /* Gallery Slider Styles */
+      .gallery-slider-container {
+        position: relative;
+        margin-top: 1rem;
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1rem;
+        overflow: hidden;
       }
 
-      .gallery-item {
+      .gallery-slider {
         position: relative;
         overflow: hidden;
-        border-radius: 15px;
-        aspect-ratio: 4/3;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
       }
 
-      .gallery-item img {
+      .slider-track {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+        gap: 1rem;
+        padding: 0.5rem;
+        width: 100%;
+      }
+
+      .slide-item {
+        flex: 0 0 calc(33.333% - 0.67rem);
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        aspect-ratio: 4/3;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        min-width: 0;
+      }
+
+      .slide-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .slide-item img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
       }
 
-      .gallery-item:hover img {
+      .slide-item:hover img {
+        transform: scale(1.05);
+      }
+
+      .slide-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .slide-item:hover .slide-overlay {
+        opacity: 1;
+      }
+
+      .slide-overlay i {
+        color: white;
+        font-size: 2rem;
+      }
+
+      /* Slider Controls */
+      .slider-controls {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        transform: translateY(-50%);
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .slider-btn {
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        pointer-events: all;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        margin: 0 1rem;
+      }
+
+      .slider-btn:hover {
+        background: white;
         transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .slider-btn i {
+        color: #333;
+        font-size: 1.2rem;
+      }
+
+      /* Slider Indicators */
+      .slider-indicators {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .indicator-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: none;
+        background: #ccc;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .indicator-dot.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        transform: scale(1.2);
+      }
+
+      .indicator-dot:hover {
+        background: #999;
+        transform: scale(1.1);
+      }
+
+      /* Auto-play Control */
+      .autoplay-control {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 3;
+      }
+
+      .autoplay-btn {
+        background: rgba(0, 0, 0, 0.7);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .autoplay-btn:hover {
+        background: rgba(0, 0, 0, 0.9);
+        transform: scale(1.1);
+      }
+
+      .autoplay-btn i {
+        color: white;
+        font-size: 1rem;
       }
 
       /* Includes/Excludes */
@@ -426,7 +597,7 @@
         background: #e74c3c;
       }
 
-      /* UPDATED COMMENT & RATING STYLES */
+      /* COMMENT & RATING STYLES */
       .comment-form {
         background: white;
         border-radius: 15px;
@@ -611,199 +782,97 @@
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
       }
 
-      /* Gallery Slider Styles */
-      .gallery-slider-container {
-        position: relative;
-        margin-top: 1rem;
-        background: #f8f9fa;
-        border-radius: 15px;
-        padding: 1rem;
-        overflow: hidden;
+      /* Responsive */
+      @media (max-width: 1200px) {
+        .hero-section {
+          height: 75vh;
+        }
+
+        .hero-section h1 {
+          font-size: 3rem;
+          margin-bottom: 1.2rem;
+        }
+
+        .hero-location {
+          font-size: 1.2rem;
+          margin-bottom: 1.8rem;
+        }
+
+        .hero-tag {
+          font-size: 0.9rem;
+          padding: 0.7rem 1rem;
+        }
       }
 
-      .gallery-slider {
-        position: relative;
-        overflow: hidden;
-        border-radius: 10px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      @media (max-width: 992px) {
+        .hero-section {
+          height: 80vh;
+          padding: 3rem 0;
+        }
+
+        .hero-section h1 {
+          font-size: 2.8rem;
+        }
+
+        .hero-tags {
+          gap: 1rem;
+          justify-content: center;
+        }
       }
 
-      .slider-track {
-        display: flex;
-        transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        gap: 1rem;
-        padding: 0.5rem;
-      }
-
-      .slide-item {
-        flex: 0 0 calc(33.333% - 0.67rem);
-        position: relative;
-        border-radius: 10px;
-        overflow: hidden;
-        aspect-ratio: 4/3;
-        cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-
-      .slide-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      }
-
-      .slide-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-      }
-
-      .slide-item:hover img {
-        transform: scale(1.05);
-      }
-
-      .slide-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-
-      .slide-item:hover .slide-overlay {
-        opacity: 1;
-      }
-
-      .slide-overlay i {
-        color: white;
-        font-size: 2rem;
-      }
-
-      /* Slider Controls */
-      .slider-controls {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        transform: translateY(-50%);
-        display: flex;
-        justify-content: space-between;
-        pointer-events: none;
-        z-index: 2;
-      }
-
-      .slider-btn {
-        background: rgba(255, 255, 255, 0.9);
-        border: none;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        pointer-events: all;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        margin: 0 1rem;
-      }
-
-      .slider-btn:hover {
-        background: white;
-        transform: scale(1.1);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-      }
-
-      .slider-btn i {
-        color: #333;
-        font-size: 1.2rem;
-      }
-
-      /* Slider Indicators */
-      .slider-indicators {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-top: 1.5rem;
-      }
-
-      .indicator-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        border: none;
-        background: #ccc;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .indicator-dot.active {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        transform: scale(1.2);
-      }
-
-      .indicator-dot:hover {
-        background: #999;
-        transform: scale(1.1);
-      }
-
-      /* Auto-play Control */
-      .autoplay-control {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        z-index: 3;
-      }
-
-      .autoplay-btn {
-        background: rgba(0, 0, 0, 0.7);
-        border: none;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .autoplay-btn:hover {
-        background: rgba(0, 0, 0, 0.9);
-        transform: scale(1.1);
-      }
-
-      .autoplay-btn i {
-        color: white;
-        font-size: 1rem;
-      }
-      /* Gallery Slider Fix */
-      .slider-track {
-        display: flex;
-        transition: transform 0.5s ease-in-out; /* Simplified transition */
-        gap: 1rem;
-        padding: 0.5rem;
-        width: 100%; /* Ensure full width */
-      }
-
-      .slide-item {
-        flex: 0 0 calc(33.333% - 0.67rem);
-        position: relative;
-        border-radius: 10px;
-        overflow: hidden;
-        aspect-ratio: 4/3;
-        cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        min-width: 0; /* Prevent flex shrinking issues */
-      }
-
-      /* Responsive Design */
       @media (max-width: 768px) {
+        .hero-section {
+          height: 85vh;
+          padding: 2rem 0;
+          text-align: center;
+        }
+
+        .hero-section h1 {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+        }
+
+        .hero-location {
+          font-size: 1.1rem;
+          margin-bottom: 1.5rem;
+          justify-content: center;
+        }
+
+        .hero-tags {
+          gap: 0.8rem;
+          justify-content: center;
+          flex-direction: row;
+        }
+
+        .hero-tag {
+          font-size: 0.85rem;
+          padding: 0.6rem 0.9rem;
+        }
+
+        .main-content {
+          margin-top: -50px;
+        }
+
+        .card-content {
+          padding: 1.5rem;
+        }
+
+        .price {
+          font-size: 2.5rem;
+        }
+
+        .dates-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .date-badge {
+          padding: 0.9rem 1rem;
+        }
+
+        .date-badge span {
+          font-size: 0.9rem;
+        }
+
         .slide-item {
           flex: 0 0 calc(50% - 0.5rem);
         }
@@ -820,47 +889,33 @@
       }
 
       @media (max-width: 480px) {
+        .hero-section {
+          height: 90vh;
+        }
+
+        .hero-section h1 {
+          font-size: 2rem;
+        }
+
+        .hero-tags {
+          gap: 0.5rem;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .hero-tag {
+          font-size: 0.8rem;
+          padding: 0.5rem 0.8rem;
+          min-width: 200px;
+          justify-content: center;
+        }
+
         .slide-item {
           flex: 0 0 100%;
         }
 
         .slider-track {
           gap: 0.5rem;
-        }
-      }
-
-      /* Loading Animation */
-      @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: translateX(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      .slide-item {
-        animation: slideIn 0.6s ease;
-      }
-
-      /* Responsive */
-      @media (max-width: 768px) {
-        .hero-section h1 {
-          font-size: 2.5rem;
-        }
-
-        .main-content {
-          margin-top: -50px;
-        }
-
-        .card-content {
-          padding: 1.5rem;
-        }
-
-        .price {
-          font-size: 2.5rem;
         }
       }
 
@@ -882,6 +937,21 @@
 
       .tour-card:nth-child(even) {
         animation-delay: 0.2s;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .slide-item {
+        animation: slideIn 0.6s ease;
       }
     </style>
   </head>
@@ -956,6 +1026,80 @@
               <p style="font-size: 1.1rem; color: #6c757d; line-height: 1.8">
                 <%= tour.overview %>
               </p>
+            </div>
+          </div>
+
+          <!-- Available Dates - UPDATED SECTION -->
+          <div class="tour-card">
+            <div class="card-content">
+              <h2 class="section-title">
+                <i
+                  class="fas fa-calendar-alt"
+                  style="margin-right: 0.5rem; color: #667eea"
+                ></i>
+                Available Dates
+              </h2>
+
+              <% if (tour.availableDates && tour.availableDates.length > 0) { %>
+              <div class="dates-container">
+                <!-- Show first 4 dates initially -->
+                <div class="dates-grid" id="datesGrid">
+                  <% tour.availableDates.slice(0, 4).forEach((date, index) => {
+                  %> <% const dateObj = new Date(date); const formattedDate =
+                  dateObj.toLocaleDateString('en-US', { weekday: 'short', year:
+                  'numeric', month: 'short', day: 'numeric' }); %>
+                  <div class="date-badge">
+                    <i class="far fa-calendar-check"></i>
+                    <span><%= formattedDate %></span>
+                  </div>
+                  <% }) %>
+                </div>
+
+                <!-- Hidden dates (shown on expand) -->
+                <% if (tour.availableDates.length > 4) { %>
+                <div class="dates-grid" id="hiddenDates" style="display: none">
+                  <% tour.availableDates.slice(4).forEach((date, index) => { %>
+                  <% const dateObj = new Date(date); const formattedDate =
+                  dateObj.toLocaleDateString('en-US', { weekday: 'short', year:
+                  'numeric', month: 'short', day: 'numeric' }); %>
+                  <div class="date-badge">
+                    <i class="far fa-calendar-check"></i>
+                    <span><%= formattedDate %></span>
+                  </div>
+                  <% }) %>
+                </div>
+
+                <!-- Show More Button -->
+                <div class="show-more-wrapper">
+                  <button
+                    class="show-more-btn"
+                    id="showMoreBtn"
+                    onclick="toggleDates()"
+                  >
+                    <span id="btnText"
+                      >Show All Dates (<%= tour.availableDates.length - 4 %>
+                      more)</span
+                    >
+                    <i class="fas fa-chevron-down" id="btnIcon"></i>
+                  </button>
+                </div>
+                <% } %>
+
+                <div class="dates-note">
+                  <i class="fas fa-info-circle"></i>
+                  <span>Select your preferred date during checkout</span>
+                </div>
+              </div>
+              <% } else { %>
+              <div class="no-dates-message">
+                <i class="fas fa-calendar-times"></i>
+                <h4 style="margin-bottom: 1rem">No Available Dates</h4>
+                <p>
+                  This tour currently has no scheduled dates. Please contact us
+                  for custom booking options.
+                </p>
+              </div>
+              <% } %>
             </div>
           </div>
 
@@ -1156,7 +1300,7 @@
                   method="POST"
                   action="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>/comment"
                 >
-                  <!-- PROPER Star Rating Section -->
+                  <!-- Star Rating Section -->
                   <div class="rating-section">
                     <label class="rating-label">Your Rating *</label>
                     <div class="star-rating-wrapper">
@@ -1267,51 +1411,52 @@
           </div>
         </div>
 
-        <!-- Sidebar -->
+        <!-- Sidebar - UPDATED -->
         <div class="col-lg-4">
           <div class="booking-sidebar">
             <!-- Price Card -->
             <div class="price-card">
-              <div class="price">₹<%= tour.price.toLocaleString() %></div>
-              <p class="price-per">per person</p>
-              <div
-                style="
-                  margin: 1.5rem 0;
-                  padding: 1rem 0;
-                  border-top: 1px solid rgba(255, 255, 255, 0.2);
-                  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-                "
-              >
-                <div
-                  style="
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 0.5rem;
-                  "
-                >
-                  <span>Base Price:</span>
-                  <span>₹<%= tour.price.toLocaleString() %></span>
-                </div>
-                <div
-                  style="
-                    display: flex;
-                    justify-content: space-between;
-                    font-size: 0.9rem;
-                    opacity: 0.8;
-                  "
-                >
-                  <span>Service Fee:</span>
-                  <span>Included</span>
-                </div>
+              <div class="price">
+                ₹<%= tour.price.toLocaleString('en-IN') %>
               </div>
-              <button class="btn-book" onclick="bookTour()">
-                <i class="fas fa-envelope"></i> Enquire Now
+              <div class="price-per">per person</div>
+
+              <!-- Book Now Button (Always enabled) -->
+              <button
+                class="btn-book"
+                onclick="proceedToBooking()"
+                style="margin-top: 2rem"
+              >
+                <i
+                  class="fas fa-calendar-check"
+                  style="margin-right: 0.5rem"
+                ></i>
+                Book Now
               </button>
 
-              <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 1rem">
-                <i class="fas fa-shield-alt"></i> Free cancellation up to 24
-                hours before
-              </p>
+              <button
+                class="btn-book"
+                onclick="bookTour()"
+                style="
+                  margin-top: 1rem;
+                  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+                "
+              >
+                <i class="fas fa-envelope" style="margin-right: 0.5rem"></i>
+                Enquire Now
+              </button>
+
+              <div
+                style="
+                  margin-top: 1.5rem;
+                  font-size: 0.9rem;
+                  opacity: 0.8;
+                  text-align: center;
+                "
+              >
+                <i class="fas fa-shield-alt" style="margin-right: 0.5rem"></i>
+                100% Safe & Secure Booking
+              </div>
             </div>
 
             <!-- Tour Guide Info -->
@@ -1410,9 +1555,37 @@
     <%- include("partials/scripts") %>
 
     <script>
-      // Star rating with hover emoji changes
-      // FIXED Star rating - Left to Right order (1,2,3,4,5)
-      // Standard 5-Star Rating System
+      // Toggle show more/less dates
+      function toggleDates() {
+        const hiddenDates = document.getElementById("hiddenDates");
+        const btn = document.getElementById("showMoreBtn");
+        const btnText = document.getElementById("btnText");
+        const btnIcon = document.getElementById("btnIcon");
+
+        if (hiddenDates.style.display === "none") {
+          hiddenDates.style.display = "grid";
+          btnText.textContent = "Show Less";
+          btn.classList.add("expanded");
+        } else {
+          hiddenDates.style.display = "none";
+          const totalHidden = document.querySelectorAll(
+            "#hiddenDates .date-badge"
+          ).length;
+          btnText.textContent = `Show All Dates (${totalHidden} more)`;
+          btn.classList.remove("expanded");
+        }
+      }
+
+      // Simplified booking function - goes directly to booking page
+      function proceedToBooking() {
+        // Redirect to booking page with tour ID
+        window.location.href = `/booking/book/<%= tour._id %>`;
+      }
+
+      function bookTour() {
+        window.location.href = "/tour/enquire";
+      }
+
       document.addEventListener("DOMContentLoaded", function () {
         const stars = document.querySelectorAll(".star");
         const ratingValue = document.getElementById("ratingValue");
@@ -1483,11 +1656,7 @@
           });
       });
 
-      function bookTour() {
-        window.location.href = "/tour/enquire";
-      }
-
-      // Simple Gallery Slider that actually works
+      // Gallery Slider
       let currentSlide = 0;
       let totalSlides = 0;
       let autoPlayInterval;
@@ -1502,10 +1671,8 @@
 
         if (!sliderTrack || slides.length === 0) return;
 
-        // Calculate total slides (3 images per slide)
         totalSlides = Math.ceil(slides.length / 3);
 
-        // Navigation buttons
         if (prevBtn) {
           prevBtn.addEventListener("click", () => {
             currentSlide =
@@ -1521,7 +1688,6 @@
           });
         }
 
-        // Indicator dots
         indicators.forEach((dot, index) => {
           dot.addEventListener("click", () => {
             currentSlide = index;
@@ -1529,7 +1695,6 @@
           });
         });
 
-        // Auto-play toggle
         if (autoplayBtn) {
           autoplayBtn.addEventListener("click", () => {
             if (autoPlayInterval) {
@@ -1545,10 +1710,8 @@
           });
         }
 
-        // Start auto-play
         startAutoPlay();
 
-        // Pause on hover
         sliderTrack.addEventListener("mouseenter", () => {
           if (autoPlayInterval) {
             clearInterval(autoPlayInterval);
@@ -1558,8 +1721,6 @@
         sliderTrack.addEventListener("mouseleave", () => {
           startAutoPlay();
         });
-
-        console.log("✅ Gallery slider initialized successfully!");
       }
 
       function updateSlider() {
@@ -1568,11 +1729,9 @@
 
         if (!sliderTrack) return;
 
-        // Move the slider
         const translateX = -(currentSlide * 100);
         sliderTrack.style.transform = `translateX(${translateX}%)`;
 
-        // Update indicators
         indicators.forEach((dot, index) => {
           if (index === currentSlide) {
             dot.classList.add("active");
@@ -1580,8 +1739,6 @@
             dot.classList.remove("active");
           }
         });
-
-        console.log(`Moved to slide ${currentSlide + 1} of ${totalSlides}`);
       }
 
       function startAutoPlay() {
@@ -1592,16 +1749,14 @@
         autoPlayInterval = setInterval(() => {
           currentSlide = (currentSlide + 1) % totalSlides;
           updateSlider();
-        }, 4000); // Change slide every 4 seconds
+        }, 4000);
       }
 
-      // Initialize when page loads
       document.addEventListener("DOMContentLoaded", function () {
         if (document.getElementById("gallerySlider")) {
           initGallerySlider();
         }
 
-        // Animation observer (keep this)
         const observerOptions = {
           threshold: 0.1,
           rootMargin: "0px 0px -50px 0px",
@@ -1624,7 +1779,7 @@
         });
       });
 
-      // Smooth scrolling for anchor links
+      // Smooth scrolling
       document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
         anchor.addEventListener("click", function (e) {
           e.preventDefault();

@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 8008;
 const userRoute = require("./routes/user");
 const tourRoute = require("./routes/tour");
 const staticRoute = require("./routes/static");
+const bookingRoutes = require("./routes/bookingRoutes");
 
 //Database Connection
 const mongoose = require("mongoose");
@@ -39,6 +40,7 @@ app.set("views", path.resolve("./views"));
 // Routes
 app.use("/user", userRoute);
 app.use("/tour", tourRoute);
+app.use("/booking", bookingRoutes);
 app.use("/", staticRoute);
 
 app.listen(PORT, () => {

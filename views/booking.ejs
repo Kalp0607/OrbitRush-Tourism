@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book <%= tour.name %> | OrbitRush Tourism</title>
+    <%- include("partials/head") %>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      .booking-container {
+        max-width: 950px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 25px;
+        overflow: hidden;
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+      }
+
+      .booking-header {
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        color: white;
+        padding: 3rem 2.5rem;
+        text-align: center;
+        position: relative;
+      }
+
+      .booking-header::after {
+        content: "";
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        border-top: 20px solid #f7931e;
+      }
+
+      .booking-header h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2.4rem;
+        font-weight: 800;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .booking-header p {
+        margin: 0;
+        font-size: 1.15rem;
+        opacity: 0.95;
+      }
+
+      .tour-info {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        padding: 2.5rem;
+        border-bottom: 4px solid #667eea;
+        margin-top: 20px;
+      }
+
+      .tour-info h3 {
+        margin: 0 0 1.8rem 0;
+        color: #2c3e50;
+        font-size: 2rem;
+        font-weight: 800;
+        text-align: center;
+      }
+
+      .tour-details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.2rem;
+      }
+
+      .tour-detail-item {
+        background: white;
+        padding: 1.2rem;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+      }
+
+      .tour-detail-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+      }
+
+      .tour-detail-item strong {
+        color: #667eea;
+        font-weight: 700;
+      }
+
+      .tour-detail-item span {
+        color: #2c3e50;
+        font-weight: 600;
+      }
+
+      .booking-form {
+        padding: 3rem 2.5rem;
+      }
+
+      .form-section {
+        margin-bottom: 2.5rem;
+      }
+
+      .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 2px solid #e9ecef;
+      }
+
+      .section-title i {
+        color: #667eea;
+        font-size: 1.3rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.6rem;
+        font-size: 0.95rem;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 1.1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        font-family: inherit;
+        background: #fafafa;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12);
+      }
+
+      .form-control:disabled {
+        background: #f0f0f0;
+        color: #6c757d;
+        cursor: not-allowed;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+
+      .total-amount {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        padding: 2rem;
+        border-radius: 18px;
+        text-align: center;
+        margin-bottom: 2rem;
+        border: 3px solid #ffc107;
+        box-shadow: 0 5px 20px rgba(255, 193, 7, 0.3);
+      }
+
+      .total-amount-label {
+        font-size: 1.1rem;
+        color: #856404;
+        font-weight: 700;
+        margin-bottom: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .total-amount-value {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #ff6b35;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-book {
+        width: 100%;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.3rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-book:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+      }
+
+      .btn-book:active {
+        transform: translateY(-1px);
+      }
+
+      .info-box {
+        background: #e3f2fd;
+        padding: 1.2rem;
+        border-radius: 12px;
+        border-left: 5px solid #2196f3;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+        color: #1565c0;
+        font-weight: 500;
+      }
+
+      /* NEW: Traveler Card Styles */
+      .traveler-card {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 1.8rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .traveler-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .traveler-card-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 2px dashed #e9ecef;
+      }
+
+      .traveler-card-title i {
+        background: #667eea;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 768px) {
+        .booking-container {
+          margin: 1rem;
+          border-radius: 20px;
+        }
+
+        .booking-header {
+          padding: 2.5rem 1.8rem;
+        }
+
+        .booking-header h1 {
+          font-size: 2rem;
+        }
+
+        .booking-form {
+          padding: 2rem 1.5rem;
+        }
+
+        .form-row,
+        .tour-details-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .total-amount-value {
+          font-size: 2.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <%- include("partials/nav") %>
+
+    <div class="booking-container">
+      <!-- Header -->
+      <div class="booking-header">
+        <h1>🎫 Complete Your Booking</h1>
+        <p>You're one step away from an amazing adventure!</p>
+      </div>
+
+      <!-- Tour Info -->
+      <div class="tour-info">
+        <h3>📍 <%= tour.name %></h3>
+        <div class="tour-details-grid">
+          <div class="tour-detail-item">
+            <strong><i class="fas fa-map-marker-alt"></i> Location:</strong>
+            <span><%= tour.location %></span>
+          </div>
+          <div class="tour-detail-item">
+            <strong><i class="fas fa-clock"></i> Duration:</strong>
+            <span><%= tour.duration %> days</span>
+          </div>
+          <div class="tour-detail-item">
+            <strong><i class="fas fa-tag"></i> Price per person:</strong>
+            <span>₹<%= tour.price.toLocaleString('en-IN') %></span>
+          </div>
+          <div class="tour-detail-item">
+            <strong><i class="fas fa-star"></i> Category:</strong>
+            <span><%= tour.category || 'Adventure' %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Form -->
+      <div class="booking-form">
+        <form id="bookingForm">
+          <!-- User Details Section -->
+          <div class="form-section">
+            <h3 class="section-title">
+              <i class="fas fa-user-circle"></i>
+              Your Details
+            </h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  value="<%= user.fullName %>"
+                  disabled
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  value="<%= user.email %>"
+                  disabled
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Booking Details Section -->
+          <div class="form-section">
+            <h3 class="section-title">
+              <i class="fas fa-calendar-check"></i>
+              Booking Details
+            </h3>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="travelDate" class="form-label"
+                  >Select Travel Date *</label
+                >
+                <select id="travelDate" class="form-control" required>
+                  <option value="">Choose a date...</option>
+                  <% tour.availableDates.forEach(date => { const dateObj = new
+                  Date(date); if (dateObj >= new Date()) { const formattedDate =
+                  dateObj.toISOString().split('T')[0]; const displayDate =
+                  dateObj.toLocaleDateString('en-IN', { day: 'numeric', month:
+                  'long', year: 'numeric' }); %>
+                  <option value="<%= formattedDate %>">
+                    <%= displayDate %>
+                  </option>
+                  <% } }) %>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="numberOfPeople" class="form-label"
+                  >Number of People *</label
+                >
+                <input
+                  type="number"
+                  id="numberOfPeople"
+                  class="form-control"
+                  min="1"
+                  max="20"
+                  value="1"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="info-box">
+              <i class="fas fa-info-circle"></i>
+              <strong>Note:</strong> Your booking will be confirmed after
+              successful payment verification.
+            </div>
+          </div>
+
+          <!-- NEW: Traveler Details Section -->
+          <div
+            class="form-section"
+            id="travelerDetailsSection"
+            style="display: block"
+          >
+            <h3 class="section-title">
+              <i class="fas fa-users"></i>
+              Traveler Details
+            </h3>
+
+            <div
+              class="info-box"
+              style="
+                background: #fff3cd;
+                border-left-color: #ffc107;
+                color: #856404;
+              "
+            >
+              <i class="fas fa-id-card"></i>
+              <strong>Important:</strong> Please enter correct Aadhaar numbers
+              (12 digits) for all travelers.
+            </div>
+
+            <div id="travelerFields"></div>
+          </div>
+
+          <!-- Total Amount -->
+          <div class="total-amount">
+            <div class="total-amount-label">💰 Total Amount</div>
+            <div class="total-amount-value">
+              ₹<span id="totalAmount"
+                ><%= tour.price.toLocaleString('en-IN') %></span
+              >
+            </div>
+          </div>
+
+          <!-- Book Now Button -->
+          <button type="submit" class="btn-book">
+            <i class="fas fa-lock"></i> Book Now & Pay Securely
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <%- include("partials/scripts") %>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      const tourPrice = parseInt("<%= tour.price %>") || 0;
+      const tourId = "<%= tour._id %>";
+      const tourName = "<%= tour.name %>";
+
+      // Update total amount when number of people changes
+      document
+        .getElementById("numberOfPeople")
+        .addEventListener("input", function () {
+          const people = parseInt(this.value) || 1;
+          const total = tourPrice * people;
+          document.getElementById("totalAmount").textContent =
+            total.toLocaleString("en-IN");
+
+          // Generate traveler input fields
+          generateTravelerFields(people);
+        });
+
+      // Generate traveler detail fields dynamically
+      function generateTravelerFields(numberOfPeople) {
+        const container = document.getElementById("travelerFields");
+        const section = document.getElementById("travelerDetailsSection");
+
+        if (numberOfPeople < 1) {
+          section.style.display = "none";
+          return;
+        }
+
+        section.style.display = "block";
+        container.innerHTML = "";
+
+        for (let i = 1; i <= numberOfPeople; i++) {
+          const travelerCard = document.createElement("div");
+          travelerCard.className = "traveler-card";
+          travelerCard.innerHTML = `
+        <div class="traveler-card-title">
+          <i class="fas fa-user"></i>
+          Traveler ${i}
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name *</label>
+            <input 
+              type="text" 
+              class="form-control traveler-name" 
+              placeholder="Enter full name as per Aadhaar" 
+              required
+              data-traveler="${i}"
+            >
+          </div>
+          <div class="form-group">
+            <label class="form-label">Aadhaar Number *</label>
+            <input 
+              type="text" 
+              class="form-control traveler-aadhaar" 
+              placeholder="1234-5678-9012" 
+              maxlength="14"
+              required
+              data-traveler="${i}"
+            >
+          </div>
+        </div>
+      `;
+          container.appendChild(travelerCard);
+        }
+
+        // Add formatting to newly created inputs
+        addAadhaarFormatting();
+      }
+
+      // NEW: Format Aadhaar number as 4-4-4 while typing
+      function formatAadhaar(input) {
+        let value = input.value.replace(/\D/g, "");
+        value = value.substring(0, 12);
+        let formatted = "";
+        for (let i = 0; i < value.length; i++) {
+          if (i === 4 || i === 8) {
+            formatted += "-";
+          }
+          formatted += value[i];
+        }
+        input.value = formatted;
+      }
+
+      // NEW: Add event listeners to Aadhaar inputs
+      function addAadhaarFormatting() {
+        const aadhaarInputs = document.querySelectorAll(".traveler-aadhaar");
+        aadhaarInputs.forEach((input) => {
+          input.addEventListener("input", function () {
+            formatAadhaar(this);
+          });
+        });
+      }
+
+      document
+        .getElementById("bookingForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const travelDate = document.getElementById("travelDate").value;
+          const numberOfPeople = parseInt(
+            document.getElementById("numberOfPeople").value
+          );
+
+          if (!travelDate) {
+            Swal.fire({
+              icon: "warning",
+              title: "Select Travel Date",
+              text: "Please select a travel date to proceed.",
+            });
+            return;
+          }
+
+          if (numberOfPeople < 1) {
+            Swal.fire({
+              icon: "warning",
+              title: "Enter Number of People",
+              text: "Please enter a valid number of people for booking.",
+            });
+            return;
+          }
+
+          // Collect traveler details
+          const travelers = [];
+          const nameInputs = document.querySelectorAll(".traveler-name");
+          const aadhaarInputs = document.querySelectorAll(".traveler-aadhaar");
+
+          for (let i = 0; i < numberOfPeople; i++) {
+            const name = nameInputs[i].value.trim();
+            const aadhaarFormatted = aadhaarInputs[i].value.trim();
+            const aadhaar = aadhaarFormatted.replace(/\D/g, "");
+
+            if (!name) {
+              Swal.fire({
+                icon: "warning",
+                title: `Traveler ${i + 1}: Name Required`,
+                text: "Please enter a name for this traveler.",
+              });
+              nameInputs[i].focus();
+              return;
+            }
+
+            if (
+              !aadhaar ||
+              aadhaar.length !== 12 ||
+              !/^\d{12}$/.test(aadhaar)
+            ) {
+              Swal.fire({
+                icon: "warning",
+                title: `Traveler ${i + 1}: Invalid Aadhaar`,
+                text: "Please enter a valid 12-digit Aadhaar number.",
+              });
+              aadhaarInputs[i].focus();
+              return;
+            }
+
+            travelers.push({
+              name: name,
+              aadhaarNumber: aadhaar,
+            });
+          }
+
+          try {
+            // Step 1: Create Razorpay order
+            const response = await fetch("/booking/create-order", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tourId, travelDate, numberOfPeople }),
+            });
+
+            const order = await response.json();
+
+            if (order.error) {
+              Swal.fire({
+                icon: "error",
+                title: "Order Error",
+                text: order.error,
+              });
+              return;
+            }
+
+            // Step 2: Open Razorpay payment window
+            const options = {
+              key: order.keyId,
+              amount: order.amount,
+              currency: order.currency,
+              order_id: order.orderId,
+              name: "OrbitRush Tourism",
+              description: tourName,
+              handler: async function (paymentResponse) {
+                // Step 3: Verify payment
+                try {
+                  const verifyResponse = await fetch(
+                    "/booking/verify-payment",
+                    {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        razorpay_payment_id:
+                          paymentResponse.razorpay_payment_id,
+                        razorpay_order_id: paymentResponse.razorpay_order_id,
+                        razorpay_signature: paymentResponse.razorpay_signature,
+                        tourId: tourId,
+                        tourName: tourName,
+                        travelDate: travelDate,
+                        numberOfPeople: numberOfPeople,
+                        travelers: travelers,
+                        amount: order.amount,
+                      }),
+                    }
+                  );
+
+                  const result = await verifyResponse.json();
+
+                  if (result.success) {
+                    Swal.fire({
+                      icon: "success",
+                      title: "Booking Confirmed!",
+                      html: `<p>Your payment was successful and your booking is confirmed.<br><strong>Check your email for confirmation and tour details.</strong></p>`,
+                      confirmButtonText: "My Bookings",
+                      showCloseButton: true,
+                      allowOutsideClick: false,
+                      allowEscapeKey: true,
+                    }).then(() => {
+                      window.location.href = "/booking/my-bookings";
+                    });
+                  } else {
+                    Swal.fire({
+                      icon: "error",
+                      title: "Payment Verification Failed",
+                      text: result.error,
+                    });
+                  }
+                } catch (error) {
+                  console.error(error);
+                  Swal.fire({
+                    icon: "error",
+                    title: "Verification Failed",
+                    html: `<p>Error: Please contact support with your payment ID:<br><strong>${paymentResponse.razorpay_payment_id}</strong></p>`,
+                  });
+                }
+              },
+              prefill: {
+                name: "<%= user.fullName %>",
+                email: "<%= user.email %>",
+              },
+              theme: {
+                color: "#667eea",
+              },
+              modal: {
+                ondismiss: function () {
+                  Swal.fire({
+                    icon: "info",
+                    title: "Payment Cancelled",
+                    text: "You cancelled the payment. Your booking is not completed.",
+                    confirmButtonText: "OK",
+                  });
+                },
+              },
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+          } catch (error) {
+            console.error(error);
+            Swal.fire({
+              icon: "error",
+              title: "Booking Failed",
+              text: "Something went wrong. Please try again or contact support.",
+            });
+          }
+        });
+
+      // Pre-select date if passed from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const preSelectedDate = urlParams.get("date");
+      if (preSelectedDate) {
+        document.getElementById("travelDate").value = preSelectedDate;
+      }
+
+      // Generate initial traveler field (for 1 person by default)
+      generateTravelerFields(1);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Bookings | OrbitRush Tourism</title>
+  <%- include("../partials/head") %>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem 0;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .page-header {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .page-header h1 {
+      margin: 0 0 0.5rem 0;
+      color: #2c3e50;
+      font-size: 2.5rem;
+      font-weight: 800;
+    }
+
+    .page-header p {
+      margin: 0;
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+
+    .filter-section {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .filter-label {
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .filter-select {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: #fafafa;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #6c757d;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .bookings-table {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .table-header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 1.5rem 2rem;
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f8f9fa;
+    }
+
+    th {
+      padding: 1.2rem;
+      text-align: left;
+      font-weight: 700;
+      color: #2c3e50;
+      border-bottom: 2px solid #e9ecef;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 1.2rem;
+      border-bottom: 1px solid #e9ecef;
+      color: #2c3e50;
+    }
+
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .travelers-cell {
+      max-width: 300px;
+    }
+
+    .traveler-tag {
+      display: inline-block;
+      background: #e3f2fd;
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      margin: 0.2rem;
+      font-size: 0.85rem;
+      color: #1565c0;
+      font-weight: 600;
+    }
+
+    .payment-badge {
+      display: inline-block;
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .payment-badge.completed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .empty-state {
+      padding: 4rem 2rem;
+      text-align: center;
+      color: #6c757d;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: #e9ecef;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      table {
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include("../partials/nav") %>
+
+  <div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>🎯 Admin - Tour Bookings</h1>
+      <p>Manage and view all tour bookings</p>
+    </div>
+
+    <!-- Tour Filter -->
+    <div class="filter-section">
+      <div class="filter-label">
+        <i class="fas fa-filter"></i> Select Tour to View Bookings
+      </div>
+      <select class="filter-select" onchange="filterByTour(this.value)">
+        <option value="">-- Select a Tour --</option>
+        <% tours.forEach(tour => { %>
+          <option value="<%= tour._id %>" <%= selectedTour && selectedTour._id.toString() === tour._id.toString() ? 'selected' : '' %>>
+            <%= tour.name %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <% if (selectedTour && bookings.length > 0) { %>
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value"><%= bookings.length %></div>
+          <div class="stat-label">Total Bookings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value"><%= bookings.reduce((sum, b) => sum + b.numberOfPeople, 0) %></div>
+          <div class="stat-label">Total Travelers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">₹<%= bookings.reduce((sum, b) => sum + b.amount, 0).toLocaleString('en-IN') %></div>
+          <div class="stat-label">Total Revenue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value"><%= bookings.filter(b => b.paymentStatus === 'completed').length %></div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+
+      <!-- Bookings Table -->
+      <div class="bookings-table">
+        <div class="table-header">
+          📋 Bookings for <%= selectedTour.name %>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Customer</th>
+              <th>Travel Date</th>
+              <th>People</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Travelers</th>
+              <th>Booked On</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% bookings.forEach(booking => { %>
+              <tr>
+                <td style="font-family: monospace; font-size: 0.85rem;">
+                  <%= booking._id.toString().substring(0, 8) %>...
+                </td>
+                <td>
+                  <strong><%= booking.fullName %></strong><br>
+                  <small style="color: #6c757d;"><%= booking.email %></small>
+                </td>
+                <td>
+                  <%= new Date(booking.travelDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                </td>
+                <td><%= booking.numberOfPeople %></td>
+                <td style="font-weight: 700; color: #667eea;">
+                  ₹<%= booking.amount.toLocaleString('en-IN') %>
+                </td>
+                <td>
+                  <span class="payment-badge <%= booking.paymentStatus %>">
+                    ✓ <%= booking.paymentStatus %>
+                  </span>
+                </td>
+                <td class="travelers-cell">
+                  <% booking.travelers.forEach(traveler => { %>
+                    <span class="traveler-tag">
+                      <%= traveler.name %>
+                    </span>
+                  <% }) %>
+                </td>
+                <td>
+                  <%= new Date(booking.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } else if (selectedTour && bookings.length === 0) { %>
+      <!-- No Bookings for Selected Tour -->
+      <div class="bookings-table">
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <h3>No Bookings Yet</h3>
+          <p>No bookings found for <%= selectedTour.name %></p>
+        </div>
+      </div>
+    <% } else { %>
+      <!-- No Tour Selected -->
+      <div class="bookings-table">
+        <div class="empty-state">
+          <i class="fas fa-hand-pointer"></i>
+          <h3>Select a Tour</h3>
+          <p>Please select a tour from the dropdown to view its bookings</p>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <%- include("../partials/scripts") %>
+
+  <script>
+    function filterByTour(tourId) {
+      if (tourId) {
+        window.location.href = `/booking/admin/bookings?tour=${tourId}`;
+      } else {
+        window.location.href = `/booking/admin/bookings`;
+      }
+    }
+  </script>
+</body>
+</html>

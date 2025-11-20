@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Book <%= locals.tour ? locals.tour.name : 'Tour' %> | OrbitRush Tourism
+    </title>
+    <%- include("../partials/head") %>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+      body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+      }
+
+      .booking-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+
+      .booking-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px 20px 0 0;
+        text-align: center;
+        margin-bottom: 0;
+      }
+
+      .booking-content {
+        background: white;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .booking-grid {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 0;
+      }
+
+      .booking-form {
+        padding: 2.5rem;
+      }
+
+      .booking-summary {
+        background: #f8f9fa;
+        padding: 2.5rem;
+        border-left: 1px solid #e9ecef;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.95rem;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .summary-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .tour-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+      }
+
+      .tour-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+      }
+
+      .tour-detail {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f1f3f4;
+        font-size: 0.95rem;
+      }
+
+      .tour-detail:last-child {
+        border-bottom: none;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1rem;
+      }
+
+      .pay-button {
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .pay-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
+      }
+
+      .pay-button:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .security-badge {
+        background: #e8f5e8;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        margin-top: 1rem;
+        border-left: 4px solid #27ae60;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .booking-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .booking-summary {
+          border-left: none;
+          border-top: 1px solid #e9ecef;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <%- include("../partials/nav") %>
+
+    <div class="booking-container">
+      <div class="booking-header">
+        <h1><i class="fas fa-credit-card"></i> Complete Your Booking</h1>
+        <p>You're just one step away from your amazing adventure!</p>
+      </div>
+
+      <div class="booking-content">
+        <div class="booking-grid">
+          <!-- Booking Form -->
+          <div class="booking-form">
+            <h3 style="margin-bottom: 1.5rem; color: #2c3e50">
+              <i class="fas fa-user"></i> Traveler Information
+            </h3>
+
+            <form id="bookingForm">
+              <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  class="form-control"
+                  value="<%= locals.user ? locals.user.fullName : '' %>"
+                  readonly
+                />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Email Address *</label>
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-control"
+                    value="<%= locals.user ? locals.user.email : '' %>"
+                    readonly
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phone Number *</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    class="form-control"
+                    placeholder="+91 98765 43210"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Number of Travelers *</label>
+                  <select
+                    id="numberOfTravelers"
+                    class="form-control"
+                    required
+                    onchange="updateTotal()"
+                  >
+                    <option value="">Select travelers</option>
+                    <option value="1">1 Person</option>
+                    <option value="2">2 People</option>
+                    <option value="3">3 People</option>
+                    <option value="4">4 People</option>
+                    <option value="5">5 People</option>
+                    <option value="6">6 People</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Selected Date</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    value="<%= locals.selectedDate ? new Date(locals.selectedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'No date selected' %>"
+                    readonly
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Special Requests (Optional)</label>
+                <textarea
+                  id="specialRequests"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Any dietary requirements, accessibility needs, or special requests..."
+                ></textarea>
+              </div>
+
+              <div class="security-badge">
+                <i
+                  class="fas fa-shield-alt"
+                  style="
+                    color: #27ae60;
+                    font-size: 1.2rem;
+                    margin-right: 0.5rem;
+                  "
+                ></i>
+                <strong>Secure Payment</strong> - Your payment information is
+                protected with 256-bit SSL encryption
+              </div>
+            </form>
+          </div>
+
+          <!-- Booking Summary -->
+          <div class="booking-summary">
+            <div class="summary-card">
+              <% if (locals.tour && locals.tour.coverImage) { %>
+              <img
+                src="<%= locals.tour.coverImage %>"
+                alt="<%= locals.tour.name %>"
+                class="tour-image"
+              />
+              <% } else { %>
+              <div
+                class="tour-image"
+                style="
+                  background: #f8f9fa;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: #6c757d;
+                "
+              >
+                <i class="fas fa-image fa-2x"></i>
+              </div>
+              <% } %>
+
+              <h4 class="tour-title">
+                <%= locals.tour ? locals.tour.name : 'Tour Name' %>
+              </h4>
+              <p style="color: #6c757d; margin-bottom: 1rem">
+                <i class="fas fa-map-marker-alt"></i> <%= locals.tour ?
+                locals.tour.location : 'Location' %>
+              </p>
+
+              <div class="tour-detail">
+                <span>Duration:</span>
+                <span><%= locals.tour ? locals.tour.duration : 'N/A' %></span>
+              </div>
+              <div class="tour-detail">
+                <span>Date:</span>
+                <span
+                  ><%= locals.selectedDate ? new
+                  Date(locals.selectedDate).toLocaleDateString('en-IN') : 'Not
+                  selected' %></span
+                >
+              </div>
+              <div class="tour-detail">
+                <span>Price per person:</span>
+                <span
+                  >₹<%= locals.tour && locals.tour.price ?
+                  locals.tour.price.toLocaleString('en-IN') : '0' %></span
+                >
+              </div>
+              <div class="tour-detail">
+                <span>Travelers:</span>
+                <span id="travelerCount">-</span>
+              </div>
+              <div class="tour-detail">
+                <span>Total Amount:</span>
+                <span id="totalAmount">₹0</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              id="payButton"
+              class="pay-button"
+              disabled
+              onclick="initiatePayment()"
+            >
+              <i class="fas fa-lock"></i>
+              Proceed to Payment
+            </button>
+
+            <div class="loading" id="loadingDiv">
+              <div class="spinner"></div>
+              <p>Processing your booking...</p>
+            </div>
+
+            <p
+              style="
+                font-size: 0.85rem;
+                color: #6c757d;
+                text-align: center;
+                margin-top: 1rem;
+              "
+            >
+              By proceeding, you agree to our Terms & Conditions and Privacy
+              Policy
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%- include("../partials/scripts") %>
+
+    <script>
+      // Safe variable assignment using locals
+      let tourPrice = 0;
+      let tourId = "";
+      let tourName = "";
+      let selectedDate = "";
+      let userName = "";
+      let userEmail = "";
+
+      let currentTotal = 0;
+
+      function updateTotal() {
+        const travelers = document.getElementById("numberOfTravelers").value;
+        const payButton = document.getElementById("payButton");
+
+        if (travelers && tourPrice > 0) {
+          currentTotal = tourPrice * parseInt(travelers);
+          document.getElementById(
+            "totalAmount"
+          ).textContent = `₹${currentTotal.toLocaleString("en-IN")}`;
+          document.getElementById(
+            "travelerCount"
+          ).textContent = `${travelers} ${
+            travelers == 1 ? "Person" : "People"
+          }`;
+          payButton.disabled = false;
+        } else {
+          document.getElementById("totalAmount").textContent = "₹0";
+          document.getElementById("travelerCount").textContent = "-";
+          payButton.disabled = true;
+        }
+      }
+
+      async function initiatePayment() {
+        const loadingDiv = document.getElementById("loadingDiv");
+        const payButton = document.getElementById("payButton");
+
+        // Validate form
+        const phone = document.getElementById("phone").value;
+        const numberOfTravelers =
+          document.getElementById("numberOfTravelers").value;
+
+        if (!phone || !numberOfTravelers) {
+          alert("Please fill in all required fields");
+          return;
+        }
+
+        if (tourPrice <= 0 || !tourId) {
+          alert("Tour information is not available. Please try again.");
+          return;
+        }
+
+        // Show loading
+        payButton.style.display = "none";
+        loadingDiv.style.display = "block";
+
+        try {
+          // Create order
+          const response = await fetch("/book/create-order", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              tourId: tourId,
+              bookingDate: selectedDate,
+              numberOfTravelers: numberOfTravelers,
+              phone: phone,
+              specialRequests: document.getElementById("specialRequests").value,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Initialize Razorpay
+            const options = {
+              key: data.key,
+              amount: data.amount * 100,
+              currency: data.currency,
+              name: "OrbitRush Tourism",
+              description: tourName,
+              order_id: data.orderId,
+              handler: function (response) {
+                verifyPayment(response, data.bookingId);
+              },
+              prefill: {
+                name: userName,
+                email: userEmail,
+                contact: phone,
+              },
+              theme: {
+                color: "#667eea",
+              },
+              modal: {
+                ondismiss: function () {
+                  // Reset UI when payment is cancelled
+                  payButton.style.display = "block";
+                  loadingDiv.style.display = "none";
+                },
+              },
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+          } else {
+            throw new Error(data.error || "Failed to create order");
+          }
+        } catch (error) {
+          console.error("Payment initiation error:", error);
+          alert("Error: " + error.message);
+          payButton.style.display = "block";
+          loadingDiv.style.display = "none";
+        }
+      }
+
+      async function verifyPayment(payment, bookingId) {
+        try {
+          const response = await fetch("/book/verify-payment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              razorpay_payment_id: payment.razorpay_payment_id,
+              razorpay_order_id: payment.razorpay_order_id,
+              razorpay_signature: payment.razorpay_signature,
+              bookingId: bookingId,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Redirect to success page
+            window.location.href = `/book/success/${bookingId}`;
+          } else {
+            alert(
+              "Payment verification failed: " + (data.error || "Unknown error")
+            );
+            location.reload();
+          }
+        } catch (error) {
+          console.error("Payment verification error:", error);
+          alert("Payment verification error: " + error.message);
+          location.reload();
+        }
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        // Auto-focus on phone field
+        const phoneField = document.getElementById("phone");
+        if (phoneField) {
+          phoneField.focus();
+        }
+
+        // Validate tour data
+        if (tourPrice <= 0) {
+          console.warn("Tour price not available");
+        }
+
+        if (!tourId) {
+          console.warn("Tour ID not available");
+        }
+
+        console.log("Booking page loaded successfully");
+      });
+    </script>
+  </body>
+</html>

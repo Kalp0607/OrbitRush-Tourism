@@ -175,6 +175,12 @@
         color: #721c24;
         border: 1px solid #f5c6cb;
       }
+      .date-info {
+        font-size: 0.875rem;
+        color: #667eea;
+        margin-top: 0.5rem;
+        font-weight: 500;
+      }
 
       @media (max-width: 768px) {
         .enquiry-container {
@@ -297,7 +303,13 @@
                   >
                     <option value="">Choose your adventure...</option>
                     <% tours.forEach(tour => { %>
-                    <option value="<%= tour.name %>"><%= tour.name %></option>
+                    <option
+                      value="<%= tour.name %>"
+                      data-dates="<%= JSON.stringify(tour.availableDates || []) %>"
+                    >
+                      <%= tour.name %>
+                    </option>
+
                     <% }) %>
                   </select>
                 </div>
@@ -321,13 +333,15 @@
                 <label for="preferredDate" class="form-label">
                   Preferred Travel Date <small>(Optional)</small>
                 </label>
-                <input
-                  type="date"
+                <select
                   id="preferredDate"
                   name="preferredDate"
                   class="form-control"
-                  min="<%= new Date().toISOString().split('T')[0] %>"
-                />
+                  disabled
+                >
+                  <option value="">First select a tour...</option>
+                </select>
+                <div id="dateInfo" class="date-info"></div>
               </div>
             </div>
 
@@ -364,6 +378,65 @@
         </div>
       </div>
     </div>
+    <script>
+      // Get elements
+      const tourSelect = document.getElementById("tourName");
+      const dateSelect = document.getElementById("preferredDate");
+      const dateInfo = document.getElementById("dateInfo");
+
+      // When user selects a tour
+      tourSelect.addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const availableDates = JSON.parse(
+          selectedOption.getAttribute("data-dates") || "[]"
+        );
+
+        // Clear previous date options
+        dateSelect.innerHTML = "";
+
+        // If no dates available for this tour
+        if (availableDates.length === 0) {
+          dateSelect.disabled = true;
+          dateSelect.innerHTML =
+            '<option value="">No dates available for this tour</option>';
+          dateInfo.textContent = "";
+          return;
+        }
+
+        // Enable date dropdown
+        dateSelect.disabled = false;
+
+        // Add default "Select a date" option
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = "Select a date...";
+        dateSelect.appendChild(defaultOption);
+
+        // Filter and sort dates (only future dates)
+        const sortedDates = availableDates
+          .map((dateStr) => new Date(dateStr))
+          .filter((date) => date >= new Date()) // Only show future dates
+          .sort((a, b) => a - b); // Sort chronologically
+
+        // Add each available date as an option
+        sortedDates.forEach((date) => {
+          const option = document.createElement("option");
+          const formattedDate = date.toISOString().split("T")[0]; // YYYY-MM-DD for form submission
+          const displayDate = date.toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }); // "20 November 2025" for display
+
+          option.value = formattedDate;
+          option.textContent = displayDate;
+          dateSelect.appendChild(option);
+        });
+
+        // Show info about available dates
+        dateInfo.textContent = `${sortedDates.length} available date(s) for this tour`;
+      });
+    </script>
 
     <%- include("partials/scripts") %>
   </body>

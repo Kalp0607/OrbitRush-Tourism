@@ -361,7 +361,6 @@
         </li>
 
         <!-- User Menu -->
-        <!-- User Menu -->
         <% if (locals.user) { %>
         <li class="nav-item dropdown">
           <a
@@ -402,11 +401,21 @@
                 <i class="fas fa-clipboard-list"></i>All Enquiries
               </a>
             </li>
+            <li>
+              <a class="dropdown-item" href="/booking/admin/bookings">
+                <i class="fas fa-calendar-check"></i>View All Bookings
+              </a>
+            </li>
 
             <% } else { %>
             <li>
               <a class="dropdown-item" href="/my-enquiries">
                 <i class="fas fa-clipboard-list"></i>My Enquiries
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="/booking/my-bookings">
+                <i class="fas fa-ticket-alt"></i>My Bookings
               </a>
             </li>
             <% } %>

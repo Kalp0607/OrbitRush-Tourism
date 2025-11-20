@@ -14,6 +14,94 @@
         background: #f5f6fa;
         color: #333;
       }
+      /* Available Dates Section */
+      .dates-section {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        background: #f8f9fa;
+      }
+
+      .dates-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .dates-header h3 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 1.2rem;
+      }
+
+      .add-date-btn {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .add-date-btn:hover {
+        background: #2980b9;
+      }
+
+      .date-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.8rem;
+        padding: 0.8rem;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+      }
+
+      .date-item input[type="date"] {
+        flex: 1;
+        margin: 0;
+      }
+
+      .remove-date-btn {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .remove-date-btn:hover {
+        background: #c0392b;
+      }
+
+      .dates-info {
+        background: #e8f4f8;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: #0c5460;
+      }
+
+      .date-count {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
+      }
 
       .header {
         background: #2c3e50;
@@ -362,6 +450,36 @@
               + Add Another Day
             </button>
           </div>
+          <!-- Available Dates Section -->
+          <div class="form-group">
+            <div class="dates-section">
+              <div class="dates-header">
+                <div>
+                  <h3><i class="fas fa-calendar-alt"></i> Available Dates</h3>
+                  <p class="date-count" id="dateCount">0 dates added</p>
+                </div>
+                <button
+                  type="button"
+                  class="add-date-btn"
+                  onclick="addAvailableDate()"
+                >
+                  <i class="fas fa-plus"></i>
+                  Add Date
+                </button>
+              </div>
+
+              <div id="available-dates-container">
+                <!-- Dates will be added here dynamically -->
+              </div>
+
+              <div class="dates-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Tip:</strong> Add multiple dates when this tour will be
+                available for booking. Past dates will be automatically removed.
+                You can always add more dates later from the admin dashboard.
+              </div>
+            </div>
+          </div>
 
           <button type="submit" class="submit-btn">
             <i class="fas fa-save"></i>
@@ -373,6 +491,7 @@
 
     <script>
       let dayCount = 1;
+      let dateCount = 0;
 
       function addItineraryDay() {
         dayCount++;
@@ -380,20 +499,106 @@
         const newDay = document.createElement("div");
         newDay.className = "itinerary-item";
         newDay.innerHTML = `
-                <div class="day-number">${dayCount}</div>
-                <div style="flex: 1;">
-                    <input type="text" name="itinerary[${
-                      dayCount - 1
-                    }][title]" placeholder="Day ${dayCount} - Title" style="margin-bottom: 0.5rem;">
-                    <textarea name="itinerary[${
-                      dayCount - 1
-                    }][description]" placeholder="Day ${dayCount} activities..."></textarea>
-                </div>
-            `;
+    <div class="day-number">${dayCount}</div>
+    <div style="flex: 1;">
+      <input type="text" name="itinerary[${
+        dayCount - 1
+      }][title]" placeholder="Day ${dayCount} - Title" style="margin-bottom: 0.5rem;">
+      <textarea name="itinerary[${
+        dayCount - 1
+      }][description]" placeholder="Day ${dayCount} activities..."></textarea>
+    </div>
+  `;
         container.appendChild(newDay);
       }
 
-      // File input feedback
+      // Available Dates Functions
+      function addAvailableDate() {
+        dateCount++;
+        const container = document.getElementById("available-dates-container");
+        const dateItem = document.createElement("div");
+        dateItem.className = "date-item";
+        dateItem.id = `date-item-${dateCount}`;
+
+        // Set minimum date to today
+        const today = new Date().toISOString().split("T")[0];
+
+        dateItem.innerHTML = `
+    <input 
+      type="date" 
+      name="availableDates[]" 
+      min="${today}"
+      required
+      onchange="validateDate(this)"
+    />
+    <button type="button" class="remove-date-btn" onclick="removeAvailableDate(${dateCount})">
+      <i class="fas fa-trash"></i>
+    </button>
+  `;
+
+        container.appendChild(dateItem);
+        updateDateCount();
+      }
+
+      function removeAvailableDate(id) {
+        const dateItem = document.getElementById(`date-item-${id}`);
+        if (dateItem) {
+          dateItem.remove();
+          updateDateCount();
+        }
+      }
+
+      function updateDateCount() {
+        const activeDates = document.querySelectorAll(
+          "#available-dates-container .date-item"
+        ).length;
+        document.getElementById(
+          "dateCount"
+        ).textContent = `${activeDates} dates added`;
+      }
+
+      function validateDate(input) {
+        const selectedDate = new Date(input.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
+          alert("Please select a future date. Past dates are not allowed.");
+          input.value = "";
+          return false;
+        }
+
+        // Check for duplicate dates
+        const allDates = document.querySelectorAll(
+          'input[name="availableDates[]"]'
+        );
+        const currentValue = input.value;
+        let duplicateCount = 0;
+
+        allDates.forEach((dateInput) => {
+          if (dateInput.value === currentValue) {
+            duplicateCount++;
+          }
+        });
+
+        if (duplicateCount > 1) {
+          alert(
+            "This date has already been selected. Please choose a different date."
+          );
+          input.value = "";
+          return false;
+        }
+
+        return true;
+      }
+
+      // Add some initial dates for better UX
+      document.addEventListener("DOMContentLoaded", function () {
+        // Automatically add first date field
+        addAvailableDate();
+      });
+
+      // File input feedback (existing code)
       document
         .querySelector('input[name="coverImage"]')
         .addEventListener("change", function () {
