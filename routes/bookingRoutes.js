@@ -5,6 +5,15 @@ const Booking = require("../models/bookings");
 const Tour = require("../models/tour");
 const nodemailer = require("nodemailer");
 
+//tours fetch for all nav bars (ADD THIS)
+async function getTours() {
+  try {
+    return await Tour.find({}).select("name").limit(10); // Only get name field, limit to 10
+  } catch (error) {
+    return [];
+  }
+}
+
 // Initialize Razorpay with your keys
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -437,10 +446,12 @@ router.get("/my-bookings", async (req, res) => {
     const bookings = await Booking.find({ userId: req.user._id })
       .populate("tourId", "name location duration coverImage")
       .sort({ createdAt: -1 }); // Newest first
-
+    const tours = await getTours();
+    console.log(tours);
     res.render("booking/my-bookings", {
       user: req.user,
       bookings: bookings,
+      tours,
     });
   } catch (error) {
     console.error(error);
