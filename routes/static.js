@@ -6,7 +6,10 @@ const Enquiry = require("../models/enquiry");
 // Homepage Route
 router.get("/", async (req, res) => {
   try {
-    const allTours = await Tour.find({}).sort({ createdAt: -1 }).lean();
+    const allTours = await Tour.find({})
+      .select("name location price coverImage")
+      .sort({ createdAt: -1 })
+      .lean();
     return res.render("homepage", {
       user: req.user,
       tours: allTours,
@@ -89,6 +92,15 @@ router.get("/my-enquiries", async (req, res) => {
       success: null,
     });
   }
+});
+
+// Helper Aliases
+router.get("/tours", (req, res) => {
+  return res.redirect("/tour");
+});
+
+router.get(["/admin", "/admin/dashboard"], (req, res) => {
+  return res.redirect("/tour/admin/dashboard");
 });
 
 module.exports = router;

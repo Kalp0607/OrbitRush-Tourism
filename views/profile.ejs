@@ -2,473 +2,331 @@
 <html lang="en">
   <head>
     <%- include("partials/head") %>
-    <title>My Profile - OrbitRush Tourism</title>
+    <title>My Profile | OrbitRush Tourism</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: "Inter", sans-serif;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      .profile-page {
+        background-color: var(--orbit-light);
         min-height: 100vh;
+        padding-bottom: 6rem;
       }
 
-      .profile-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
+      .profile-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 70%, #0369a1 100%);
+        color: white;
+        padding: 4rem 0 5rem;
       }
 
-      .profile-header {
-        background: white;
-        border-radius: 20px;
-        padding: 3rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        margin-bottom: 2rem;
+      .profile-header-card {
+        max-width: 1100px;
+        margin: -3rem auto 0;
+        background: #ffffff;
+        border-radius: var(--orbit-radius-lg);
+        padding: 2.5rem 3rem;
+        border: 1px solid var(--orbit-border);
+        box-shadow: var(--orbit-shadow-lg);
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
         gap: 2rem;
+        position: relative;
+        z-index: 10;
       }
 
-      .profile-avatar {
+      .profile-avatar-wrap {
         position: relative;
       }
 
-      .avatar-image {
-        width: 120px;
-        height: 120px;
+      .profile-avatar-img {
+        width: 110px;
+        height: 110px;
         border-radius: 50%;
         object-fit: cover;
-        border: 4px solid #3b82f6;
-        box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
+        border: 4px solid #ffffff;
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.15);
       }
 
-      .avatar-badge {
+      .profile-verified-badge {
         position: absolute;
-        bottom: 5px;
-        right: 5px;
+        bottom: 4px;
+        right: 4px;
         background: #10b981;
         color: white;
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 3px solid #ffffff;
         font-size: 0.8rem;
-        border: 3px solid white;
       }
 
-      .profile-info {
-        flex: 1;
+      .profile-main-name {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
+        margin-bottom: 0.2rem;
       }
 
-      .profile-name {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin-bottom: 0.5rem;
-      }
-
-      .profile-email {
+      .profile-main-email {
         color: #64748b;
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
+        font-size: 1rem;
+        margin: 0;
       }
 
-      .profile-actions {
-        display: flex;
-        gap: 1rem;
-      }
-
-      .btn-primary {
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-        color: white;
-        padding: 1rem 2rem;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
-        color: white;
-      }
-
-      .btn-secondary {
-        background: white;
-        color: #64748b;
-        padding: 1rem 2rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .btn-secondary:hover {
-        border-color: #3b82f6;
-        color: #3b82f6;
-        transform: translateY(-2px);
-      }
-
-      .profile-content {
+      /* Content Grid */
+      .profile-grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
+        max-width: 1100px;
+        margin: 2.5rem auto 0;
       }
 
-      .profile-card {
-        background: white;
-        border-radius: 16px;
-        padding: 2rem;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-        border: 1px solid #f1f5f9;
+      .profile-section-card {
+        background: #ffffff;
+        border-radius: var(--orbit-radius-lg);
+        padding: 2.2rem;
+        border: 1px solid var(--orbit-border);
+        box-shadow: var(--orbit-shadow-sm);
       }
 
-      .card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+      .profile-card-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
         margin-bottom: 1.5rem;
-      }
-
-      .card-title {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #1a1a1a;
         display: flex;
         align-items: center;
         gap: 0.5rem;
       }
 
-      .card-title i {
-        color: #3b82f6;
+      .profile-info-row {
+        margin-bottom: 1.2rem;
       }
 
-      .recent-enquiries {
-        grid-column: 1 / -1;
-      }
-
-      .enquiry-item {
-        background: #f8fafc;
-        padding: 1.5rem;
-        border-radius: 12px;
-        margin-bottom: 1rem;
-        border-left: 4px solid #3b82f6;
-      }
-
-      .enquiry-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-      }
-
-      .enquiry-tour {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #1a1a1a;
-      }
-
-      .enquiry-date {
-        font-size: 0.9rem;
+      .profile-info-label {
+        font-size: 0.78rem;
+        font-weight: 700;
         color: #64748b;
+        text-transform: uppercase;
+        margin-bottom: 2px;
       }
 
-      .enquiry-details {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-top: 1rem;
+      .profile-info-val {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--orbit-dark);
       }
 
-      .enquiry-detail {
-        font-size: 0.9rem;
-        color: #64748b;
-      }
-
-      .enquiry-detail strong {
-        color: #1a1a1a;
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-        color: #64748b;
-      }
-
-      .empty-state i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        color: #cbd5e1;
-      }
-
-      .quick-action-link {
+      /* Quick Action Link */
+      .profile-action-link {
         display: flex;
         align-items: center;
-        padding: 1rem;
+        gap: 1rem;
+        padding: 1rem 1.2rem;
         background: #f8fafc;
-        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--orbit-radius-md);
         text-decoration: none;
-        color: #1a1a1a;
-        transition: all 0.3s ease;
+        color: var(--orbit-dark);
+        margin-bottom: 0.8rem;
+        transition: var(--orbit-transition);
       }
 
-      .quick-action-link:hover {
-        background: #f1f5f9;
-        transform: translateX(5px);
-        color: #1a1a1a;
+      .profile-action-link:hover {
+        background: #f0f9ff;
+        border-color: var(--orbit-primary);
+        transform: translateX(4px);
+        color: var(--orbit-dark);
       }
 
-      @media (max-width: 768px) {
-        .profile-header {
+      .profile-action-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+      }
+
+      /* Recent Enquiries Box */
+      .recent-enquiries-box {
+        max-width: 1100px;
+        margin: 2.5rem auto 0;
+      }
+
+      @media (max-width: 991px) {
+        .profile-grid-2 {
+          grid-template-columns: 1fr;
+        }
+        .profile-header-card {
           flex-direction: column;
           text-align: center;
-        }
-
-        .profile-content {
-          grid-template-columns: 1fr;
-        }
-
-        .profile-actions {
-          justify-content: center;
-          flex-wrap: wrap;
-        }
-
-        .enquiry-details {
-          grid-template-columns: 1fr;
+          padding: 2rem;
         }
       }
     </style>
   </head>
 
-  <body>
+  <body class="profile-page">
     <%- include("partials/nav") %>
 
-    <div class="profile-container">
-      <!-- Profile Header -->
-      <div class="profile-header">
-        <div class="profile-avatar">
-          <img
-            src="<%= user.profileImageURL %>"
-            alt="<%= user.fullName %>"
-            class="avatar-image"
-          />
-          <div class="avatar-badge">
-            <i class="fas fa-check"></i>
-          </div>
-        </div>
-
-        <div class="profile-info">
-          <h1 class="profile-name"><%= user.fullName %></h1>
-          <p class="profile-email">
-            <i class="fas fa-envelope"></i> <%= user.email %>
-          </p>
-        </div>
-
-        <div class="profile-actions">
-          <a href="/tour/enquire" class="btn-primary">
-            <i class="fas fa-paper-plane"></i>
-            New Enquiry
-          </a>
-        </div>
+    <!-- Hero Header -->
+    <section class="profile-hero">
+      <div class="container text-center">
+        <h1 style="font-size: 2.5rem; font-weight: 900; color: #ffffff; margin-bottom: 0.4rem;">
+          Explorer Profile
+        </h1>
+        <p style="color: rgba(255, 255, 255, 0.85); font-size: 1.05rem;">
+          Manage your account credentials and personal preferences.
+        </p>
       </div>
+    </section>
 
-      <!-- Profile Content -->
-      <div class="profile-content">
-        <!-- Account Information -->
-        <div class="profile-card">
-          <div class="card-header">
-            <h2 class="card-title">
-              <i class="fas fa-user-circle"></i>
-              Account Information
-            </h2>
-          </div>
-
-          <div style="space-y: 1rem">
-            <div style="margin-bottom: 1rem">
-              <label style="font-weight: 600; color: #64748b; font-size: 0.9rem"
-                >Full Name</label
-              >
-              <p style="font-size: 1.1rem; color: #1a1a1a; margin-top: 0.5rem">
-                <%= user.fullName %>
-              </p>
-            </div>
-
-            <div style="margin-bottom: 1rem">
-              <label style="font-weight: 600; color: #64748b; font-size: 0.9rem"
-                >Email Address</label
-              >
-              <p style="font-size: 1.1rem; color: #1a1a1a; margin-top: 0.5rem">
-                <%= user.email %>
-              </p>
-            </div>
-
-            <div>
-              <label style="font-weight: 600; color: #64748b; font-size: 0.9rem"
-                >Member Since</label
-              >
-              <p style="font-size: 1.1rem; color: #1a1a1a; margin-top: 0.5rem">
-                Recently joined
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="profile-card">
-          <div class="card-header">
-            <h2 class="card-title">
-              <i class="fas fa-bolt"></i>
-              Quick Actions
-            </h2>
-          </div>
-
-          <div style="display: flex; flex-direction: column; gap: 1rem">
-            <a href="/tour" class="quick-action-link">
-              <i
-                class="fas fa-compass"
-                style="color: #3b82f6; margin-right: 1rem; width: 20px"
-              ></i>
-              <div>
-                <div style="font-weight: 600">Browse Tours</div>
-                <div style="font-size: 0.9rem; color: #64748b">
-                  Discover amazing destinations
-                </div>
-              </div>
-            </a>
-
-            <a href="/tour/enquire" class="quick-action-link">
-              <i
-                class="fas fa-paper-plane"
-                style="color: #10b981; margin-right: 1rem; width: 20px"
-              ></i>
-              <div>
-                <div style="font-weight: 600">Make Enquiry</div>
-                <div style="font-size: 0.9rem; color: #64748b">
-                  Plan your next adventure
-                </div>
-              </div>
-            </a>
-
-            <a href="/contact-us" class="quick-action-link">
-              <i
-                class="fas fa-headset"
-                style="color: #f59e0b; margin-right: 1rem; width: 20px"
-              ></i>
-              <div>
-                <div style="font-weight: 600">Get Support</div>
-                <div style="font-size: 0.9rem; color: #64748b">
-                  Need help? We're here for you
-                </div>
-              </div>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent Enquiries -->
-      <div class="profile-card recent-enquiries" style="margin-top: 2rem">
-        <div class="card-header">
-          <h2 class="card-title">
-            <i class="fas fa-history"></i>
-            Recent Enquiries
-          </h2>
-          <a
-            href="/tour/enquire"
-            class="btn-secondary"
-            style="padding: 0.5rem 1rem"
-          >
-            <i class="fas fa-plus"></i>
-            New Enquiry
-          </a>
-        </div>
-
-        <% if (enquiries && enquiries.length > 0) { %> <%
-        enquiries.forEach(enquiry => { %>
-        <div class="enquiry-item">
-          <div class="enquiry-header">
-            <div>
-              <div class="enquiry-tour"><%= enquiry.tourName %></div>
-              <div class="enquiry-date">
-                <i class="fas fa-calendar"></i>
-                Submitted <%= new Date(enquiry.createdAt).toLocaleDateString()
-                %>
-              </div>
+    <!-- Profile Header Card -->
+    <div class="container">
+      <div class="profile-header-card">
+        <div class="d-flex align-items-center gap-4 flex-wrap flex-md-nowrap justify-content-center justify-content-md-start">
+          <div class="profile-avatar-wrap">
+            <img
+              src="<%= user.profileImageURL || '/images/default-avatar.png' %>"
+              alt="<%= user.fullName %>"
+              class="profile-avatar-img"
+              onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(user.fullName) %>&background=0284c7&color=fff'"
+            />
+            <div class="profile-verified-badge" title="Verified Member">
+              <i class="fas fa-check"></i>
             </div>
           </div>
 
-          <div class="enquiry-details">
-            <div class="enquiry-detail">
-              <strong>People:</strong> <%= enquiry.numberOfPeople %>
-            </div>
-            <div class="enquiry-detail">
-              <strong>Preferred Date:</strong>
-              <% if (enquiry.preferredDate) { %> <%= new
-              Date(enquiry.preferredDate).toLocaleDateString() %> <% } else { %>
-              Flexible <% } %>
-            </div>
-            <div class="enquiry-detail">
-              <strong>Phone:</strong> <%= enquiry.phone %>
-            </div>
-          </div>
-
-          <% if (enquiry.message) { %>
-          <div
-            style="
-              margin-top: 1rem;
-              padding-top: 1rem;
-              border-top: 1px solid #e2e8f0;
-            "
-          >
-            <div
-              style="
-                font-size: 0.9rem;
-                color: #64748b;
-                font-weight: 600;
-                margin-bottom: 0.5rem;
-              "
-            >
-              Message:
-            </div>
-            <p style="color: #1a1a1a; line-height: 1.6">
-              <%= enquiry.message %>
+          <div>
+            <h2 class="profile-main-name"><%= user.fullName %></h2>
+            <p class="profile-main-email">
+              <i class="fas fa-envelope text-primary me-1"></i> <%= user.email %>
             </p>
           </div>
-          <% } %>
         </div>
-        <% }) %> <% if (enquiries.length === 5) { %>
-        <div style="text-align: center; margin-top: 1rem">
-          <a href="#" class="btn-secondary">View All Enquiries</a>
+
+        <a href="/tour/enquire" class="btn-orbit-hero btn-orbit-primary" style="padding: 0.8rem 1.6rem; font-size: 0.92rem;">
+          <i class="fas fa-paper-plane"></i>
+          <span>New Inquiry</span>
+        </a>
+      </div>
+
+      <!-- Account & Quick Actions Grid -->
+      <div class="profile-grid-2">
+        <!-- Account Info -->
+        <div class="profile-section-card">
+          <h3 class="profile-card-title">
+            <i class="fas fa-id-badge text-primary"></i> Account Credentials
+          </h3>
+
+          <div class="profile-info-row">
+            <div class="profile-info-label">Full Name</div>
+            <div class="profile-info-val"><%= user.fullName %></div>
+          </div>
+
+          <div class="profile-info-row">
+            <div class="profile-info-label">Email Address</div>
+            <div class="profile-info-val"><%= user.email %></div>
+          </div>
+
+          <div class="profile-info-row">
+            <div class="profile-info-label">Account Membership</div>
+            <div class="profile-info-val">
+              <span class="badge bg-primary px-3 py-2" style="border-radius: 9999px; font-weight: 700;">
+                <%= user.role || 'Explorer Member' %>
+              </span>
+            </div>
+          </div>
         </div>
-        <% } %> <% } else { %>
-        <div class="empty-state">
-          <i class="fas fa-inbox"></i>
-          <h3>No enquiries yet</h3>
-          <p>
-            Start planning your dream vacation by making your first enquiry!
-          </p>
-          <a href="/tour/enquire" class="btn-primary" style="margin-top: 1rem">
-            <i class="fas fa-paper-plane"></i>
-            Make Your First Enquiry
+
+        <!-- Quick Shortcuts -->
+        <div class="profile-section-card">
+          <h3 class="profile-card-title">
+            <i class="fas fa-bolt text-warning"></i> Quick Shortcuts
+          </h3>
+
+          <a href="/tour" class="profile-action-link">
+            <div class="profile-action-icon" style="background: rgba(2, 132, 199, 0.1); color: var(--orbit-primary);">
+              <i class="fas fa-compass"></i>
+            </div>
+            <div>
+              <div style="font-weight: 700;">Explore Expeditions</div>
+              <small class="text-muted">Browse hand-crafted luxury packages</small>
+            </div>
+          </a>
+
+          <a href="/booking/my-bookings" class="profile-action-link">
+            <div class="profile-action-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+            <div>
+              <div style="font-weight: 700;">My Reservations</div>
+              <small class="text-muted">View confirmed departure dates & permits</small>
+            </div>
+          </a>
+
+          <a href="/contact-us" class="profile-action-link">
+            <div class="profile-action-icon" style="background: rgba(249, 115, 22, 0.1); color: var(--orbit-accent);">
+              <i class="fas fa-headset"></i>
+            </div>
+            <div>
+              <div style="font-weight: 700;">24/7 Concierge Support</div>
+              <small class="text-muted">Contact our expedition specialists</small>
+            </div>
           </a>
         </div>
-        <% } %>
+      </div>
+
+      <!-- Recent Inquiries Section -->
+      <div class="recent-enquiries-box">
+        <div class="profile-section-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="profile-card-title mb-0">
+              <i class="fas fa-history text-primary"></i> Recent Inquiries
+            </h3>
+            <a href="/tour/enquire" class="btn-orbit-hero btn-orbit-glass" style="color: var(--orbit-dark); border-color: #cbd5e1; padding: 0.45rem 1rem; font-size: 0.82rem;">
+              <i class="fas fa-plus"></i> New Request
+            </a>
+          </div>
+
+          <% if (enquiries && enquiries.length > 0) { %>
+            <% enquiries.forEach(enquiry => { %>
+              <div class="p-3 mb-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid var(--orbit-primary);">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--orbit-dark); margin: 0;"><%= enquiry.tourName %></h4>
+                  <span class="text-muted" style="font-size: 0.82rem; font-weight: 600;">
+                    <i class="far fa-calendar me-1"></i> <%= new Date(enquiry.createdAt).toLocaleDateString() %>
+                  </span>
+                </div>
+                <div class="d-flex gap-4 flex-wrap text-muted" style="font-size: 0.88rem;">
+                  <span><strong>Party:</strong> <%= enquiry.numberOfPeople %> Travelers</span>
+                  <span><strong>Date:</strong> <%= enquiry.preferredDate ? new Date(enquiry.preferredDate).toLocaleDateString() : 'Flexible' %></span>
+                  <span><strong>Phone:</strong> <%= enquiry.phone %></span>
+                </div>
+                <% if (enquiry.message) { %>
+                  <p class="mt-2 mb-0 text-muted" style="font-size: 0.88rem; line-height: 1.5; border-top: 1px solid #e2e8f0; padding-top: 6px;">
+                    "<%= enquiry.message %>"
+                  </p>
+                <% } %>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div class="text-center py-4 text-muted">
+              <i class="fas fa-inbox fa-2x mb-2 opacity-50"></i>
+              <p>No recent inquiries. Plan a bespoke trip whenever you are ready.</p>
+            </div>
+          <% } %>
+        </div>
       </div>
     </div>
-    <%- include("partials/footer") %> <%- include("partials/scripts") %>
+
+    <%- include("partials/footer") %>
+    <%- include("partials/scripts") %>
   </body>
 </html>

@@ -1,466 +1,589 @@
 <style>
-  .navbar {
-    background: #ffffff !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 1rem 0;
-    transition: all 0.3s ease;
-  }
-
-  .navbar.scrolled {
-    padding: 0.5rem 0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  }
-
-  .navbar-brand {
-    font-weight: 700;
-    font-size: 1.8rem;
-    color: #007bff !important;
-    display: flex;
-    align-items: center;
-  }
-
-  .brand-logo {
-    margin-right: 0.8rem;
-    transition: transform 0.3s ease;
-  }
-
-  .navbar-brand:hover .brand-logo {
-    transform: scale(2.3);
-  }
-
-  .navbar-nav .nav-link {
-    color: #333 !important;
-    font-weight: 500;
-    font-size: 1rem;
-    padding: 0.8rem 1.2rem !important;
-    margin: 0 0.2rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-  }
-
-  .navbar-nav .nav-link:hover {
-    color: #007bff !important;
-    background: #f8f9fa;
-  }
-
-  /* Enhanced Tours Dropdown Styling */
-  .dropdown-menu {
-    background: white;
-    border: 1px solid #e9ecef;
-    border-radius: 16px;
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
-    padding: 1rem 0;
-    margin-top: 0.5rem;
-    min-width: 320px;
-    max-width: 380px;
-    max-height: 450px;
-    overflow-y: auto;
-    animation: dropdownFadeIn 0.2s ease-out;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e0 transparent;
-  }
-
-  /* User dropdown specific styling - RIGHT ALIGNED */
-  .nav-item.dropdown:last-child .dropdown-menu {
+  /* OrbitRush Ultra-Luxury Navigation Bar */
+  .orbit-navbar-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
     right: 0;
-    left: auto;
-    min-width: 200px;
-    max-width: 250px;
-    transform-origin: top right;
+    z-index: 1050;
+    padding: 1.25rem 0;
+    transition: var(--orbit-transition);
   }
 
-  .dropdown-menu::-webkit-scrollbar {
-    width: 6px;
+  .orbit-navbar-wrapper.scrolled {
+    padding: 0.65rem 0;
   }
 
-  .dropdown-menu::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 10px;
+  .orbit-nav-container {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: var(--orbit-radius-full);
+    padding: 0.6rem 1.5rem;
+    box-shadow: 0 10px 35px -5px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(226, 232, 240, 0.6);
+    transition: var(--orbit-transition);
   }
 
-  .dropdown-menu::-webkit-scrollbar-thumb {
-    background: #cbd5e0;
-    border-radius: 10px;
+  .orbit-navbar-wrapper.scrolled .orbit-nav-container {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 15px 45px -8px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8);
   }
 
-  .dropdown-menu::-webkit-scrollbar-thumb:hover {
-    background: #a0aec0;
-  }
-
-  @keyframes dropdownFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Tours Dropdown Items */
-  .dropdown-item {
-    color: #333;
-    padding: 1rem 1.5rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
+  .orbit-brand {
     display: flex;
     align-items: center;
-    white-space: normal;
-    word-wrap: break-word;
-    line-height: 1.4;
-    border-radius: 8px;
-    margin: 0 0.5rem;
+    gap: 0.75rem;
+    text-decoration: none;
+    font-family: var(--orbit-font-heading);
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: var(--orbit-dark);
+    letter-spacing: -0.03em;
+    transition: var(--orbit-transition);
   }
 
-  .dropdown-item:hover {
-    background: linear-gradient(135deg, #f8f9ff, #e8f2ff);
-    color: #007bff;
-    transform: translateX(5px);
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+  .orbit-brand:hover {
+    color: var(--orbit-primary);
   }
 
-  /* User dropdown items - no transform on hover to prevent cutting */
-  .nav-item.dropdown:last-child .dropdown-item:hover {
-    transform: none;
-    background: linear-gradient(135deg, #f8f9ff, #e8f2ff);
-    color: #007bff;
+  .orbit-brand-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    object-fit: cover;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .dropdown-item i {
-    margin-right: 1rem;
-    width: 18px;
-    text-align: center;
-    font-size: 0.9rem;
+  .orbit-brand:hover .orbit-brand-logo {
+    transform: rotate(-6deg) scale(1.1);
+  }
+
+  .orbit-nav-links-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+    margin-left: 2rem;
+  }
+
+  .orbit-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  .orbit-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 0.95rem;
+    color: #334155;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    border-radius: var(--orbit-radius-full);
+    transition: var(--orbit-transition);
+    white-space: nowrap;
     flex-shrink: 0;
   }
 
-  /* Tours Dropdown Divider */
-  .dropdown-divider {
-    margin: 0.8rem 0;
-    border-top: 2px solid #f1f5f9;
+  .orbit-nav-link:hover {
+    color: var(--orbit-primary);
+    background: rgba(2, 132, 199, 0.08);
   }
 
-  /* No tours message styling */
-  .dropdown-item.text-muted {
-    color: #6c757d !important;
-    font-style: italic;
-    cursor: default;
-    background: #f8f9fa;
-    margin: 0 0.5rem;
-    border-radius: 8px;
-  }
-
-  .dropdown-item.text-muted:hover {
-    background: #f8f9fa;
-    transform: none;
-    box-shadow: none;
-  }
-
-  /* Tour names with better formatting */
-  .tours-dropdown-item {
+  /* Tour Dropdown Menu */
+  .orbit-dropdown {
     position: relative;
   }
 
-  .tours-dropdown-item::after {
-    content: "";
+  .orbit-dropdown-menu {
     position: absolute;
-    bottom: 0;
-    left: 3rem;
-    right: 1rem;
-    height: 1px;
-    background: linear-gradient(to right, transparent, #e9ecef, transparent);
+    top: calc(100% + 12px);
+    left: 0;
+    min-width: 300px;
+    max-width: 360px;
+    max-height: 420px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: var(--orbit-radius-md);
+    padding: 0.6rem;
+    box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.18);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px) scale(0.96);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1100;
+    list-style: none;
   }
 
-  .tours-dropdown-item:last-child::after {
-    display: none;
+  .orbit-dropdown.show .orbit-dropdown-menu,
+  .orbit-dropdown:hover .orbit-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
   }
 
-  /* Enhanced dropdown behavior */
-  .dropdown-toggle::after {
-    transition: transform 0.3s ease;
+  /* User Menu Right Align */
+  .orbit-user-dropdown .orbit-dropdown-menu {
+    left: auto;
+    right: 0;
+    min-width: 240px;
   }
 
-  .nav-item.dropdown.show .dropdown-toggle::after {
-    transform: rotate(180deg);
-  }
-
-  .profile-image {
-    border: 2px solid #e9ecef;
-    transition: all 0.3s ease;
-  }
-
-  .profile-image:hover {
-    border-color: #007bff;
-  }
-
-  .btn-signup {
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    padding: 0.7rem 1.5rem;
+  .orbit-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.9rem;
+    color: #1e293b;
     text-decoration: none;
-    transition: all 0.3s ease;
-    margin-left: 1rem;
-  }
-
-  .btn-signup:hover {
-    background: #0056b3;
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-  }
-
-  .navbar-toggler {
-    border: none;
-    padding: 0.5rem;
-  }
-
-  .navbar-toggler:focus {
-    box-shadow: none;
-  }
-
-  .alert {
-    background: #dc3545;
-    border: none;
-    color: white;
-    margin: 0;
-    border-radius: 0;
+    font-size: 0.9rem;
     font-weight: 500;
+    border-radius: var(--orbit-radius-sm);
+    transition: var(--orbit-transition);
   }
 
+  .orbit-dropdown-item:hover {
+    background: #f0f9ff;
+    color: var(--orbit-primary);
+    transform: translateX(4px);
+  }
+
+  .orbit-dropdown-item i {
+    color: var(--orbit-primary);
+    width: 18px;
+    text-align: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  .orbit-dropdown-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 0.4rem 0.5rem;
+  }
+
+  /* User Profile Trigger Pill */
+  .orbit-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0.85rem 0.35rem 0.4rem;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--orbit-radius-full);
+    text-decoration: none;
+    color: var(--orbit-dark);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--orbit-transition);
+    cursor: pointer;
+  }
+
+  .orbit-user-pill:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    color: var(--orbit-dark);
+  }
+
+  .orbit-avatar-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* CTA Buttons */
+  .orbit-btn-signin {
+    color: var(--orbit-dark);
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding: 0.55rem 1.1rem;
+    text-decoration: none;
+    border-radius: var(--orbit-radius-full);
+    transition: var(--orbit-transition);
+  }
+
+  .orbit-btn-signin:hover {
+    color: var(--orbit-primary);
+    background: rgba(2, 132, 199, 0.08);
+  }
+
+  .orbit-btn-getstarted {
+    background: linear-gradient(135deg, var(--orbit-primary), var(--orbit-primary-dark));
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding: 0.6rem 1.35rem;
+    border-radius: var(--orbit-radius-full);
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: var(--orbit-transition);
+    border: none;
+  }
+
+  .orbit-btn-getstarted:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(2, 132, 199, 0.45);
+    color: #ffffff;
+  }
+
+  /* Admin Badge in Pill */
+  .orbit-role-badge {
+    font-size: 0.7rem;
+    background: #ef4444;
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* Mobile Toggler */
+  .orbit-mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.35rem;
+    color: var(--orbit-dark);
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 8px;
+    transition: var(--orbit-transition);
+  }
+
+  .orbit-mobile-toggle:focus {
+    outline: none;
+  }
+
+  /* Alert Banner */
+  .orbit-alert-banner {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1060;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  /* Global Top Spacing offset */
   body {
     padding-top: 100px;
   }
 
-  /* Mobile responsiveness for dropdown */
+  /* Responsive Adjustments */
   @media (max-width: 991px) {
-    .navbar-collapse {
-      background: white;
-      border-radius: 12px;
+    .orbit-mobile-toggle {
+      display: block;
+    }
+
+    .orbit-nav-links-wrapper {
+      position: absolute;
+      top: calc(100% + 12px);
+      left: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: var(--orbit-radius-lg);
       padding: 1.5rem;
-      margin-top: 1rem;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.15);
+      display: none;
+      flex-direction: column;
+      gap: 0.85rem;
     }
 
-    .btn-signup {
-      margin-left: 0;
-      margin-top: 1rem;
+    .orbit-nav-links-wrapper.active {
+      display: flex;
+      animation: navFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .orbit-nav-links {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
       width: 100%;
-      text-align: center;
     }
 
-    body {
-      padding-top: 80px;
+    .orbit-nav-link {
+      width: 100%;
+      padding: 0.75rem 1rem;
     }
 
-    .dropdown-menu {
-      position: static !important;
-      transform: none !important;
-      border: none;
-      box-shadow: none;
-      background: #f8f9fa;
-      border-radius: 12px;
-      margin-top: 0.5rem;
-      padding: 0.5rem;
-      min-width: 100%;
-    }
-
-    /* Reset user dropdown alignment on mobile */
-    .nav-item.dropdown:last-child .dropdown-menu {
-      right: auto;
-      left: auto;
-      min-width: 100%;
-    }
-
-    .dropdown-item {
-      padding: 0.8rem 1rem;
-      margin: 0.2rem 0;
-      border-radius: 8px;
-    }
-
-    .dropdown-item:hover {
+    .orbit-dropdown-menu {
+      position: static;
+      opacity: 1;
+      visibility: visible;
       transform: none;
+      box-shadow: none;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      margin-top: 0.5rem;
+      max-width: 100%;
+    }
+
+    .orbit-user-pill {
+      width: 100%;
+      justify-content: flex-start;
+      padding: 0.6rem 1rem;
+    }
+
+    .orbit-btn-getstarted {
+      width: 100%;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+
+    @keyframes navFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   }
 </style>
 
-<nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar">
-  <div class="container">
-    <!-- Brand -->
-    <a class="navbar-brand" href="/">
-      <img
-        src="/images/1760177356614.png"
-        alt="OrbitRush Logo"
-        width="50"
-        height="50"
-        class="brand-logo"
-      />
-      OrbitRush
-    </a>
-
-    <!-- Toggle -->
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNavDropdown"
-      aria-controls="navbarNavDropdown"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- Navigation Menu -->
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item">
-          <a class="nav-link" href="/">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/contact-us">Contact Us</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/about-us">About Us</a>
-        </li>
-
-        <!-- Enhanced Tours Dropdown -->
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle"
-            href="/tour"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            Tours
-          </a>
-          <ul class="dropdown-menu">
-            <% if (locals.tours && locals.tours.length > 0) { %> <%
-            locals.tours.forEach((tour, index) => { %>
-            <li class="tours-dropdown-item">
-              <a
-                class="dropdown-item"
-                href="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>"
-                title="<%= tour.name %>"
-              >
-                <i class="fas fa-map-marker-alt"></i><%= tour.name %>
-              </a>
-            </li>
-            <% }) %> <% } else { %>
-            <li>
-              <span class="dropdown-item text-muted">
-                <i class="fas fa-info-circle"></i>No tours available yet
-              </span>
-            </li>
-            <% } %>
-          </ul>
-        </li>
-
-        <!-- User Menu -->
-        <% if (locals.user) { %>
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle d-flex align-items-center"
-            href="#"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <img
-              src="<%= locals.user.profileImageURL %>"
-              alt="Profile"
-              class="rounded-circle me-2 profile-image"
-              width="35"
-              height="35"
-            />
-            <%= locals.user.fullName %>
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a class="dropdown-item" href="/profile">
-                <i class="fas fa-user"></i>My Profile
-              </a>
-            </li>
-
-            <!-- Show different options based on user role -->
-            <% if (locals.user.role === 'ADMIN') { %>
-            <li>
-              <a class="dropdown-item" href="/tour/admin/dashboard">
-                <i class="fas fa-tachometer-alt"></i>Admin Dashboard
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="/tour/admin/chat">
-                <i class="fas fa-headset"></i>Live Support Chat
-              </a>
-            </li>
-            <li>
-              <a
-                class="dropdown-item"
-                href="/tour/admin/dashboard/enquiries-details"
-              >
-                <i class="fas fa-clipboard-list"></i>All Enquiries
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="/booking/admin/bookings">
-                <i class="fas fa-calendar-check"></i>View All Bookings
-              </a>
-            </li>
-
-            <% } else { %>
-            <li>
-              <a class="dropdown-item" href="/my-enquiries">
-                <i class="fas fa-clipboard-list"></i>My Enquiries
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="/booking/my-bookings">
-                <i class="fas fa-ticket-alt"></i>My Bookings
-              </a>
-            </li>
-            <% } %>
-
-            <li><hr class="dropdown-divider" /></li>
-            <li>
-              <a class="dropdown-item" href="/user/logout">
-                <i class="fas fa-sign-out-alt"></i>Logout
-              </a>
-            </li>
-          </ul>
-        </li>
-        <% } else { %>
-        <li class="nav-item">
-          <a class="nav-link" href="/user/signin">Sign In</a>
-        </li>
-        <li class="nav-item">
-          <a class="btn btn-signup" href="/user/signup">Get Started</a>
-        </li>
-        <% } %>
-      </ul>
-    </div>
-  </div>
-</nav>
-
 <% if (locals.error) { %>
-<div class="alert text-center">
-  <i class="fas fa-exclamation-triangle me-2"></i><%= locals.error %>
+<div class="orbit-alert-banner" id="globalAlert">
+  <i class="fas fa-exclamation-triangle"></i>
+  <span><%= locals.error %></span>
+  <button onclick="document.getElementById('globalAlert').style.display='none'" style="background:none;border:none;color:white;margin-left:1rem;cursor:pointer;font-size:1.1rem;">&times;</button>
 </div>
 <% } %>
+
+<header class="orbit-navbar-wrapper" id="mainNavbar">
+  <div class="container-fluid px-3 px-md-4 px-xl-5" style="max-width: 1480px;">
+    <div class="orbit-nav-container d-flex align-items-center justify-content-between">
+      <!-- Brand Logo & Name -->
+      <a class="orbit-brand" href="/">
+        <img
+          src="/images/1760177356614.png"
+          alt="OrbitRush"
+          class="orbit-brand-logo"
+        />
+        <span>OrbitRush</span>
+      </a>
+
+      <!-- Mobile Hamburger Button -->
+      <button class="orbit-mobile-toggle" id="mobileMenuToggle" aria-label="Toggle Navigation">
+        <i class="fas fa-bars" id="toggleIcon"></i>
+      </button>
+
+      <!-- Nav Links & Menus -->
+      <div class="orbit-nav-links-wrapper" id="navLinksWrapper">
+        <ul class="orbit-nav-links">
+          <li>
+            <a class="orbit-nav-link" href="/">
+              <i class="fas fa-home me-1"></i> Home
+            </a>
+          </li>
+          <li>
+            <a class="orbit-nav-link" href="/tour">
+              <i class="fas fa-compass me-1"></i> Explore Tours
+            </a>
+          </li>
+
+          <!-- Dynamic Tours Dropdown -->
+          <li class="orbit-dropdown" id="toursDropdown">
+            <a class="orbit-nav-link" href="/tour" role="button">
+              <span>Destinations</span>
+              <i class="fas fa-chevron-down ms-1" style="font-size: 0.75rem; opacity: 0.7;"></i>
+            </a>
+            <ul class="orbit-dropdown-menu">
+              <% if (locals.tours && locals.tours.length > 0) { %>
+                <% locals.tours.forEach((tour) => { %>
+                  <li>
+                    <a
+                      class="orbit-dropdown-item"
+                      href="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>"
+                      title="<%= tour.name %>"
+                    >
+                      <i class="fas fa-map-pin"></i>
+                      <span><%= tour.name %></span>
+                    </a>
+                  </li>
+                <% }) %>
+              <% } else { %>
+                <li>
+                  <span class="orbit-dropdown-item text-muted" style="cursor: default;">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Exciting destinations coming soon</span>
+                  </span>
+                </li>
+              <% } %>
+            </ul>
+          </li>
+
+          <li>
+            <a class="orbit-nav-link" href="/about-us">
+              <i class="fas fa-award me-1"></i> About Us
+            </a>
+          </li>
+          <li>
+            <a class="orbit-nav-link" href="/contact-us">
+              <i class="fas fa-headset me-1"></i> Contact
+            </a>
+          </li>
+        </ul>
+
+        <!-- Right Side: User Menu / Sign In Buttons -->
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <% if (locals.user) { %>
+            <div class="orbit-dropdown orbit-user-dropdown" id="userDropdown">
+              <div class="orbit-user-pill" role="button">
+                <img
+                  src="<%= locals.user.profileImageURL || '/images/default-avatar.png' %>"
+                  alt="<%= locals.user.fullName %>"
+                  class="orbit-avatar-img"
+                  onerror="this.src='https://ui-avatars.com/api/?name=<%= encodeURIComponent(locals.user.fullName) %>&background=0284c7&color=fff'"
+                />
+                <span><%= locals.user.fullName.split(' ')[0] %></span>
+                <% if (locals.user.role === 'ADMIN') { %>
+                  <span class="orbit-role-badge">Admin</span>
+                <% } %>
+                <i class="fas fa-chevron-down" style="font-size: 0.7rem; opacity: 0.6;"></i>
+              </div>
+
+              <ul class="orbit-dropdown-menu">
+                <li>
+                  <a class="orbit-dropdown-item" href="/profile">
+                    <i class="fas fa-user-circle"></i>
+                    <span>My Profile</span>
+                  </a>
+                </li>
+
+                <% if (locals.user.role === 'ADMIN') { %>
+                  <div class="orbit-dropdown-divider"></div>
+                  <li>
+                    <a class="orbit-dropdown-item" href="/tour/admin/dashboard">
+                      <i class="fas fa-tachometer-alt"></i>
+                      <span>Admin Dashboard</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="orbit-dropdown-item" href="/tour/admin/chat">
+                      <i class="fas fa-headset"></i>
+                      <span>Live Support Workspace</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="orbit-dropdown-item" href="/tour/admin/dashboard/enquiries-details">
+                      <i class="fas fa-clipboard-list"></i>
+                      <span>All Inquiries</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="orbit-dropdown-item" href="/tour/admin/dashboard/custom-enquiries">
+                      <i class="fas fa-magic"></i>
+                      <span>AI Custom Trips</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="orbit-dropdown-item" href="/booking/admin/bookings">
+                      <i class="fas fa-calendar-check"></i>
+                      <span>All Bookings</span>
+                    </a>
+                  </li>
+                <% } else { %>
+                  <li>
+                    <a class="orbit-dropdown-item" href="/my-enquiries">
+                      <i class="fas fa-paper-plane"></i>
+                      <span>My Inquiries</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="orbit-dropdown-item" href="/booking/my-bookings">
+                      <i class="fas fa-ticket-alt"></i>
+                      <span>My Bookings</span>
+                    </a>
+                  </li>
+                <% } %>
+
+                <div class="orbit-dropdown-divider"></div>
+                <li>
+                  <a class="orbit-dropdown-item text-danger" href="/user/logout">
+                    <i class="fas fa-sign-out-alt text-danger"></i>
+                    <span>Sign Out</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          <% } else { %>
+            <a class="orbit-btn-signin" href="/user/signin">Sign In</a>
+            <a class="orbit-btn-getstarted" href="/user/signup">
+              <span>Get Started</span>
+              <i class="fas fa-arrow-right" style="font-size: 0.8rem;"></i>
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
 
 <script>
   // Navbar scroll effect
   window.addEventListener("scroll", function () {
     const navbar = document.getElementById("mainNavbar");
-    if (window.scrollY > 50) {
-      navbar.classList.add("scrolled");
-    } else {
-      navbar.classList.remove("scrolled");
+    if (navbar) {
+      if (window.scrollY > 30) {
+        navbar.classList.add("scrolled");
+      } else {
+        navbar.classList.remove("scrolled");
+      }
     }
   });
-</script>
 
+  // Mobile menu toggle
+  const mobileToggle = document.getElementById("mobileMenuToggle");
+  const navWrapper = document.getElementById("navLinksWrapper");
+  const toggleIcon = document.getElementById("toggleIcon");
+
+  if (mobileToggle && navWrapper) {
+    mobileToggle.addEventListener("click", function () {
+      navWrapper.classList.toggle("active");
+      if (navWrapper.classList.contains("active")) {
+        toggleIcon.className = "fas fa-times";
+      } else {
+        toggleIcon.className = "fas fa-bars";
+      }
+    });
+
+    // Close mobile menu on outside click
+    document.addEventListener("click", function (event) {
+      if (!mobileToggle.contains(event.target) && !navWrapper.contains(event.target)) {
+        navWrapper.classList.remove("active");
+        if (toggleIcon) toggleIcon.className = "fas fa-bars";
+      }
+    });
+  }
+</script>

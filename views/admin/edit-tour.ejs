@@ -1,567 +1,505 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edit Tour | Admin Panel</title>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
+    <%- include("../partials/head") %>
+    <title>Edit <%= tour.name %> | Admin Control Panel</title>
     <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: #f5f6fa;
-        color: #333;
+      .admin-form-page {
+        background-color: #f1f5f9;
+        min-height: 100vh;
+        padding-bottom: 6rem;
       }
-      .header {
-        background: #2c3e50;
+
+      .admin-header-strip {
+        background: #0f172a;
         color: white;
-        padding: 1rem 2rem;
+        padding: 1.5rem 2rem;
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: center;
       }
-      .back-btn {
-        color: white;
-        text-decoration: none;
+
+      .form-container-admin {
+        max-width: 1000px;
+        margin: 2.5rem auto 0;
+        padding: 0 1.5rem;
+      }
+
+      .admin-card-section {
+        background: #ffffff;
+        border-radius: var(--orbit-radius-lg);
+        padding: 2.2rem;
+        border: 1px solid var(--orbit-border);
+        box-shadow: var(--orbit-shadow-sm);
+        margin-bottom: 2rem;
+      }
+
+      .admin-section-heading {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
+        margin-bottom: 1.5rem;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 0.8rem;
       }
-      .container {
-        max-width: 850px;
-        margin: 2rem auto;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
+
+      .admin-section-heading i {
+        color: var(--orbit-primary);
       }
-      .form-header {
-        background: linear-gradient(135deg, #f39c12, #e67e22);
-        color: white;
-        padding: 2rem;
-        text-align: center;
-      }
-      .form-container {
-        padding: 2rem;
-      }
-      .form-group {
-        margin-bottom: 1.5rem;
-      }
-      label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: #2c3e50;
-      }
-      input, textarea, select {
-        width: 100%;
-        padding: 0.8rem;
-        border: 2px solid #ddd;
-        border-radius: 6px;
-        font-size: 1rem;
-        transition: border-color 0.3s;
-      }
-      input:focus, textarea:focus {
-        outline: none;
-        border-color: #f39c12;
-      }
-      textarea {
-        resize: vertical;
-        min-height: 100px;
-      }
-      .form-row {
+
+      .grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1rem;
+        gap: 1.5rem;
       }
-      .file-input-wrapper {
-        border: 2px dashed #ddd;
-        padding: 1.5rem;
-        text-align: center;
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+
+      .orbit-admin-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--orbit-dark);
+        margin-bottom: 0.4rem;
+      }
+
+      .orbit-admin-input, .orbit-admin-select, .orbit-admin-textarea {
+        width: 100%;
+        padding: 0.85rem 1.1rem;
+        border: 1.5px solid #cbd5e1;
+        border-radius: var(--orbit-radius-sm);
+        font-size: 0.95rem;
+        outline: none;
+        transition: var(--orbit-transition);
+        font-family: inherit;
+        background: #ffffff;
+      }
+
+      .orbit-admin-input:focus, .orbit-admin-select:focus, .orbit-admin-textarea:focus {
+        border-color: var(--orbit-primary);
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+      }
+
+      .btn-add-item {
+        background: #f0f9ff;
+        color: #0369a1;
+        border: 1.5px dashed #0284c7;
+        padding: 0.6rem 1.2rem;
+        border-radius: var(--orbit-radius-full);
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: var(--orbit-transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 0.8rem;
+      }
+
+      .btn-add-item:hover {
+        background: var(--orbit-primary);
+        color: white;
+      }
+
+      .btn-remove-row {
+        background: #fee2e2;
+        color: #ef4444;
+        border: none;
+        width: 36px;
+        height: 36px;
         border-radius: 8px;
         cursor: pointer;
-        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .dynamic-row {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        align-items: center;
+      }
+
+      .dynamic-box-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--orbit-radius-md);
+        padding: 1.25rem;
+        margin-bottom: 1rem;
         position: relative;
       }
-      .file-input-wrapper:hover {
-        border-color: #f39c12;
-        background: #fff8f0;
-      }
-      .file-input-wrapper input[type="file"] {
-        position: absolute;
-        opacity: 0;
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-      }
-      .file-input-content {
-        pointer-events: none;
-      }
-      .submit-btn {
-        background: linear-gradient(135deg, #f39c12, #e67e22);
+
+      .btn-submit-tour {
+        background: linear-gradient(135deg, var(--orbit-primary), var(--orbit-primary-dark));
         color: white;
-        padding: 1rem 2rem;
         border: none;
+        width: 100%;
+        padding: 1.2rem;
+        border-radius: var(--orbit-radius-full);
+        font-weight: 800;
+        font-size: 1.15rem;
+        cursor: pointer;
+        box-shadow: 0 10px 30px rgba(2, 132, 199, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+      }
+
+      .preview-thumb-img {
+        width: 120px;
+        height: 80px;
         border-radius: 8px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        transition: transform 0.3s;
-      }
-      .submit-btn:hover {
-        transform: translateY(-2px);
-      }
-      .itinerary-item {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        align-items: start;
-      }
-      .day-number {
-        background: #f39c12;
-        color: white;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        flex-shrink: 0;
-        margin-top: 0.5rem;
-      }
-      .add-day-btn {
-        background: #95a5a6;
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.9rem;
-      }
-      .dates-section {
-        border: 2px solid #e9ecef;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        background: #f8f9fa;
-      }
-      .dates-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-      }
-      .add-date-btn {
-        background: #3498db;
-        color: white;
-        border: none;
-        padding: 0.6rem 1.2rem;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      .date-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 0.8rem;
-        padding: 0.8rem;
-        background: white;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-      }
-      .date-item input[type="date"] {
-        flex: 1;
-        margin: 0;
-      }
-      .remove-date-btn {
-        background: #e74c3c;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        width: 35px;
-        height: 35px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .current-img-preview {
-        max-width: 150px;
-        max-height: 100px;
         object-fit: cover;
-        border-radius: 6px;
         margin-top: 0.5rem;
+        border: 1px solid #cbd5e1;
       }
-      .gallery-preview-container {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-top: 0.5rem;
+
+      @media (max-width: 768px) {
+        .grid-2, .grid-3 {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
-  <body>
-    <div class="header">
-      <a href="/tour/admin/dashboard" class="back-btn">
-        <i class="fas fa-arrow-left"></i>
-        Back to Dashboard
-      </a>
-      <div>Admin Panel</div>
-    </div>
 
-    <div class="container">
-      <div class="form-header">
-        <h1><i class="fas fa-edit"></i> Edit Tour: <%= tour.name %></h1>
-        <p>Update tour details, itinerary, pricing, and available dates</p>
+  <body class="admin-form-page">
+    <header class="admin-header-strip">
+      <div class="d-flex align-items-center gap-3">
+        <a href="/tour/admin/dashboard" class="btn btn-sm btn-outline-light" style="border-radius: 9999px;">
+          <i class="fas fa-arrow-left me-1"></i> Dashboard
+        </a>
+        <h2 style="font-size: 1.3rem; margin: 0; font-weight: 800; color: white;">Edit Tour: <%= tour.name %></h2>
       </div>
+    </header>
 
-      <div class="form-container">
-        <% if (typeof error !== 'undefined' && error) { %>
-        <div style="background: #e74c3c; color: white; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-          <%= error %>
+    <div class="form-container-admin">
+      <form action="/tour/admin/edit/<%= tour._id %>" method="POST" enctype="multipart/form-data">
+        <!-- Basic Info -->
+        <div class="admin-card-section">
+          <h3 class="admin-section-heading">
+            <i class="fas fa-info-circle"></i> Basic Tour Information
+          </h3>
+
+          <div class="grid-2 mb-3">
+            <div>
+              <label for="name" class="orbit-admin-label">Tour Title *</label>
+              <input type="text" id="name" name="name" class="orbit-admin-input" value="<%= tour.name %>" required />
+            </div>
+            <div>
+              <label for="location" class="orbit-admin-label">Destination Location *</label>
+              <input type="text" id="location" name="location" class="orbit-admin-input" value="<%= tour.location %>" required />
+            </div>
+          </div>
+
+          <div class="grid-3 mb-3">
+            <div>
+              <label for="price" class="orbit-admin-label">Price Per Traveler (INR) *</label>
+              <input type="number" id="price" name="price" class="orbit-admin-input" value="<%= tour.price %>" min="0" required />
+            </div>
+            <div>
+              <label for="duration" class="orbit-admin-label">Duration *</label>
+              <input type="text" id="duration" name="duration" class="orbit-admin-input" value="<%= tour.duration %>" required />
+            </div>
+            <div>
+              <label for="maxGroupSize" class="orbit-admin-label">Max Group Size</label>
+              <input type="number" id="maxGroupSize" name="maxGroupSize" class="orbit-admin-input" value="<%= tour.maxGroupSize || 20 %>" min="1" />
+            </div>
+          </div>
+
+          <div class="grid-2 mb-3">
+            <div>
+              <label for="difficulty" class="orbit-admin-label">Difficulty Rating</label>
+              <select id="difficulty" name="difficulty" class="orbit-admin-select">
+                <option value="Easy" <%= tour.difficulty === 'Easy' ? 'selected' : '' %>>Easy</option>
+                <option value="Moderate" <%= tour.difficulty === 'Moderate' ? 'selected' : '' %>>Moderate</option>
+                <option value="Challenging" <%= tour.difficulty === 'Challenging' ? 'selected' : '' %>>Challenging</option>
+                <option value="Difficult" <%= tour.difficulty === 'Difficult' ? 'selected' : '' %>>Difficult</option>
+              </select>
+            </div>
+            <div>
+              <label for="startLocation" class="orbit-admin-label">Starting Departure Point</label>
+              <input type="text" id="startLocation" name="startLocation" class="orbit-admin-input" value="<%= tour.startLocation || '' %>" />
+            </div>
+          </div>
+
+          <div>
+            <label for="overview" class="orbit-admin-label">Expedition Overview *</label>
+            <textarea id="overview" name="overview" class="orbit-admin-textarea" rows="4" required><%= tour.overview %></textarea>
+          </div>
         </div>
-        <% } %>
 
-        <form method="POST" action="/tour/admin/edit/<%= tour._id %>" enctype="multipart/form-data">
-          <!-- Basic Info -->
-          <div class="form-group">
-            <label for="name">Tour Name *</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value="<%= tour.name %>"
-              required
-            />
-          </div>
+        <!-- Imagery -->
+        <div class="admin-card-section">
+          <h3 class="admin-section-heading">
+            <i class="fas fa-camera"></i> Imagery & Media
+          </h3>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="location">Location *</label>
-              <input
-                type="text"
-                id="location"
-                name="location"
-                value="<%= tour.location %>"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="price">Price (₹) *</label>
-              <input
-                type="number"
-                id="price"
-                name="price"
-                value="<%= tour.price %>"
-                required
-              />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="duration">Duration *</label>
-              <input
-                type="text"
-                id="duration"
-                name="duration"
-                value="<%= tour.duration %>"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="tripStartDate">Trip Start Date *</label>
-              <input
-                type="date"
-                id="tripStartDate"
-                name="tripStartDate"
-                value="<%= tour.tripStartDate ? new Date(tour.tripStartDate).toISOString().split('T')[0] : '' %>"
-                required
-              />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="overview">Tour Overview *</label>
-            <textarea
-              id="overview"
-              name="overview"
-              required
-            ><%= tour.overview %></textarea>
-          </div>
-
-          <!-- Cover Image -->
-          <div class="form-group">
-            <label>Cover Image</label>
-            <% if (tour.coverImage) { %>
+          <div class="grid-2">
             <div>
-              <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Current Cover Image:</p>
-              <img src="<%= tour.coverImage %>" alt="Cover" class="current-img-preview" />
-            </div>
-            <% } %>
-            <div class="file-input-wrapper" style="margin-top: 0.8rem;">
-              <input type="file" name="coverImage" accept="image/*" />
-              <div class="file-input-content">
-                <i class="fas fa-image fa-2x" style="color: #bbb; margin-bottom: 0.5rem"></i>
-                <p>Click to replace cover image (optional)</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Gallery Images -->
-          <div class="form-group">
-            <label>Gallery Images</label>
-            <% if (tour.moreImages && tour.moreImages.length > 0) { %>
-            <div>
-              <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Current Gallery Images:</p>
-              <div class="gallery-preview-container">
-                <% tour.moreImages.forEach(img => { %>
-                <img src="<%= img %>" alt="Gallery" class="current-img-preview" />
-                <% }) %>
-              </div>
-            </div>
-            <% } %>
-            <div class="file-input-wrapper" style="margin-top: 0.8rem;">
-              <input type="file" name="moreImages" accept="image/*" multiple />
-              <div class="file-input-content">
-                <i class="fas fa-images fa-2x" style="color: #bbb; margin-bottom: 0.5rem"></i>
-                <p>Select new gallery images to add/replace (optional)</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Video -->
-          <div class="form-group">
-            <label for="video">YouTube Video URL (Optional)</label>
-            <input
-              type="url"
-              id="video"
-              name="video"
-              value="<%= tour.video || '' %>"
-            />
-          </div>
-
-          <!-- Includes/Excludes -->
-          <div class="form-row">
-            <div class="form-group">
-              <label for="included">Included Services (one per line)</label>
-              <textarea
-                id="included"
-                name="included"
-              ><%= Array.isArray(tour.included) ? tour.included.join('\n') : (tour.included || '') %></textarea>
-            </div>
-            <div class="form-group">
-              <label for="excluded">Excluded Services (one per line)</label>
-              <textarea
-                id="excluded"
-                name="excluded"
-              ><%= Array.isArray(tour.excluded) ? tour.excluded.join('\n') : (tour.excluded || '') %></textarea>
-            </div>
-          </div>
-
-          <!-- Itinerary -->
-          <div class="form-group">
-            <label>Day by Day Itinerary</label>
-            <div id="itinerary-container">
-              <% if (tour.itinerary && tour.itinerary.length > 0) { %>
-              <% tour.itinerary.forEach((day, index) => { %>
-              <div class="itinerary-item">
-                <div class="day-number"><%= index + 1 %></div>
-                <div style="flex: 1">
-                  <input
-                    type="text"
-                    name="itinerary[<%= index %>][title]"
-                    value="<%= day.title %>"
-                    placeholder="Day <%= index + 1 %> - Title"
-                    style="margin-bottom: 0.5rem"
-                  />
-                  <textarea
-                    name="itinerary[<%= index %>][description]"
-                    placeholder="Day <%= index + 1 %> activities..."
-                  ><%= day.description %></textarea>
+              <label for="coverImage" class="orbit-admin-label">Update Cover Image</label>
+              <input type="file" id="coverImage" name="coverImage" class="orbit-admin-input" accept="image/*" />
+              <% if (tour.coverImage) { %>
+                <div>
+                  <small class="text-muted d-block mt-1">Current Cover Image:</small>
+                  <img src="<%= tour.coverImage %>" alt="Current Cover" class="preview-thumb-img" />
                 </div>
-              </div>
-              <% }) %>
-              <% } else { %>
-              <div class="itinerary-item">
-                <div class="day-number">1</div>
-                <div style="flex: 1">
-                  <input
-                    type="text"
-                    name="itinerary[0][title]"
-                    placeholder="Day 1 - Arrival"
-                    style="margin-bottom: 0.5rem"
-                  />
-                  <textarea
-                    name="itinerary[0][description]"
-                    placeholder="Arrival and check-in..."
-                  ></textarea>
-                </div>
-              </div>
               <% } %>
             </div>
-            <button
-              type="button"
-              class="add-day-btn"
-              onclick="addItineraryDay()"
-            >
-              + Add Another Day
-            </button>
-          </div>
 
-          <!-- Available Dates Section -->
-          <div class="form-group">
-            <div class="dates-section">
-              <div class="dates-header">
-                <div>
-                  <h3><i class="fas fa-calendar-alt"></i> Available Dates</h3>
-                  <p class="date-count" id="dateCount">0 dates added</p>
+            <div>
+              <label for="moreImages" class="orbit-admin-label">Add / Replace Gallery Images</label>
+              <input type="file" id="moreImages" name="moreImages" class="orbit-admin-input" accept="image/*" multiple />
+              <% if (tour.moreImages && tour.moreImages.length > 0) { %>
+                <div class="d-flex gap-2 flex-wrap mt-2">
+                  <% tour.moreImages.forEach(img => { %>
+                    <img src="<%= img %>" alt="Gallery preview" class="preview-thumb-img" style="width: 70px; height: 50px;" />
+                  <% }) %>
                 </div>
-                <button
-                  type="button"
-                  class="add-date-btn"
-                  onclick="addAvailableDate()"
-                >
-                  <i class="fas fa-plus"></i>
-                  Add Date
-                </button>
-              </div>
-
-              <div id="available-dates-container">
-                <% if (tour.availableDates && tour.availableDates.length > 0) { %>
-                <% tour.availableDates.forEach((date, idx) => {
-                  const dObj = new Date(date);
-                  const formatted = dObj.toISOString().split('T')[0];
-                %>
-                <div class="date-item" id="date-item-existing-<%= idx %>">
-                  <input
-                    type="date"
-                    name="availableDates[]"
-                    value="<%= formatted %>"
-                    required
-                    onchange="validateDate(this)"
-                  />
-                  <button type="button" class="remove-date-btn" onclick="this.parentElement.remove(); updateDateCount();">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-                <% }) %>
-                <% } %>
-              </div>
+              <% } %>
             </div>
           </div>
+        </div>
 
-          <button type="submit" class="submit-btn">
-            <i class="fas fa-save"></i>
-            Update Tour
+        <!-- Departure Dates -->
+        <div class="admin-card-section">
+          <h3 class="admin-section-heading">
+            <i class="fas fa-calendar-alt"></i> Scheduled Departure Dates
+          </h3>
+          <div id="availableDatesContainer">
+            <% if (tour.availableDates && tour.availableDates.length > 0) { %>
+              <% tour.availableDates.forEach(date => { 
+                const dateVal = new Date(date).toISOString().split('T')[0];
+              %>
+                <div class="dynamic-row">
+                  <input type="date" name="availableDates[]" value="<%= dateVal %>" class="orbit-admin-input date-input" />
+                  <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                </div>
+              <% }) %>
+            <% } %>
+          </div>
+          <button type="button" class="btn-add-item" onclick="addDateField()">
+            <i class="fas fa-plus"></i> Add Departure Date
           </button>
-        </form>
-      </div>
+        </div>
+
+        <!-- Highlights -->
+        <div class="admin-card-section">
+          <h3 class="admin-section-heading">
+            <i class="fas fa-sparkles"></i> Expedition Highlights
+          </h3>
+          <div id="highlightsContainer">
+            <% if (tour.highlights && tour.highlights.length > 0) { %>
+              <% tour.highlights.forEach(highlight => { %>
+                <div class="dynamic-row">
+                  <input type="text" name="highlights[]" value="<%= highlight %>" class="orbit-admin-input highlight-input" />
+                  <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                </div>
+              <% }) %>
+            <% } %>
+          </div>
+          <button type="button" class="btn-add-item" onclick="addHighlightField()">
+            <i class="fas fa-plus"></i> Add Highlight
+          </button>
+        </div>
+
+        <!-- Day-by-Day Itinerary -->
+        <div class="admin-card-section">
+          <h3 class="admin-section-heading">
+            <i class="fas fa-route"></i> Day-by-Day Itinerary
+          </h3>
+          <div id="itineraryContainer">
+            <% if (tour.itinerary && tour.itinerary.length > 0) { %>
+              <% tour.itinerary.forEach((item, index) => { %>
+                <div class="dynamic-box-card itinerary-item">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong style="color: var(--orbit-primary);">Day <%= item.day || (index + 1) %></strong>
+                    <button type="button" class="btn-remove-row" onclick="this.closest('.itinerary-item').remove()"><i class="fas fa-trash"></i></button>
+                  </div>
+                  <input type="hidden" name="itinerary[<%= index %>][day]" value="<%= item.day || (index + 1) %>" />
+                  <div class="mb-2">
+                    <input type="text" name="itinerary[<%= index %>][title]" value="<%= item.title %>" class="orbit-admin-input mb-2" placeholder="Day Title" />
+                    <textarea name="itinerary[<%= index %>][description]" class="orbit-admin-textarea" rows="2" placeholder="Activities..."><%= item.description %></textarea>
+                  </div>
+                </div>
+              <% }) %>
+            <% } %>
+          </div>
+          <button type="button" class="btn-add-item" onclick="addItineraryDay()">
+            <i class="fas fa-plus"></i> Add Day to Itinerary
+          </button>
+        </div>
+
+        <!-- Inclusions & Exclusions -->
+        <div class="admin-card-section">
+          <h3 class="admin-section-heading">
+            <i class="fas fa-clipboard-check"></i> Inclusions & Exclusions
+          </h3>
+
+          <div class="grid-2">
+            <div>
+              <label class="orbit-admin-label" style="color: #10b981;">Included Services</label>
+              <div id="includedContainer">
+                <% if (tour.included && tour.included.length > 0) { %>
+                  <% tour.included.forEach(inc => { %>
+                    <div class="dynamic-row">
+                      <input type="text" name="included[]" value="<%= inc %>" class="orbit-admin-input included-input" />
+                      <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    </div>
+                  <% }) %>
+                <% } %>
+              </div>
+              <button type="button" class="btn-add-item" onclick="addIncludedField()">
+                <i class="fas fa-plus"></i> Add Inclusion
+              </button>
+            </div>
+
+            <div>
+              <label class="orbit-admin-label" style="color: #ef4444;">Excluded Services</label>
+              <div id="excludedContainer">
+                <% if (tour.excluded && tour.excluded.length > 0) { %>
+                  <% tour.excluded.forEach(exc => { %>
+                    <div class="dynamic-row">
+                      <input type="text" name="excluded[]" value="<%= exc %>" class="orbit-admin-input excluded-input" />
+                      <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                    </div>
+                  <% }) %>
+                <% } %>
+              </div>
+              <button type="button" class="btn-add-item" onclick="addExcludedField()">
+                <i class="fas fa-plus"></i> Add Exclusion
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guides -->
+        <div class="admin-card-section">
+          <h3 class="admin-section-heading">
+            <i class="fas fa-user-tie"></i> Assigned Guides & Naturalists
+          </h3>
+          <div id="guidesContainer">
+            <% if (tour.guides && tour.guides.length > 0) { %>
+              <% tour.guides.forEach((guide, index) => { %>
+                <div class="dynamic-row guide-item">
+                  <input type="text" name="guides[<%= index %>][name]" value="<%= guide.name %>" class="orbit-admin-input" placeholder="Guide Name" />
+                  <input type="text" name="guides[<%= index %>][role]" value="<%= guide.role %>" class="orbit-admin-input" placeholder="Role" />
+                  <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+                </div>
+              <% }) %>
+            <% } %>
+          </div>
+          <button type="button" class="btn-add-item" onclick="addGuide()">
+            <i class="fas fa-plus"></i> Add Guide
+          </button>
+        </div>
+
+        <!-- Restrictions -->
+        <div class="admin-card-section">
+          <h3 class="admin-section-heading">
+            <i class="fas fa-shield-alt"></i> Restrictions & Policies
+          </h3>
+          <div>
+            <label for="ageRestriction" class="orbit-admin-label">Age Restriction (Min Age)</label>
+            <input type="number" id="ageRestriction" name="ageRestriction" value="<%= tour.ageRestriction || '' %>" class="orbit-admin-input" min="0" />
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit-tour">
+          <i class="fas fa-save"></i>
+          <span>Save Changes to Expedition</span>
+        </button>
+      </form>
     </div>
 
+    <%- include("../partials/scripts") %>
+
     <script>
-      let dayCount = <%= (tour.itinerary && tour.itinerary.length) ? tour.itinerary.length : 1 %>;
-      let dateCount = 0;
+      function addDateField() {
+        const container = document.getElementById("availableDatesContainer");
+        const row = document.createElement("div");
+        row.className = "dynamic-row";
+        row.innerHTML = `
+          <input type="date" name="availableDates[]" class="orbit-admin-input date-input" />
+          <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+        `;
+        container.appendChild(row);
+      }
+
+      function addHighlightField() {
+        const container = document.getElementById("highlightsContainer");
+        const row = document.createElement("div");
+        row.className = "dynamic-row";
+        row.innerHTML = `
+          <input type="text" name="highlights[]" class="orbit-admin-input highlight-input" placeholder="Highlight..." />
+          <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+        `;
+        container.appendChild(row);
+      }
 
       function addItineraryDay() {
-        dayCount++;
-        const container = document.getElementById("itinerary-container");
-        const newDay = document.createElement("div");
-        newDay.className = "itinerary-item";
-        newDay.innerHTML = `
-          <div class="day-number">${dayCount}</div>
-          <div style="flex: 1;">
-            <input type="text" name="itinerary[${dayCount - 1}][title]" placeholder="Day ${dayCount} - Title" style="margin-bottom: 0.5rem;">
-            <textarea name="itinerary[${dayCount - 1}][description]" placeholder="Day ${dayCount} activities..."></textarea>
+        const container = document.getElementById("itineraryContainer");
+        const count = container.querySelectorAll(".itinerary-item").length;
+        const dayNum = count + 1;
+        const card = document.createElement("div");
+        card.className = "dynamic-box-card itinerary-item";
+        card.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong style="color: var(--orbit-primary);">Day ${dayNum}</strong>
+            <button type="button" class="btn-remove-row" onclick="this.closest('.itinerary-item').remove()"><i class="fas fa-trash"></i></button>
+          </div>
+          <input type="hidden" name="itinerary[${count}][day]" value="${dayNum}" />
+          <div class="mb-2">
+            <input type="text" name="itinerary[${count}][title]" class="orbit-admin-input mb-2" placeholder="Day Title" />
+            <textarea name="itinerary[${count}][description]" class="orbit-admin-textarea" rows="2" placeholder="Activities..."></textarea>
           </div>
         `;
-        container.appendChild(newDay);
+        container.appendChild(card);
       }
 
-      function addAvailableDate() {
-        dateCount++;
-        const container = document.getElementById("available-dates-container");
-        const dateItem = document.createElement("div");
-        dateItem.className = "date-item";
-        dateItem.id = `date-item-${dateCount}`;
-
-        const today = new Date().toISOString().split("T")[0];
-
-        dateItem.innerHTML = `
-          <input 
-            type="date" 
-            name="availableDates[]" 
-            min="${today}"
-            required
-            onchange="validateDate(this)"
-          />
-          <button type="button" class="remove-date-btn" onclick="removeAvailableDate(${dateCount})">
-            <i class="fas fa-trash"></i>
-          </button>
+      function addIncludedField() {
+        const container = document.getElementById("includedContainer");
+        const row = document.createElement("div");
+        row.className = "dynamic-row";
+        row.innerHTML = `
+          <input type="text" name="included[]" class="orbit-admin-input included-input" placeholder="Included item..." />
+          <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
         `;
-
-        container.appendChild(dateItem);
-        updateDateCount();
+        container.appendChild(row);
       }
 
-      function removeAvailableDate(id) {
-        const dateItem = document.getElementById(`date-item-${id}`);
-        if (dateItem) {
-          dateItem.remove();
-          updateDateCount();
-        }
+      function addExcludedField() {
+        const container = document.getElementById("excludedContainer");
+        const row = document.createElement("div");
+        row.className = "dynamic-row";
+        row.innerHTML = `
+          <input type="text" name="excluded[]" class="orbit-admin-input excluded-input" placeholder="Excluded item..." />
+          <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+        `;
+        container.appendChild(row);
       }
 
-      function updateDateCount() {
-        const activeDates = document.querySelectorAll(
-          "#available-dates-container .date-item"
-        ).length;
-        document.getElementById("dateCount").textContent = `${activeDates} dates added`;
+      function addGuide() {
+        const container = document.getElementById("guidesContainer");
+        const count = container.querySelectorAll(".guide-item").length;
+        const row = document.createElement("div");
+        row.className = "dynamic-row guide-item";
+        row.innerHTML = `
+          <input type="text" name="guides[${count}][name]" class="orbit-admin-input" placeholder="Guide Name" />
+          <input type="text" name="guides[${count}][role]" class="orbit-admin-input" placeholder="Role" />
+          <button type="button" class="btn-remove-row" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
+        `;
+        container.appendChild(row);
       }
-
-      function validateDate(input) {
-        const selectedDate = new Date(input.value);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (selectedDate < today) {
-          alert("Please select a future date. Past dates are not allowed.");
-          input.value = "";
-          return false;
-        }
-
-        const allDates = document.querySelectorAll('input[name="availableDates[]"]');
-        const currentValue = input.value;
-        let duplicateCount = 0;
-
-        allDates.forEach((dateInput) => {
-          if (dateInput.value === currentValue) {
-            duplicateCount++;
-          }
-        });
-
-        if (duplicateCount > 1) {
-          alert("This date has already been selected. Please choose a different date.");
-          input.value = "";
-          return false;
-        }
-
-        return true;
-      }
-
-      document.addEventListener("DOMContentLoaded", function () {
-        updateDateCount();
-      });
     </script>
   </body>
 </html>

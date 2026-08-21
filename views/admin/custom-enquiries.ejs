@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include("../partials/head") %>
+    <title>AI Custom Inquiries | Admin Control Panel</title>
+    <style>
+      .admin-layout {
+        background-color: #f1f5f9;
+        min-height: 100vh;
+        padding-bottom: 5rem;
+      }
+
+      .admin-topbar {
+        background: #0f172a;
+        color: white;
+        padding: 1.25rem 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .admin-nav-links {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .admin-nav-btn {
+        color: #cbd5e1;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: var(--orbit-radius-full);
+        font-size: 0.88rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: var(--orbit-transition);
+      }
+
+      .admin-nav-btn:hover, .admin-nav-btn.active {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .admin-nav-btn.active {
+        background: var(--orbit-primary);
+      }
+
+      .dashboard-body {
+        max-width: 1320px;
+        margin: 2.5rem auto 0;
+        padding: 0 1.5rem;
+      }
+
+      .ai-enquiry-card {
+        background: #ffffff;
+        border-radius: var(--orbit-radius-lg);
+        border: 1px solid var(--orbit-border);
+        box-shadow: var(--orbit-shadow-sm);
+        padding: 2rem;
+        margin-bottom: 1.8rem;
+        transition: var(--orbit-transition);
+      }
+
+      .ai-enquiry-card:hover {
+        box-shadow: var(--orbit-shadow-md);
+        border-color: #8b5cf6;
+      }
+
+      .ai-enquiry-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 1rem;
+      }
+
+      .ai-enquiry-dest {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
+        margin: 0;
+      }
+
+      .ai-details-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .ai-detail-cell {
+        background: #fdf4ff;
+        border: 1px solid #f3e8ff;
+        border-radius: var(--orbit-radius-sm);
+        padding: 0.9rem 1.1rem;
+      }
+
+      .ai-label-sub {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #7e22ce;
+        text-transform: uppercase;
+      }
+
+      .ai-val-main {
+        font-size: 1rem;
+        font-weight: 800;
+        color: #581c87;
+      }
+
+      .ai-itinerary-preview-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--orbit-radius-md);
+        padding: 1.5rem;
+        margin-top: 1rem;
+      }
+
+      .itinerary-day-row {
+        padding: 0.6rem 0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .itinerary-day-row:last-child {
+        border-bottom: none;
+      }
+
+      @media (max-width: 991px) {
+        .ai-details-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 600px) {
+        .ai-details-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="admin-layout">
+    <header class="admin-topbar">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-2">
+          <img src="/images/1760177356614.png" alt="OrbitRush" style="width: 34px; height: 34px; border-radius: 8px;" />
+          <span style="font-family: var(--orbit-font-heading); font-weight: 800; font-size: 1.25rem;">OrbitRush Admin</span>
+        </div>
+
+        <nav class="admin-nav-links">
+          <a href="/tour/admin/dashboard" class="admin-nav-btn">
+            <i class="fas fa-mountain"></i> Tours
+          </a>
+          <a href="/booking/admin/bookings" class="admin-nav-btn">
+            <i class="fas fa-calendar-check"></i> Bookings
+          </a>
+          <a href="/tour/admin/dashboard/enquiries-details" class="admin-nav-btn">
+            <i class="fas fa-clipboard-list"></i> Inquiries
+          </a>
+          <a href="/tour/admin/dashboard/custom-enquiries" class="admin-nav-btn active">
+            <i class="fas fa-magic"></i> AI Trips
+          </a>
+          <a href="/tour/admin/chat" class="admin-nav-btn">
+            <i class="fas fa-comments"></i> Live Chat
+          </a>
+          <a href="/tour/admin/dashboard/user-details" class="admin-nav-btn">
+            <i class="fas fa-users"></i> Users
+          </a>
+          <a href="/" class="admin-nav-btn" style="background: rgba(255,255,255,0.08);">
+            <i class="fas fa-external-link-alt"></i> View Site
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="dashboard-body">
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+          <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--orbit-dark); margin: 0;">
+            AI Custom Trip Inquiries (<%= customEnquiries ? customEnquiries.length : 0 %>)
+          </h1>
+          <small class="text-muted">Generated by travelers through the AI Trip Architect widget</small>
+        </div>
+      </div>
+
+      <% if (customEnquiries && customEnquiries.length > 0) { %>
+        <% customEnquiries.forEach(enquiry => { %>
+          <article class="ai-enquiry-card">
+            <div class="ai-enquiry-header">
+              <div>
+                <h3 class="ai-enquiry-dest">
+                  <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                  <%= enquiry.destination %>
+                </h3>
+                <div class="text-muted" style="font-size: 0.88rem; margin-top: 4px;">
+                  Customer: <strong><%= enquiry.customerName %></strong> | 
+                  <a href="mailto:<%= enquiry.customerEmail %>" style="color: var(--orbit-primary);"><%= enquiry.customerEmail %></a> | 
+                  <a href="tel:<%= enquiry.customerPhone %>" style="color: #64748b;"><%= enquiry.customerPhone %></a>
+                </div>
+              </div>
+
+              <div>
+                <span class="badge" style="background: #8b5cf6; font-size: 0.82rem; padding: 0.4rem 0.8rem; border-radius: 9999px;">
+                  <%= enquiry.status || 'PENDING' %>
+                </span>
+              </div>
+            </div>
+
+            <div class="ai-details-grid">
+              <div class="ai-detail-cell">
+                <div class="ai-label-sub">Duration</div>
+                <div class="ai-val-main"><%= enquiry.duration %></div>
+              </div>
+
+              <div class="ai-detail-cell">
+                <div class="ai-label-sub">Budget</div>
+                <div class="ai-val-main"><%= enquiry.budget %></div>
+              </div>
+
+              <div class="ai-detail-cell">
+                <div class="ai-label-sub">Travelers</div>
+                <div class="ai-val-main"><%= enquiry.numberOfTravelers %></div>
+              </div>
+
+              <div class="ai-detail-cell">
+                <div class="ai-label-sub">Requested Date</div>
+                <div class="ai-val-main"><%= new Date(enquiry.createdAt).toLocaleDateString() %></div>
+              </div>
+            </div>
+
+            <% if (enquiry.itinerary && enquiry.itinerary.length > 0) { %>
+              <div class="ai-itinerary-preview-box">
+                <h5 style="color: #6d28d9; font-weight: 800; font-size: 0.95rem; margin-bottom: 0.75rem;">
+                  <i class="fas fa-route me-1"></i> Generated Custom Itinerary
+                </h5>
+                <% enquiry.itinerary.forEach(day => { %>
+                  <div class="itinerary-day-row">
+                    <strong>Day <%= day.day %>: <%= day.title %></strong>
+                    <div style="font-size: 0.85rem; color: #475569;"><%= day.description %></div>
+                  </div>
+                <% }); %>
+              </div>
+            <% } %>
+          </article>
+        <% }); %>
+      <% } else { %>
+        <div class="text-center py-5 bg-white rounded-4 border p-4">
+          <i class="fas fa-magic fa-3x text-muted mb-3 opacity-50"></i>
+          <h3 style="font-weight: 800; color: var(--orbit-dark);">No AI Custom Inquiries Yet</h3>
+          <p class="text-muted">Inquiries generated via the AI Trip Assistant will appear here for concierge review.</p>
+        </div>
+      <% } %>
+    </main>
+
+    <%- include("../partials/scripts") %>
+  </body>
+</html>

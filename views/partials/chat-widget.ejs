@@ -1,10 +1,15 @@
 <% if (!locals.user || locals.user.role !== 'ADMIN') { %>
-<!-- Live Customer Support Sticky Chat Widget -->
+<!-- OrbitRush Real-Time Customer Support Chat Widget -->
 <div id="orbit-chat-widget">
   <!-- Floating Launcher Button -->
-  <button id="chat-launcher" aria-label="Open Customer Support Chat">
-    <i class="fas fa-comments"></i>
-    <span class="chat-launcher-text">Live Chat</span>
+  <button id="chat-launcher" type="button" aria-label="Open Live Support chat widget">
+    <div class="chat-launcher-icon-wrap" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true" style="display: block;">
+        <path fill="#ffffff" d="M12.63,26.46H8.83a6.61,6.61,0,0,1-6.65-6.07,89.05,89.05,0,0,1,0-11.2A6.5,6.5,0,0,1,8.23,3.25a121.62,121.62,0,0,1,15.51,0A6.51,6.51,0,0,1,29.8,9.19a77.53,77.53,0,0,1,0,11.2,6.61,6.61,0,0,1-6.66,6.07H19.48L12.63,31V26.46"></path>
+        <path fill="#0284c7" d="M19.57,21.68h3.67a2.08,2.08,0,0,0,2.11-1.81,89.86,89.86,0,0,0,0-10.38,1.9,1.9,0,0,0-1.84-1.74,113.15,113.15,0,0,0-15,0A1.9,1.9,0,0,0,6.71,9.49a74.92,74.92,0,0,0-.06,10.38,2,2,0,0,0,2.1,1.81h3.81V26.5Z"></path>
+      </svg>
+    </div>
+    <span class="chat-launcher-text">Live Support</span>
     <span id="chat-badge" class="chat-badge" style="display: none;">1</span>
   </button>
 
@@ -13,10 +18,13 @@
     <!-- Chat Header -->
     <div class="chat-header">
       <div class="chat-header-info">
-        <div class="status-indicator"></div>
+        <div class="chat-avatar">
+          <i class="fas fa-headset"></i>
+          <span class="status-indicator"></span>
+        </div>
         <div>
-          <h4>OrbitRush Support</h4>
-          <p>We typically reply in seconds</p>
+          <h4>OrbitRush Concierge</h4>
+          <p><i class="fas fa-bolt text-warning" style="font-size: 0.75rem;"></i> Typically replies in seconds</p>
         </div>
       </div>
       <button id="chat-close-btn" aria-label="Close Chat">&times;</button>
@@ -25,7 +33,10 @@
     <!-- Chat Messages Container -->
     <div id="chat-messages" class="chat-messages">
       <div class="system-message">
-        <p>👋 Hello! Welcome to OrbitRush Support. How can we help you today?</p>
+        <div class="system-bubble">
+          <i class="fas fa-sparkles text-primary me-1"></i>
+          <span>Welcome to OrbitRush! How can our expedition concierge assist you today?</span>
+        </div>
       </div>
     </div>
 
@@ -34,11 +45,11 @@
       <input
         type="text"
         id="chat-input"
-        placeholder="Type a message..."
+        placeholder="Type your message..."
         autocomplete="off"
         required
       />
-      <button type="submit" id="chat-send-btn">
+      <button type="submit" id="chat-send-btn" aria-label="Send Message">
         <i class="fas fa-paper-plane"></i>
       </button>
     </form>
@@ -48,88 +59,109 @@
 <style>
   #orbit-chat-widget {
     position: fixed;
-    bottom: 25px;
-    right: 25px;
+    bottom: 24px;
+    right: 24px;
     z-index: 9999;
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: var(--orbit-font-body, "Plus Jakarta Sans", sans-serif);
   }
 
   #chat-launcher {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #ffffff;
     border: none;
-    border-radius: 50px;
-    padding: 14px 22px;
-    font-size: 1rem;
-    font-weight: 600;
+    border-radius: 9999px;
+    padding: 10px 18px 10px 12px;
+    font-size: 0.92rem;
+    font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+    box-shadow: 0 10px 30px rgba(2, 132, 199, 0.45);
     display: flex;
     align-items: center;
-    gap: 10px;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
   }
 
   #chat-launcher:hover {
     transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 12px 30px rgba(0, 123, 255, 0.5);
+    box-shadow: 0 14px 35px rgba(2, 132, 199, 0.55);
   }
 
-  .chat-launcher-text {
-    font-size: 0.95rem;
+  .chat-launcher-icon-wrap {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .chat-badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
+    top: -4px;
+    right: -4px;
     background: #ef4444;
     color: white;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     font-size: 0.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 800;
     border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
   }
 
-  /* Chat Window Styling */
+  /* Chat Window */
   #chat-window {
     position: absolute;
-    bottom: 75px;
+    bottom: 65px;
     right: 0;
-    width: 360px;
+    width: 375px;
     max-width: 90vw;
-    height: 480px;
+    height: 520px;
     max-height: 80vh;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     transform-origin: bottom right;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(226, 232, 240, 0.9);
   }
 
   .chat-window-hidden {
     opacity: 0;
     pointer-events: none;
-    transform: scale(0.85) translateY(20px);
+    transform: scale(0.88) translateY(20px);
+  }
+
+  @media (max-width: 767px) {
+    #orbit-chat-widget {
+      bottom: 20px;
+      right: 20px;
+    }
+    #chat-window {
+      width: calc(100vw - 40px);
+      max-width: 375px;
+      bottom: 58px;
+      right: 0;
+    }
   }
 
   .chat-header {
-    background: linear-gradient(135deg, #007bff, #0056b3);
+    background: linear-gradient(135deg, #0f172a, #1e293b);
     color: white;
-    padding: 16px;
+    padding: 16px 18px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   .chat-header-info {
@@ -138,135 +170,171 @@
     gap: 12px;
   }
 
+  .chat-avatar {
+    width: 40px;
+    height: 40px;
+    background: rgba(2, 132, 199, 0.2);
+    border: 1px solid rgba(2, 132, 199, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #38bdf8;
+    position: relative;
+    font-size: 1.1rem;
+  }
+
   .status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
     width: 10px;
     height: 10px;
     background: #22c55e;
     border-radius: 50%;
-    border: 2px solid white;
+    border: 2px solid #0f172a;
   }
 
   .chat-header h4 {
     margin: 0;
     font-size: 1rem;
     font-weight: 700;
+    color: #ffffff;
   }
 
   .chat-header p {
     margin: 2px 0 0 0;
-    font-size: 0.75rem;
-    opacity: 0.85;
+    font-size: 0.78rem;
+    color: #94a3b8;
   }
 
   #chat-close-btn {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.1);
     border: none;
-    color: white;
-    font-size: 1.5rem;
+    color: #94a3b8;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1.3rem;
     cursor: pointer;
-    line-height: 1;
-    opacity: 0.8;
-    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
   }
 
   #chat-close-btn:hover {
-    opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
   }
 
   .chat-messages {
     flex: 1;
     padding: 16px;
     overflow-y: auto;
-    background: #f8fafc;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    background: #f8fafc;
   }
 
   .system-message {
     text-align: center;
-    background: #e2e8f0;
-    padding: 8px 12px;
+    margin: 6px 0;
+  }
+
+  .system-bubble {
+    display: inline-block;
+    background: rgba(2, 132, 199, 0.08);
+    border: 1px solid rgba(2, 132, 199, 0.18);
+    color: #0369a1;
+    font-size: 0.82rem;
+    padding: 8px 14px;
     border-radius: 12px;
-    font-size: 0.8rem;
-    color: #475569;
-    margin-bottom: 5px;
+    line-height: 1.4;
   }
 
   .chat-msg-row {
     display: flex;
     flex-direction: column;
-    max-width: 80%;
+    max-width: 82%;
   }
 
   .chat-msg-row.sent {
     align-self: flex-end;
+    align-items: flex-end;
   }
 
   .chat-msg-row.received {
     align-self: flex-start;
+    align-items: flex-start;
+  }
+
+  .chat-msg-sender {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin-bottom: 3px;
+    font-weight: 600;
   }
 
   .chat-bubble {
     padding: 10px 14px;
-    border-radius: 14px;
-    font-size: 0.88rem;
-    line-height: 1.4;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    line-height: 1.45;
     word-break: break-word;
+    position: relative;
   }
 
-  .sent .chat-bubble {
-    background: #007bff;
+  .chat-msg-row.sent .chat-bubble {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
     color: white;
-    border-bottom-right-radius: 2px;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
   }
 
-  .received .chat-bubble {
+  .chat-msg-row.received .chat-bubble {
     background: white;
     color: #1e293b;
-    border-bottom-left-radius: 2px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border-bottom-left-radius: 4px;
     border: 1px solid #e2e8f0;
-  }
-
-  .chat-msg-sender {
-    font-size: 0.7rem;
-    color: #94a3b8;
-    margin-bottom: 2px;
-    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
   }
 
   .chat-msg-time {
-    font-size: 0.65rem;
+    font-size: 0.68rem;
     opacity: 0.7;
-    margin-top: 3px;
+    margin-top: 4px;
     text-align: right;
   }
 
   .chat-form {
-    display: flex;
-    padding: 12px;
+    padding: 12px 14px;
     background: white;
+    display: flex;
     border-top: 1px solid #e2e8f0;
     gap: 8px;
+    align-items: center;
   }
 
   #chat-input {
     flex: 1;
-    border: 1px solid #cbd5e1;
-    border-radius: 25px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 9999px;
     padding: 10px 16px;
     font-size: 0.9rem;
     outline: none;
     transition: border-color 0.2s;
+    font-family: inherit;
   }
 
   #chat-input:focus {
-    border-color: #007bff;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
   }
 
   #chat-send-btn {
-    background: #007bff;
+    background: linear-gradient(135deg, #0284c7, #0369a1);
     color: white;
     border: none;
     width: 40px;
@@ -276,18 +344,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
   }
 
   #chat-send-btn:hover {
-    background: #0056b3;
+    transform: scale(1.06);
+    box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
   }
 </style>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
   (function () {
-    const socket = io();
+    let socket = null;
+    let isConnected = false;
+    let isOpen = false;
+    let unreadCount = 0;
+
     const launcher = document.getElementById("chat-launcher");
     const windowEl = document.getElementById("chat-window");
     const closeBtn = document.getElementById("chat-close-btn");
@@ -296,14 +371,12 @@
     const input = document.getElementById("chat-input");
     const badge = document.getElementById("chat-badge");
 
-    // Current User Data (from server render)
     const currentUser = {
       id: "<%= locals.user ? locals.user._id : '' %>",
       name: "<%= locals.user ? locals.user.fullName : '' %>",
       role: "<%= locals.user ? locals.user.role : 'NORMAL' %>",
     };
 
-    // Determine Room ID (Logged in userId or local Session ID for guest)
     let sessionId = localStorage.getItem("orbit_chat_session_id");
     if (!sessionId) {
       sessionId = "guest_" + Math.random().toString(36).substring(2, 9);
@@ -313,12 +386,65 @@
     const roomId = currentUser.id || sessionId;
     const senderName = currentUser.name || "Guest Traveler";
 
-    let isOpen = false;
-    let unreadCount = 0;
+    function initSocket() {
+      if (!socket) {
+        socket = io({
+          autoConnect: false,
+          transports: ["websocket", "polling"],
+          timeout: 2000,
+        });
+
+        socket.on("connect", () => {
+          isConnected = true;
+          socket.emit("join_room", {
+            room: roomId,
+            user: currentUser.id ? { fullName: currentUser.name } : null,
+            senderName: senderName,
+          });
+        });
+
+        socket.on("chat_history", (history) => {
+          if (history && history.length > 0) {
+            messagesEl.innerHTML = "";
+            history.forEach((msg) => appendMessage(msg));
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+          }
+        });
+
+        socket.on("receive_message", (msg) => {
+          appendMessage(msg);
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+
+          if (!isOpen && msg.senderRole === "ADMIN") {
+            unreadCount++;
+            badge.textContent = unreadCount;
+            badge.style.display = "flex";
+          }
+        });
+
+        socket.on("disconnect", () => {
+          isConnected = false;
+        });
+      }
+
+      if (!socket.connected) {
+        socket.connect();
+      }
+    }
+
+    function disconnectSocket() {
+      if (socket) {
+        try {
+          socket.emit("leave_room", { room: roomId });
+          socket.disconnect();
+        } catch (err) {}
+      }
+    }
 
     launcher.addEventListener("click", () => {
       isOpen = !isOpen;
       if (isOpen) {
+        initSocket();
         windowEl.classList.remove("chat-window-hidden");
         unreadCount = 0;
         badge.style.display = "none";
@@ -326,46 +452,25 @@
         input.focus();
       } else {
         windowEl.classList.add("chat-window-hidden");
+        disconnectSocket();
       }
     });
 
     closeBtn.addEventListener("click", () => {
       isOpen = false;
       windowEl.classList.add("chat-window-hidden");
+      disconnectSocket();
     });
 
-    // Join Chat Room
-    socket.emit("join_room", {
-      room: roomId,
-      user: currentUser.id ? { fullName: currentUser.name } : null,
-    });
+    window.addEventListener("beforeunload", disconnectSocket);
+    window.addEventListener("pagehide", disconnectSocket);
+    window.addEventListener("unload", disconnectSocket);
 
-    // Load Chat History
-    socket.on("chat_history", (history) => {
-      if (history && history.length > 0) {
-        messagesEl.innerHTML = "";
-        history.forEach((msg) => appendMessage(msg));
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-      }
-    });
-
-    // Receive Real-Time Message
-    socket.on("receive_message", (msg) => {
-      appendMessage(msg);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-
-      if (!isOpen && msg.senderRole === "ADMIN") {
-        unreadCount++;
-        badge.textContent = unreadCount;
-        badge.style.display = "flex";
-      }
-    });
-
-    // Handle Form Submit
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const text = input.value.trim();
       if (!text) return;
+      initSocket();
 
       socket.emit("send_message", {
         room: roomId,
@@ -389,7 +494,7 @@
       });
 
       row.innerHTML = `
-        ${!isSent ? `<span class="chat-msg-sender">${msg.senderRole === 'ADMIN' ? '🎧 Support Admin' : msg.senderName}</span>` : ""}
+        ${!isSent ? `<span class="chat-msg-sender">${msg.senderRole === 'ADMIN' ? '🎧 Support Concierge' : msg.senderName}</span>` : ""}
         <div class="chat-bubble">
           ${escapeHtml(msg.message)}
           <div class="chat-msg-time">${timeStr}</div>

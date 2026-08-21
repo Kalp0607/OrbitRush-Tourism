@@ -5,431 +5,413 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Bookings | OrbitRush Tourism</title>
     <%- include("../partials/head") %>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
     <style>
-      body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      .my-bookings-page {
+        background-color: var(--orbit-light);
         min-height: 100vh;
-        padding: 2rem 0;
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        padding-bottom: 6rem;
       }
 
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1.5rem;
-      }
-
-      .page-header {
-        background: white;
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      /* Hero Header */
+      .bookings-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 70%, #0369a1 100%);
+        color: white;
+        padding: 4rem 0 5rem;
         text-align: center;
       }
 
-      .page-header h1 {
-        margin: 0;
-        color: #2c3e50;
-        font-size: 2.5rem;
-        font-weight: 800;
+      .bookings-hero-title {
+        font-size: 3rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.5rem;
+        color: #ffffff;
       }
 
-      .page-header p {
-        margin: 0.5rem 0 0 0;
-        color: #6c757d;
-        font-size: 1.1rem;
+      .bookings-hero-subtitle {
+        font-size: 1.15rem;
+        color: rgba(255, 255, 255, 0.85);
+        max-width: 600px;
+        margin: 0 auto;
       }
 
+      .bookings-content-wrap {
+        max-width: 1100px;
+        margin: -3rem auto 0;
+        position: relative;
+        z-index: 10;
+      }
+
+      /* Booking Item Card */
       .booking-card {
-        background: white;
-        border-radius: 20px;
+        background: #ffffff;
+        border-radius: var(--orbit-radius-lg);
         overflow: hidden;
+        border: 1px solid var(--orbit-border);
+        box-shadow: var(--orbit-shadow-md);
         margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        transition: all 0.3s;
+        transition: var(--orbit-transition);
       }
 
       .booking-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+        box-shadow: var(--orbit-shadow-lg);
       }
 
-      .booking-header {
-        background: linear-gradient(135deg, #ff6b35, #f7931e);
-        color: white;
+      .booking-card-header {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
         padding: 1.5rem 2rem;
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
       }
 
-      .booking-card.cancelled-card .booking-header {
-        background: linear-gradient(135deg, #64748b, #475569);
-      }
-
-      .booking-header h3 {
+      .booking-tour-name {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
         margin: 0;
-        font-size: 1.5rem;
-        font-weight: 700;
       }
 
-      .status-badges {
-        display: flex;
-        gap: 8px;
+      .status-pill {
+        display: inline-flex;
         align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 1rem;
+        border-radius: var(--orbit-radius-full);
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
 
-      .booking-status {
-        background: rgba(255, 255, 255, 0.3);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.9rem;
+      .status-pill.confirmed {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
       }
 
-      .booking-status.cancelled {
-        background: #ef4444;
-        color: white;
-      }
-
-      .booking-status.completed {
-        background: #4caf50;
+      .status-pill.cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
       }
 
       .booking-body {
         padding: 2rem;
       }
 
-      .booking-details {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .detail-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-      }
-
-      .detail-label {
-        font-size: 0.85rem;
-        color: #6c757d;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .detail-value {
-        font-size: 1.05rem;
-        color: #2c3e50;
-        font-weight: 700;
-      }
-
-      .refund-banner {
+      /* Refund Banner */
+      .refund-status-box {
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
-        border-left: 5px solid #22c55e;
-        padding: 1.2rem;
-        border-radius: 10px;
+        border-left: 4px solid #22c55e;
+        padding: 1.2rem 1.5rem;
+        border-radius: var(--orbit-radius-sm);
         margin-bottom: 1.5rem;
         color: #166534;
       }
 
-      .refund-banner.failed {
+      .refund-status-box.failed {
         background: #fef2f2;
         border-color: #fecaca;
         border-left-color: #ef4444;
         color: #991b1b;
       }
 
-      .travelers-section {
-        background: #f8f9fa;
-        padding: 1.5rem;
-        border-radius: 12px;
-        margin-top: 1.5rem;
-      }
-
-      .travelers-title {
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 1rem;
-        font-size: 1.1rem;
-      }
-
-      .traveler-item {
-        background: white;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 0.8rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .traveler-name {
-        font-weight: 600;
-        color: #2c3e50;
-      }
-
-      .traveler-aadhaar {
-        font-family: monospace;
-        color: #667eea;
-        font-weight: 600;
-      }
-
-      .card-actions {
-        margin-top: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-top: 1px solid #e2e8f0;
-        padding-top: 1.2rem;
-      }
-
-      .btn-cancel-booking {
-        background: #ef4444;
-        color: white;
-        border: none;
-        padding: 0.7rem 1.4rem;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .btn-cancel-booking:hover {
-        background: #dc2626;
-      }
-
-      .cancellation-window-info {
-        font-size: 0.85rem;
-        color: #64748b;
-      }
-
-      .empty-state {
-        background: white;
-        border-radius: 20px;
-        padding: 4rem 2rem;
-        text-align: center;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      }
-
-      .empty-state i {
-        font-size: 5rem;
-        color: #e9ecef;
-        margin-bottom: 1rem;
-      }
-
-      .empty-state h2 {
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
-      }
-
-      .empty-state p {
-        color: #6c757d;
+      /* Booking Meta Grid */
+      .booking-details-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
         margin-bottom: 2rem;
       }
 
-      .btn-browse {
-        display: inline-block;
-        padding: 1rem 2rem;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        text-decoration: none;
-        border-radius: 50px;
-        font-weight: 600;
-        transition: all 0.3s;
+      .booking-detail-cell {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--orbit-radius-sm);
+        padding: 1rem 1.2rem;
+      }
+
+      .detail-label-text {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 2px;
+      }
+
+      .detail-val-text {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
+      }
+
+      /* Travelers Box */
+      .travelers-list-wrap {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--orbit-radius-md);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .travelers-heading {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .traveler-pill-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      /* Actions & Cancellation Bar */
+      .booking-actions-strip {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1.25rem;
+        border-top: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .btn-cancel-action {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+        padding: 0.65rem 1.4rem;
+        border-radius: var(--orbit-radius-full);
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: var(--orbit-transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .btn-cancel-action:hover {
+        background: #ef4444;
+        color: #ffffff;
+        border-color: #ef4444;
+      }
+
+      /* Empty State */
+      .empty-booking-card {
+        background: #ffffff;
+        border-radius: var(--orbit-radius-lg);
+        padding: 5rem 2rem;
+        text-align: center;
+        border: 1px solid var(--orbit-border);
+        box-shadow: var(--orbit-shadow-md);
       }
 
       @media (max-width: 768px) {
-        .booking-details {
+        .booking-details-grid {
           grid-template-columns: 1fr;
         }
-
-        .booking-header {
+        .traveler-pill-row {
           flex-direction: column;
-          gap: 1rem;
-        }
-
-        .card-actions {
-          flex-direction: column;
-          gap: 1rem;
-          align-items: stretch;
+          align-items: flex-start;
+          gap: 0.3rem;
         }
       }
     </style>
   </head>
-  <body>
+
+  <body class="my-bookings-page">
     <%- include("../partials/nav") %>
 
-    <div class="container">
-      <div class="page-header">
-        <h1>🎫 My Bookings</h1>
-        <p>View your upcoming trips, cancellation status, and refund details</p>
+    <!-- Hero Header -->
+    <section class="bookings-hero">
+      <div class="container">
+        <h1 class="bookings-hero-title">My Journey Reservations</h1>
+        <p class="bookings-hero-subtitle">
+          Manage your confirmed expeditions, view traveler credentials, and track real-time refund statuses.
+        </p>
       </div>
+    </section>
 
-      <% if (bookings && bookings.length > 0) { %>
-        <% bookings.forEach(function(booking) { %>
-          <%
-            var now = Date.now();
-            var createdTime = new Date(booking.createdAt).getTime();
-            var hoursDiff = (now - createdTime) / (1000 * 60 * 60);
-            var isCancelable = booking.status !== "CANCELLED" && hoursDiff <= 24;
+    <!-- Main Bookings Container -->
+    <div class="container">
+      <div class="bookings-content-wrap">
+        <% if (bookings && bookings.length > 0) { %>
+          <% bookings.forEach(function(booking) { 
+            const startDate = new Date(booking.travelDate);
+            const formattedStartDate = startDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            // Calculate end date based on tour duration if available, or default
+            let formattedEndDate = 'Flexible Departure';
+            if (booking.tourDuration) {
+              const days = parseInt(booking.tourDuration) || 1;
+              const endDate = new Date(startDate);
+              endDate.setDate(endDate.getDate() + days);
+              formattedEndDate = endDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+            }
 
-            var startDateObj = booking.tripStartDate || booking.travelDate;
-            var endDateObj = booking.tripEndDate || startDateObj;
-
-            var formattedStartDate = new Date(startDateObj).toLocaleDateString('en-IN', {
-              day: 'numeric', month: 'short', year: 'numeric'
-            });
-            var formattedEndDate = new Date(endDateObj).toLocaleDateString('en-IN', {
-              day: 'numeric', month: 'short', year: 'numeric'
-            });
+            // Check 24 hour cancellation eligibility
+            const bookedTime = new Date(booking.createdAt).getTime();
+            const now = Date.now();
+            const isCancelable = booking.status !== 'CANCELLED' && (now - bookedTime) <= (24 * 60 * 60 * 1000);
           %>
-
-          <div class="booking-card <%= booking.status === 'CANCELLED' ? 'cancelled-card' : '' %>">
-            <div class="booking-header">
-              <h3><%= booking.tourName %></h3>
-              <div class="status-badges">
-                <% if (booking.status === 'CANCELLED') { %>
-                  <span class="booking-status cancelled">
-                    <i class="fas fa-ban"></i> CANCELLED
-                  </span>
-                <% } else { %>
-                  <span class="booking-status completed">
-                    ✓ CONFIRMED
-                  </span>
-                <% } %>
-              </div>
-            </div>
-
-            <div class="booking-body">
-              <% if (booking.status === 'CANCELLED') { %>
-                <div class="refund-banner <%= booking.refundStatus === 'FAILED' ? 'failed' : '' %>">
-                  <h4 style="margin: 0 0 6px 0; font-size: 1.05rem;">
-                    <i class="fas fa-hand-holding-usd"></i> Refund Status: <strong><%= booking.refundStatus %></strong>
-                  </h4>
-                  <p style="margin: 0; font-size: 0.9rem;">
-                    <strong>Refund Amount:</strong> ₹<%= (booking.refundAmount || booking.amount).toLocaleString('en-IN') %>
-                    <% if (booking.refundId) { %>
-                      | <strong>Refund ID:</strong> <code><%= booking.refundId %></code>
-                    <% } %>
-                  </p>
-                  <% if (booking.cancelledAt) { %>
-                    <p style="margin: 4px 0 0 0; font-size: 0.8rem; opacity: 0.85;">
-                      Cancelled on: <%= new Date(booking.cancelledAt).toLocaleString('en-IN') %>
-                    </p>
-                  <% } %>
-                </div>
-              <% } %>
-
-              <div class="booking-details">
-                <div class="detail-item">
-                  <span class="detail-label">Trip Start Date</span>
-                  <span class="detail-value"><%= formattedStartDate %></span>
-                </div>
-
-                <div class="detail-item">
-                  <span class="detail-label">Trip End Date</span>
-                  <span class="detail-value"><%= formattedEndDate %></span>
-                </div>
-
-                <div class="detail-item">
-                  <span class="detail-label">Travelers</span>
-                  <span class="detail-value"><%= booking.numberOfPeople %> Person(s)</span>
-                </div>
-
-                <div class="detail-item">
-                  <span class="detail-label">Total Paid</span>
-                  <span class="detail-value" style="color: #10b981;">₹<%= booking.amount.toLocaleString('en-IN') %></span>
-                </div>
-
-                <div class="detail-item">
-                  <span class="detail-label">Payment ID</span>
-                  <span class="detail-value" style="font-size: 0.85rem; font-family: monospace;">
-                    <%= booking.paymentId || 'N/A' %>
-                  </span>
-                </div>
-
-                <div class="detail-item">
-                  <span class="detail-label">Booking ID</span>
-                  <span class="detail-value" style="font-size: 0.85rem; font-family: monospace;">
-                    <%= booking._id %>
-                  </span>
-                </div>
-              </div>
-
-              <!-- Travelers List -->
-              <div class="travelers-section">
-                <div class="travelers-title">
-                  <i class="fas fa-users"></i> Traveler Details
-                </div>
-                <% booking.travelers.forEach(function(traveler, index) { %>
-                  <div class="traveler-item">
-                    <span class="traveler-name">
-                      <i class="fas fa-user me-2"></i> <%= index + 1 %>. <%= traveler.name %>
-                    </span>
-                    <span class="traveler-aadhaar">
-                      Aadhaar: <%= traveler.aadhaarNumber %>
-                    </span>
-                  </div>
-                <% }); %>
-              </div>
-
-              <!-- Actions Section (24h Cancellation) -->
-              <div class="card-actions">
-                <div class="cancellation-window-info">
+            <article class="booking-card">
+              <div class="booking-card-header">
+                <h3 class="booking-tour-name"><%= booking.tourName %></h3>
+                <div>
                   <% if (booking.status === 'CANCELLED') { %>
-                    <i class="fas fa-info-circle text-muted"></i> This booking has been cancelled and refunded.
-                  <% } else if (isCancelable) { %>
-                    <i class="fas fa-clock text-warning"></i> Cancellation window active (eligible within 24 hours of booking).
+                    <span class="status-pill cancelled">
+                      <i class="fas fa-ban"></i> Cancelled & Refunded
+                    </span>
                   <% } else { %>
-                    <i class="fas fa-lock text-muted"></i> Cancellation window closed (24 hours passed).
+                    <span class="status-pill confirmed">
+                      <i class="fas fa-check-circle"></i> Confirmed & Active
+                    </span>
                   <% } %>
                 </div>
-
-                <% if (isCancelable) { %>
-                  <button
-                    class="btn-cancel-booking"
-                    onclick="cancelBooking('<%= booking._id %>')"
-                  >
-                    <i class="fas fa-times-circle"></i> Cancel Booking & Refund
-                  </button>
-                <% } %>
               </div>
-            </div>
+
+              <div class="booking-body">
+                <% if (booking.status === 'CANCELLED') { %>
+                  <div class="refund-status-box <%= booking.refundStatus === 'FAILED' ? 'failed' : '' %>">
+                    <h4 style="margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700;">
+                      <i class="fas fa-hand-holding-usd me-1"></i> Refund Status: <strong><%= booking.refundStatus %></strong>
+                    </h4>
+                    <p style="margin: 0; font-size: 0.9rem;">
+                      <strong>Refund Amount:</strong> ₹<%= (booking.refundAmount || booking.amount).toLocaleString('en-IN') %>
+                      <% if (booking.refundId) { %>
+                        | <strong>Refund ID:</strong> <code><%= booking.refundId %></code>
+                      <% } %>
+                    </p>
+                    <% if (booking.cancelledAt) { %>
+                      <p style="margin: 4px 0 0 0; font-size: 0.82rem; opacity: 0.85;">
+                        Cancelled on: <%= new Date(booking.cancelledAt).toLocaleString('en-IN') %>
+                      </p>
+                    <% } %>
+                  </div>
+                <% } %>
+
+                <div class="booking-details-grid">
+                  <div class="booking-detail-cell">
+                    <div class="detail-label-text">Trip Start Date</div>
+                    <div class="detail-val-text"><%= formattedStartDate %></div>
+                  </div>
+
+                  <div class="booking-detail-cell">
+                    <div class="detail-label-text">Party Size</div>
+                    <div class="detail-val-text"><%= booking.numberOfPeople %> Traveler(s)</div>
+                  </div>
+
+                  <div class="booking-detail-cell">
+                    <div class="detail-label-text">Total Paid</div>
+                    <div class="detail-val-text" style="color: #10b981;">₹<%= booking.amount.toLocaleString('en-IN') %></div>
+                  </div>
+
+                  <div class="booking-detail-cell">
+                    <div class="detail-label-text">Payment ID</div>
+                    <div class="detail-val-text" style="font-size: 0.85rem; font-family: monospace;">
+                      <%= booking.paymentId || 'N/A' %>
+                    </div>
+                  </div>
+
+                  <div class="booking-detail-cell">
+                    <div class="detail-label-text">Booking Reference</div>
+                    <div class="detail-val-text" style="font-size: 0.85rem; font-family: monospace;">
+                      <%= booking._id %>
+                    </div>
+                  </div>
+
+                  <div class="booking-detail-cell">
+                    <div class="detail-label-text">Reservation Placed</div>
+                    <div class="detail-val-text" style="font-size: 0.9rem;">
+                      <%= new Date(booking.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Travelers List -->
+                <div class="travelers-list-wrap">
+                  <div class="travelers-heading">
+                    <i class="fas fa-users text-primary"></i> Registered Travelers
+                  </div>
+                  <% (booking.travelers || []).forEach(function(traveler, index) { %>
+                    <div class="traveler-pill-row">
+                      <span style="font-weight: 700; color: var(--orbit-dark);">
+                        <i class="fas fa-user text-muted me-2"></i> <%= index + 1 %>. <%= traveler.name %>
+                      </span>
+                      <span class="text-muted" style="font-family: monospace; font-size: 0.85rem;">
+                        Aadhaar: <%= traveler.aadhaarNumber %>
+                      </span>
+                    </div>
+                  <% }); %>
+                </div>
+
+                <!-- Actions Strip -->
+                <div class="booking-actions-strip">
+                  <div style="font-size: 0.85rem; color: #64748b;">
+                    <% if (booking.status === 'CANCELLED') { %>
+                      <i class="fas fa-info-circle text-muted"></i> Booking refund processed via Razorpay.
+                    <% } else if (isCancelable) { %>
+                      <i class="fas fa-clock text-warning"></i> Cancellation window active (eligible within 24 hours of booking).
+                    <% } else { %>
+                      <i class="fas fa-lock text-muted"></i> 24-hour cancellation window closed.
+                    <% } %>
+                  </div>
+
+                  <% if (isCancelable) { %>
+                    <button
+                      class="btn-cancel-action"
+                      onclick="cancelBooking('<%= booking._id %>')"
+                    >
+                      <i class="fas fa-times-circle"></i> Cancel & Request Refund
+                    </button>
+                  <% } %>
+                </div>
+              </div>
+            </article>
+          <% }); %>
+        <% } else { %>
+          <div class="empty-booking-card">
+            <i class="fas fa-suitcase-rolling fa-4x text-muted mb-3 opacity-50"></i>
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--orbit-dark); margin-bottom: 0.5rem;">
+              No Reservations Found
+            </h2>
+            <p style="color: #64748b; max-width: 450px; margin: 0 auto 1.5rem;">
+              You haven't reserved an expedition yet. Discover our curated itineraries and start your adventure today.
+            </p>
+            <a href="/tour" class="btn-orbit-hero btn-orbit-primary">
+              <i class="fas fa-compass"></i> Explore Tours
+            </a>
           </div>
-        <% }); %>
-      <% } else { %>
-        <div class="empty-state">
-          <i class="fas fa-suitcase-rolling"></i>
-          <h2>No Bookings Yet</h2>
-          <p>Start your adventure by booking your first tour!</p>
-          <a href="/tour" class="btn-browse">
-            <i class="fas fa-compass"></i> Browse Tours
-          </a>
-        </div>
-      <% } %>
+        <% } %>
+      </div>
     </div>
 
     <%- include("../partials/scripts") %>
 
     <script>
       async function cancelBooking(bookingId) {
-        const reason = prompt("Please enter a reason for cancellation (optional):");
-        if (reason === null) return; // User clicked cancel
+        const reason = prompt("Please provide a cancellation reason (optional):");
+        if (reason === null) return;
 
-        if (!confirm("Are you sure you want to cancel this booking? A full refund will be processed via Razorpay.")) {
+        if (!confirm("Are you sure you want to cancel this booking? A 100% full refund will be initiated via Razorpay.")) {
           return;
         }
 

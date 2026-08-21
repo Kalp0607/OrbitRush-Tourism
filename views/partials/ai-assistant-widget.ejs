@@ -1,0 +1,623 @@
+<% if (!locals.user || locals.user.role !== 'ADMIN') { %>
+<!-- OrbitRush AI Tour Assistant Floating Widget -->
+<div id="orbit-ai-widget">
+  <!-- AI Floating Launcher Button -->
+  <button id="ai-launcher" type="button" aria-label="Open AI Tour Assistant">
+    <div class="ai-launcher-icon-wrap" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+        <path d="M12 2L9.5 8.5 3 11l6.5 2.5L12 20l2.5-6.5L21 11l-6.5-2.5L12 2z" fill="#ffffff"/>
+        <path d="M19 14.5l1.25 2.75L23 18.5l-2.75 1.25L19 22.5l-1.25-2.75L15 18.5l2.75-1.25L19 14.5z" fill="rgba(255,255,255,0.85)"/>
+        <path d="M5 2l.75 1.75L7.5 4.5l-1.75.75L5 7l-.75-1.75L2.5 4.5l1.75-.75L5 2z" fill="rgba(255,255,255,0.85)"/>
+      </svg>
+    </div>
+    <span class="ai-launcher-text">AI Trip Planner</span>
+  </button>
+
+  <!-- AI Chat Window -->
+  <div id="ai-window" class="ai-window-hidden">
+    <!-- Header -->
+    <div class="ai-header">
+      <div class="ai-header-info">
+        <div class="ai-avatar">
+          <i class="fas fa-magic"></i>
+        </div>
+        <div>
+          <h4>OrbitRush AI Planner</h4>
+          <p>Instant Custom Itineraries & Recommendations</p>
+        </div>
+      </div>
+      <button id="ai-close-btn" aria-label="Close AI Assistant">&times;</button>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="ai-messages" class="ai-messages">
+      <div class="ai-msg-row received">
+        <div class="ai-bubble">
+          👋 Hello Explorer! I'm your AI Trip Architect. Where would you like to travel? Share your dream destination, preferred duration, budget, or travel style!
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Custom Plan Preview & Action Bar -->
+    <div id="ai-plan-bar" class="ai-plan-bar" style="display: none;">
+      <div class="ai-plan-info">
+        <span id="ai-plan-dest"><i class="fas fa-map-pin text-primary me-1"></i> Custom Trip</span>
+        <span id="ai-plan-budget"><i class="fas fa-wallet text-success me-1"></i> Flexible</span>
+      </div>
+      <button id="ai-send-enquiry-btn" class="btn-send-enquiry">
+        <i class="fas fa-paper-plane me-1"></i> Request Quote
+      </button>
+    </div>
+
+    <!-- Chat Form Input -->
+    <form id="ai-form" class="ai-form">
+      <input
+        type="text"
+        id="ai-input"
+        placeholder="e.g., 5-day adventure in Ladakh under ₹40k..."
+        autocomplete="off"
+        required
+      />
+      <button type="submit" id="ai-send-btn" aria-label="Submit Prompt">
+        <i class="fas fa-arrow-up"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal for Custom Enquiry Details -->
+<div id="ai-enquiry-modal" class="ai-modal-overlay" style="display: none;">
+  <div class="ai-modal-content">
+    <div class="ai-modal-header">
+      <h3>
+        <i class="fas fa-paper-plane me-2" style="color: #8b5cf6;"></i>
+        Send Custom Trip Request
+      </h3>
+      <button id="ai-modal-close">&times;</button>
+    </div>
+    <form id="ai-modal-form">
+      <div class="modal-body-scroll">
+        <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 1.25rem;">
+          Our tour specialists will review your AI-generated itinerary, optimize costs, and send you a formal package proposal.
+        </p>
+
+        <div class="modal-field">
+          <label>Full Name *</label>
+          <input type="text" id="cust-name" value="<%= locals.user ? locals.user.fullName : '' %>" required />
+        </div>
+
+        <div class="modal-field">
+          <label>Email Address *</label>
+          <input type="email" id="cust-email" value="<%= locals.user ? locals.user.email : '' %>" required />
+        </div>
+
+        <div class="modal-field">
+          <label>Phone / WhatsApp Number *</label>
+          <input type="tel" id="cust-phone" placeholder="e.g. +91 98765 43210" required />
+        </div>
+
+        <div class="modal-summary-box">
+          <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px;" id="modal-summary-dest">Destination: -</div>
+          <div style="font-size: 0.82rem; color: #64748b;" id="modal-summary-details">Duration: - | Travelers: -</div>
+        </div>
+      </div>
+
+      <div class="ai-modal-footer">
+        <button type="button" id="ai-modal-cancel" class="btn-cancel">Cancel</button>
+        <button type="submit" class="btn-submit">Submit Request</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  #orbit-ai-widget {
+    position: fixed;
+    bottom: 24px;
+    right: 195px;
+    z-index: 9998;
+    font-family: var(--orbit-font-body, "Plus Jakarta Sans", sans-serif);
+  }
+
+  #ai-launcher {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: #ffffff;
+    border: none;
+    border-radius: 9999px;
+    padding: 10px 18px 10px 12px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.45);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  #ai-launcher:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 14px 35px rgba(139, 92, 246, 0.55);
+  }
+
+  .ai-launcher-icon-wrap {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-window-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.88) translateY(20px);
+  }
+
+  #ai-window {
+    position: absolute;
+    bottom: 65px;
+    right: 0;
+    width: 395px;
+    max-width: 92vw;
+    height: 540px;
+    max-height: 82vh;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: bottom right;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+  }
+
+  .ai-header {
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    color: white;
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .ai-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ai-avatar {
+    width: 38px;
+    height: 38px;
+    background: rgba(139, 92, 246, 0.3);
+    border: 1px solid rgba(139, 92, 246, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #c4b5fd;
+    font-size: 1rem;
+  }
+
+  .ai-header h4 {
+    margin: 0;
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .ai-header p {
+    margin: 2px 0 0 0;
+    font-size: 0.76rem;
+    color: #c7d2fe;
+  }
+
+  #ai-close-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #c7d2fe;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #fdf4ff;
+    background: linear-gradient(180deg, #fdf4ff 0%, #f8fafc 100%);
+  }
+
+  .ai-msg-row {
+    display: flex;
+    flex-direction: column;
+    max-width: 86%;
+  }
+
+  .ai-msg-row.sent {
+    align-self: flex-end;
+    align-items: flex-end;
+  }
+
+  .ai-msg-row.received {
+    align-self: flex-start;
+    align-items: flex-start;
+  }
+
+  .ai-bubble {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .ai-msg-row.sent .ai-bubble {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: white;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  }
+
+  .ai-msg-row.received .ai-bubble {
+    background: white;
+    color: #1e293b;
+    border-bottom-left-radius: 4px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  }
+
+  .ai-itinerary-card {
+    margin-top: 8px;
+    background: #ffffff;
+    border: 1px solid #ddd6fe;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 0.82rem;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+  }
+
+  .ai-itinerary-card h5 {
+    color: #6d28d9;
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .ai-plan-bar {
+    background: #f5f3ff;
+    border-top: 1px solid #ddd6fe;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .ai-plan-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4c1d95;
+  }
+
+  .btn-send-enquiry {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+    transition: transform 0.2s;
+  }
+
+  .btn-send-enquiry:hover {
+    transform: scale(1.04);
+  }
+
+  .ai-form {
+    padding: 10px 14px;
+    background: white;
+    display: flex;
+    border-top: 1px solid #e2e8f0;
+    gap: 8px;
+    align-items: center;
+  }
+
+  #ai-input {
+    flex: 1;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 9999px;
+    padding: 9px 16px;
+    font-size: 0.88rem;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+
+  #ai-input:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  }
+
+  #ai-send-btn {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: white;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  #ai-send-btn:hover {
+    transform: scale(1.06);
+  }
+
+  /* Modal Overlay */
+  .ai-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .ai-modal-content {
+    background: white;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 440px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+    animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes modalScale {
+    from { opacity: 0; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .ai-modal-header {
+    background: #f8fafc;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .ai-modal-header h3 { margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+  #ai-modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b; }
+
+  .modal-body-scroll { padding: 20px; max-height: 380px; overflow-y: auto; }
+  .modal-field { margin-bottom: 14px; }
+  .modal-field label { display: block; font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 4px; }
+  .modal-field input { width: 100%; padding: 10px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.9rem; outline: none; font-family: inherit; }
+  .modal-field input:focus { border-color: #8b5cf6; }
+
+  .modal-summary-box { background: #f5f3ff; border: 1px solid #ddd6fe; padding: 12px; border-radius: 10px; margin-top: 12px; }
+
+  .ai-modal-footer { padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
+  .btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  .btn-submit { background: #8b5cf6; color: white; border: none; padding: 9px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
+  @media (max-width: 767px) {
+    #orbit-ai-widget {
+      bottom: 78px;
+      right: 20px;
+      left: auto;
+    }
+    #ai-window {
+      width: calc(100vw - 40px);
+      max-width: 380px;
+      bottom: 58px;
+      right: 0;
+      left: auto;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const launcher = document.getElementById("ai-launcher");
+    const windowEl = document.getElementById("ai-window");
+    const closeBtn = document.getElementById("ai-close-btn");
+    const messagesEl = document.getElementById("ai-messages");
+    const form = document.getElementById("ai-form");
+    const input = document.getElementById("ai-input");
+    const planBar = document.getElementById("ai-plan-bar");
+    const planDest = document.getElementById("ai-plan-dest");
+    const planBudget = document.getElementById("ai-plan-budget");
+    const sendEnquiryBtn = document.getElementById("ai-send-enquiry-btn");
+
+    const modal = document.getElementById("ai-enquiry-modal");
+    const modalClose = document.getElementById("ai-modal-close");
+    const modalCancel = document.getElementById("ai-modal-cancel");
+    const modalForm = document.getElementById("ai-modal-form");
+    const modalSummaryDest = document.getElementById("modal-summary-dest");
+    const modalSummaryDetails = document.getElementById("modal-summary-details");
+
+    let isOpen = false;
+    let chatHistory = [];
+    let currentState = {};
+    let currentItinerary = [];
+    let currentSuggestedTours = [];
+
+    launcher.addEventListener("click", () => {
+      isOpen = !isOpen;
+      if (isOpen) {
+        windowEl.classList.remove("ai-window-hidden");
+        input.focus();
+      } else {
+        windowEl.classList.add("ai-window-hidden");
+      }
+    });
+
+    closeBtn.addEventListener("click", () => {
+      isOpen = false;
+      windowEl.classList.add("ai-window-hidden");
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendMessage("user", text);
+      chatHistory.push({ sender: "user", text });
+      input.value = "";
+
+      const loadingRow = appendLoading();
+
+      try {
+        const res = await fetch("/api/ai-assistant/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: chatHistory, state: currentState }),
+        });
+
+        const data = await res.json();
+        loadingRow.remove();
+
+        if (data.reply) {
+          appendMessage("ai", data.reply, data.itinerary);
+          chatHistory.push({ sender: "ai", text: data.reply });
+        }
+
+        if (data.extractedState) {
+          currentState = { ...currentState, ...data.extractedState };
+        }
+
+        if (data.itinerary && data.itinerary.length > 0) {
+          currentItinerary = data.itinerary;
+        }
+
+        if (data.suggestedTours) {
+          currentSuggestedTours = data.suggestedTours;
+        }
+
+        if (currentState.destination) {
+          planDest.innerHTML = `<i class="fas fa-map-pin text-primary me-1"></i> ${escapeHtml(currentState.destination)} (${escapeHtml(currentState.duration || 'Custom')})`;
+          planBudget.innerHTML = `<i class="fas fa-wallet text-success me-1"></i> ${escapeHtml(currentState.budget || 'Flexible')}`;
+          planBar.style.display = "flex";
+        }
+      } catch (err) {
+        loadingRow.remove();
+        appendMessage("ai", "Sorry, I ran into a connection issue. Please try again!");
+      }
+    });
+
+    sendEnquiryBtn.addEventListener("click", () => {
+      modalSummaryDest.textContent = `Destination: ${currentState.destination || 'Custom Tour'}`;
+      modalSummaryDetails.textContent = `Duration: ${currentState.duration || 'Flexible'} | Budget: ${currentState.budget || 'Flexible'} | Travelers: ${currentState.numberOfTravelers || 1}`;
+      modal.style.display = "flex";
+    });
+
+    modalClose.addEventListener("click", () => modal.style.display = "none");
+    modalCancel.addEventListener("click", () => modal.style.display = "none");
+
+    modalForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const payload = {
+        customerName: document.getElementById("cust-name").value,
+        customerEmail: document.getElementById("cust-email").value,
+        customerPhone: document.getElementById("cust-phone").value,
+        destination: currentState.destination || "Custom Destination",
+        startDate: currentState.startDate,
+        duration: currentState.duration || "3 Days",
+        numberOfTravelers: currentState.numberOfTravelers || 1,
+        budget: currentState.budget || "Flexible",
+        preferences: currentState.preferences || "",
+        activities: currentState.activities || [],
+        accommodation: currentState.accommodation || "Standard",
+        transportation: currentState.transportation || "Included",
+        specialRequests: currentState.specialRequests || "",
+        suggestedTours: currentSuggestedTours,
+        itinerary: currentItinerary,
+        aiSummary: `AI Crafted ${currentState.duration || ''} custom tour to ${currentState.destination || 'Destination'}`,
+      };
+
+      try {
+        const res = await fetch("/api/ai-assistant/submit-enquiry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          modal.style.display = "none";
+          appendMessage("ai", "🎉 Your Custom Enquiry has been delivered to our travel experts! We will email you shortly with a personalized quote.");
+        } else {
+          alert(data.error || "Failed to submit custom enquiry.");
+        }
+      } catch (err) {
+        alert("Error submitting custom enquiry.");
+      }
+    });
+
+    function appendMessage(sender, text, itinerary) {
+      const row = document.createElement("div");
+      row.className = `ai-msg-row ${sender === "user" ? "sent" : "received"}`;
+      
+      let html = `<div class="ai-bubble">${escapeHtml(text)}</div>`;
+
+      if (itinerary && itinerary.length > 0) {
+        html += `
+          <div class="ai-itinerary-card">
+            <h5><i class="fas fa-map-marked-alt me-1"></i> Generated Custom Itinerary</h5>
+            ${itinerary.map(item => `<div><strong>Day ${item.day}: ${escapeHtml(item.title)}</strong><br><span style="color:#64748b;">${escapeHtml(item.description)}</span></div>`).join('<div style="height:6px;"></div>')}
+          </div>
+        `;
+      }
+
+      row.innerHTML = html;
+      messagesEl.appendChild(row);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function appendLoading() {
+      const row = document.createElement("div");
+      row.className = "ai-msg-row received";
+      row.innerHTML = `<div class="ai-bubble" style="color: #8b5cf6;"><i class="fas fa-circle-notch fa-spin me-2"></i>Designing your dream itinerary...</div>`;
+      messagesEl.appendChild(row);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      return row;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.innerText = text;
+      return div.innerHTML;
+    }
+  })();
+</script>
+<% } %>

@@ -1,0 +1,12 @@
+{
+  "watch": ["app.js", "routes", "models", "middlewares", "services", "views"],
+  "ext": "js,json,ejs",
+  "ignore": [
+    ".git",
+    "node_modules",
+    "scratch",
+    "public/uploads/*",
+    "*.test.js"
+  ],
+  "delay": "1000"
+}

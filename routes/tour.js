@@ -6,6 +6,7 @@ const Comment = require("../models/comments");
 const Booking = require("../models/bookings");
 const Enquiry = require("../models/enquiry");
 const User = require("../models/user");
+const CustomEnquiry = require("../models/customEnquiry");
 const { requireAdmin } = require("../middlewares/authentication");
 const { sendEmail } = require("../services/mailer");
 const { getNavTours, clearNavToursCache } = require("../services/navCache");
@@ -280,13 +281,16 @@ router.get("/admin/dashboard", requireAdmin, async (req, res) => {
     const totalUsers = await User.countDocuments({ role: { $ne: "ADMIN" } });
     const tours = await Tour.find({}).sort({ createdAt: -1 }).lean();
     const totalEnquiries = await Enquiry.countDocuments({});
+    const totalCustomEnquiries = await CustomEnquiry.countDocuments({});
     res.render("admin/tour-dashboard", {
       user: req.user,
       totalUsers,
       tours,
       totalEnquiries,
+      totalCustomEnquiries,
     });
   } catch (error) {
+    console.error("Error fetching tours dashboard:", error);
     res.status(500).render("error", {
       message: "Error fetching tours dashboard",
       user: req.user,
@@ -698,6 +702,43 @@ router.delete("/admin/enquiry/:enquiryId", requireAdmin, async (req, res) => {
     res.json({ success: true, message: "Enquiry deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error deleting enquiry" });
+  }
+});
+
+// Admin AI Custom Enquiries Management
+router.get("/admin/dashboard/custom-enquiries", requireAdmin, async (req, res) => {
+  try {
+    const customEnquiries = await CustomEnquiry.find({}).sort({ createdAt: -1 }).lean();
+    res.render("admin/custom-enquiries", {
+      user: req.user,
+      customEnquiries: customEnquiries,
+    });
+  } catch (error) {
+    res.status(500).render("error", {
+      message: "Error fetching custom enquiries",
+      user: req.user,
+    });
+  }
+});
+
+router.post("/admin/dashboard/custom-enquiries/:id/status", requireAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const { id } = req.params;
+    await CustomEnquiry.findByIdAndUpdate(id, { status: status });
+    res.json({ success: true, message: "Status updated successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error updating status" });
+  }
+});
+
+router.delete("/admin/custom-enquiry/:id", requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await CustomEnquiry.findByIdAndDelete(id);
+    res.json({ success: true, message: "Custom enquiry deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error deleting custom enquiry" });
   }
 });
 

@@ -2,237 +2,301 @@
 <html lang="en">
   <head>
     <%- include("partials/head") %>
-    <title>OrbitRush Tourism - Discover Amazing Destinations</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <title>OrbitRush — Luxury Expeditions & Curated Global Journeys</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: "Inter", sans-serif;
-        line-height: 1.6;
-        color: #333;
-      }
-
-      /* Hero Section with Dynamic Background */
-      .hero {
+      /* Hero Section with Cinematic Canvas */
+      .orbit-hero {
         position: relative;
-        height: 90vh;
+        min-height: 92vh;
         display: flex;
         align-items: center;
         color: white;
-        text-align: center;
         overflow: hidden;
+        margin-top: -100px;
+        padding: 140px 0 60px 0;
       }
 
-      .hero-backgrounds {
+      .orbit-hero-bg-wrapper {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         z-index: -2;
       }
 
-      .hero-background {
+      .orbit-hero-bg {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
         opacity: 0;
-        transition: opacity 1.5s ease-in-out;
+        transform: scale(1.04);
+        transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 8s ease-out;
+        will-change: opacity, transform;
       }
 
-      .hero-background.active {
+      .orbit-hero-bg.active {
         opacity: 1;
+        transform: scale(1);
       }
 
-      .hero::before {
-        content: "";
+      .orbit-hero-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.4);
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(15, 23, 42, 0.65) 0%,
+          rgba(15, 23, 42, 0.4) 50%,
+          rgba(15, 23, 42, 0.85) 100%
+        );
         z-index: -1;
       }
 
-      .hero-content {
+      .orbit-hero-content {
         position: relative;
-        z-index: 1;
-        animation: fadeInUp 1s ease-out;
+        z-index: 2;
+        max-width: 860px;
+        margin: 0 auto;
+        text-align: center;
       }
 
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .hero-content h1 {
-        font-size: 3.5rem;
+      .orbit-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 0.5rem 1.2rem;
+        border-radius: var(--orbit-radius-full);
+        font-size: 0.85rem;
         font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
         margin-bottom: 1.5rem;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        animation: fadeInDown 0.8s ease-out;
       }
 
-      .hero-content p {
-        font-size: 1.2rem;
+      .orbit-hero-title {
+        font-size: 4rem;
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      }
+
+      .orbit-hero-subtitle {
+        font-size: 1.25rem;
+        color: rgba(255, 255, 255, 0.9);
         margin-bottom: 2.5rem;
-        max-width: 600px;
+        line-height: 1.7;
+        max-width: 680px;
         margin-left: auto;
         margin-right: auto;
-        opacity: 0.95;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        font-weight: 400;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       }
 
-      .hero-buttons {
+      .orbit-hero-buttons {
         display: flex;
-        gap: 1.5rem;
+        gap: 1.25rem;
         justify-content: center;
         flex-wrap: wrap;
       }
 
-      .btn-hero {
-        padding: 1rem 2.5rem;
-        font-size: 1.1rem;
-        font-weight: 600;
-        border-radius: 8px;
+      .btn-orbit-hero {
+        padding: 1rem 2.2rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        border-radius: var(--orbit-radius-full);
         text-decoration: none;
-        transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
+        transition: var(--orbit-transition);
       }
 
-      .btn-primary-hero {
-        background: #007bff;
-        color: white;
-        border: 2px solid #007bff;
+      .btn-orbit-primary {
+        background: linear-gradient(135deg, var(--orbit-accent), var(--orbit-accent-hover));
+        color: #ffffff;
+        box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+        border: none;
       }
 
-      .btn-primary-hero:hover {
-        background: #0056b3;
-        border-color: #0056b3;
-        transform: translateY(-2px);
-        color: white;
-        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+      .btn-orbit-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 16px 40px rgba(249, 115, 22, 0.5);
+        color: #ffffff;
       }
 
-      .btn-outline-hero {
-        background: transparent;
-        color: white;
-        border: 2px solid white;
+      .btn-orbit-glass {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        border: 1.5px solid rgba(255, 255, 255, 0.4);
+        color: #ffffff;
       }
 
-      .btn-outline-hero:hover {
-        background: white;
-        color: #333;
+      .btn-orbit-glass:hover {
+        background: #ffffff;
+        color: var(--orbit-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
       }
 
-      .hero-indicators {
+      /* Hero Slide Indicators */
+      .orbit-hero-indicators {
         position: absolute;
         bottom: 30px;
         left: 50%;
         transform: translateX(-50%);
         display: flex;
-        gap: 10px;
-        z-index: 2;
+        gap: 8px;
+        z-index: 10;
       }
 
       .indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.4);
-        border: 2px solid white;
+        width: 10px;
+        height: 10px;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.35);
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       .indicator.active {
-        background: white;
-        transform: scale(1.2);
+        width: 32px;
+        background: #ffffff;
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
       }
 
-      /* PERFECT FEATURED TOURS CAROUSEL */
-      .featured-section {
-        padding: 5rem 0;
-        background: #f8f9fa;
-      }
-
-      .section-title {
-        text-align: center;
+      /* Quick Search Bar Floating Under Hero */
+      .orbit-search-strip {
+        position: relative;
+        z-index: 20;
+        margin-top: -45px;
         margin-bottom: 4rem;
       }
 
-      .section-title h2 {
-        font-size: 2.8rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 1rem;
+      .orbit-search-card {
+        background: #ffffff;
+        border-radius: var(--orbit-radius-lg);
+        padding: 1.25rem 1.8rem;
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        flex-wrap: wrap;
       }
 
-      .section-subtitle {
+      .orbit-search-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .orbit-search-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: rgba(2, 132, 199, 0.1);
+        color: var(--orbit-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 1.2rem;
-        color: #666;
-        max-width: 600px;
-        margin: 0 auto;
+        flex-shrink: 0;
       }
 
-      /* PERFECT CAROUSEL CONTAINER */
+      .orbit-search-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 2px;
+      }
+
+      .orbit-search-val {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--orbit-dark);
+      }
+
+      /* Featured Tours Section */
+      .featured-section {
+        padding: 4rem 0 6rem;
+      }
+
+      .section-header-wrap {
+        text-align: center;
+        max-width: 680px;
+        margin: 0 auto 3.5rem;
+      }
+
+      .section-badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(2, 132, 199, 0.08);
+        color: var(--orbit-primary);
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.4rem 1rem;
+        border-radius: var(--orbit-radius-full);
+        margin-bottom: 0.8rem;
+      }
+
+      .section-main-heading {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
+        letter-spacing: -0.03em;
+        margin-bottom: 0.8rem;
+      }
+
+      .section-subtitle-text {
+        font-size: 1.1rem;
+        color: #64748b;
+        line-height: 1.6;
+      }
+
+      /* Carousel Architecture */
       .carousel-container {
         position: relative;
-        max-width: 1200px;
+        max-width: 1280px;
         margin: 0 auto;
-        padding: 0 40px;
+        padding: 0 10px;
       }
 
       .carousel-viewport {
         overflow: hidden;
         position: relative;
         width: 100%;
+        padding: 10px 0 25px 0;
       }
 
       .carousel-track {
         display: flex;
-        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         will-change: transform;
-        backface-visibility: hidden;
-        perspective: 1000px;
       }
 
       .carousel-slide {
         flex: 0 0 auto;
-        padding: 0 15px;
+        padding: 0 12px;
+        width: 33.3333%;
       }
 
-      /* RESPONSIVE CARD SIZES - PERFECT FIT */
-      @media (min-width: 1024px) {
+      @media (max-width: 1024px) {
         .carousel-slide {
-          width: calc(100% / 3);
-        }
-      }
-
-      @media (min-width: 768px) and (max-width: 1023px) {
-        .carousel-slide {
-          width: calc(100% / 2);
+          width: 50%;
         }
       }
 
@@ -242,337 +306,267 @@
         }
       }
 
-      /* BEAUTIFUL TOUR CARDS */
+      /* Luxury Tour Cards */
       .tour-card {
-        background: white;
+        background: #ffffff;
         border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        height: 100%;
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+        transition: var(--orbit-transition);
         display: flex;
         flex-direction: column;
-        transform: translateZ(0);
-        border: 1px solid rgba(0, 0, 0, 0.05);
+        height: 100%;
       }
 
       .tour-card:hover {
-        transform: translateY(-6px) translateZ(0);
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.14);
+        border-color: rgba(2, 132, 199, 0.3);
+      }
+
+      .tour-image-wrap {
+        position: relative;
+        height: 250px;
+        overflow: hidden;
       }
 
       .tour-image {
-        height: 240px;
         width: 100%;
+        height: 100%;
         object-fit: cover;
-        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       .tour-card:hover .tour-image {
-        transform: scale(1.03);
+        transform: scale(1.08);
+      }
+
+      .tour-price-badge {
+        position: absolute;
+        bottom: 14px;
+        right: 14px;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(8px);
+        color: #ffffff;
+        padding: 0.4rem 0.9rem;
+        border-radius: var(--orbit-radius-full);
+        font-size: 1.05rem;
+        font-weight: 800;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       }
 
       .tour-card-body {
-        padding: 2rem 1.5rem;
+        padding: 1.6rem;
         flex-grow: 1;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
       }
 
-      .tour-content {
-        flex-grow: 1;
+      .tour-location {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--orbit-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
       }
 
       .tour-title {
-        font-size: 1.3rem;
+        font-size: 1.35rem;
         font-weight: 700;
-        color: #333;
-        margin-bottom: 0.8rem;
+        color: var(--orbit-dark);
+        margin-bottom: 1rem;
         line-height: 1.3;
-        min-height: 2.6rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-      }
-
-      .tour-location {
-        color: #666;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.95rem;
-      }
-
-      .tour-location i {
-        color: #007bff;
-        font-size: 1rem;
-      }
-
-      .tour-price {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #007bff;
-        margin-bottom: 1.5rem;
+        min-height: 3.5rem;
       }
 
       .btn-tour {
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-        color: white;
-        border: none;
-        padding: 0.8rem 1.5rem;
-        border-radius: 10px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: var(--orbit-dark);
+        padding: 0.75rem 1.25rem;
+        border-radius: var(--orbit-radius-full);
+        font-weight: 700;
+        font-size: 0.92rem;
         text-decoration: none;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        align-self: flex-start;
+        transition: var(--orbit-transition);
+        margin-top: 0.5rem;
       }
 
       .btn-tour:hover {
-        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-        color: white;
+        background: var(--orbit-primary);
+        border-color: var(--orbit-primary);
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(2, 132, 199, 0.35);
       }
 
-      /* ELEGANT SMALL CAROUSEL NAVIGATION */
+      /* Carousel Controls */
       .carousel-nav {
         display: flex;
-        justify-content: center;
         align-items: center;
-        gap: 2rem;
-        margin-top: 2.5rem;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .carousel-arrow {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--orbit-dark);
+        cursor: pointer;
+        transition: var(--orbit-transition);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      }
+
+      .carousel-arrow:hover {
+        background: var(--orbit-primary);
+        border-color: var(--orbit-primary);
+        color: #ffffff;
+        transform: scale(1.08);
       }
 
       .carousel-dots {
         display: flex;
-        gap: 0.7rem;
+        gap: 8px;
       }
 
       .carousel-dot {
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background: rgba(0, 123, 255, 0.3);
+        background: #cbd5e1;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.3s;
       }
 
       .carousel-dot.active {
-        background: #007bff;
-        transform: scale(1.5);
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
-      }
-
-      .carousel-dot:hover {
-        background: rgba(0, 123, 255, 0.6);
-        transform: scale(1.2);
-      }
-
-      /* SMALL ELEGANT ARROWS */
-      .carousel-arrow {
-        background: rgba(255, 255, 255, 0.9);
-        color: #007bff;
-        border: 1px solid rgba(0, 123, 255, 0.2);
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-      }
-
-      .carousel-arrow:hover {
-        background: #007bff;
-        color: white;
-        transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-        border-color: #007bff;
-      }
-
-      .carousel-arrow:active {
-        transform: scale(0.95);
-      }
-
-      /* EMPTY STATE */
-      .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        margin: 2rem auto;
-        max-width: 600px;
-      }
-
-      .empty-state i {
-        font-size: 4rem;
-        color: #007bff;
-        margin-bottom: 1.5rem;
-        opacity: 0.7;
-      }
-
-      .empty-state h3 {
-        font-size: 1.8rem;
-        color: #333;
-        margin-bottom: 1rem;
-        font-weight: 600;
-      }
-
-      .empty-state p {
-        color: #666;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
+        width: 24px;
+        border-radius: 9999px;
+        background: var(--orbit-primary);
       }
 
       /* Why Choose Us Section */
       .why-choose-section {
-        background: #f8f9fa;
-        padding: 5rem 0;
-        text-align: center;
-      }
-
-      .section-header {
-        margin-bottom: 4rem;
-      }
-
-      .section-brand {
-        color: #999;
-        font-size: 0.9rem;
-        letter-spacing: 2px;
-        margin-bottom: 0.5rem;
-        font-weight: 400;
-      }
-
-      .section-header h2 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #333;
-        margin: 0;
+        padding: 6rem 0;
+        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        position: relative;
       }
 
       .features-row {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
         gap: 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
+        margin-top: 3.5rem;
       }
 
       .feature-item {
-        flex: 1;
-        padding: 2rem 1rem;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 2.5rem 1.8rem;
+        text-align: center;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.05);
+        transition: var(--orbit-transition);
       }
 
-      .feature-icon {
-        width: 80px;
-        height: 80px;
+      .feature-item:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.1);
+        border-color: var(--orbit-primary-light);
+      }
+
+      .feature-icon-box {
+        width: 70px;
+        height: 70px;
+        border-radius: 20px;
+        background: rgba(2, 132, 199, 0.1);
+        color: var(--orbit-primary);
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 1.8rem;
         margin: 0 auto 1.5rem;
+        transition: var(--orbit-transition);
       }
 
-      .feature-icon img {
-        width: 60px;
-        height: 60px;
-        object-fit: contain;
-        filter: grayscale(0%) opacity(0.8);
-        transition: all 0.3s ease;
-      }
-
-      .feature-item:hover .feature-icon img {
-        filter: grayscale(0%) opacity(1);
-        transform: scale(1.1);
+      .feature-item:hover .feature-icon-box {
+        background: var(--orbit-primary);
+        color: #ffffff;
+        transform: scale(1.1) rotate(5deg);
       }
 
       .feature-item h3 {
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 1rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--orbit-dark);
+        margin-bottom: 0.75rem;
         line-height: 1.3;
       }
 
       .feature-item p {
-        color: #666;
-        font-size: 0.95rem;
-        line-height: 1.5;
+        color: #64748b;
+        font-size: 0.92rem;
+        line-height: 1.6;
         margin: 0;
       }
 
-      .feature-item p strong {
-        color: #333;
-        font-weight: 600;
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px dashed #cbd5e1;
       }
 
-      /* RESPONSIVE DESIGN */
-      @media (max-width: 768px) {
-        .hero-content h1 {
-          font-size: 2.5rem;
-        }
+      .empty-state i {
+        font-size: 3.5rem;
+        color: #94a3b8;
+        margin-bottom: 1rem;
+      }
 
-        .hero-buttons {
-          flex-direction: column;
-          align-items: center;
+      @media (max-width: 991px) {
+        .orbit-hero-title {
+          font-size: 2.8rem;
         }
-
-        .btn-hero {
-          width: 250px;
+        .features-row {
+          grid-template-columns: repeat(2, 1fr);
         }
+      }
 
-        .section-title h2 {
+      @media (max-width: 600px) {
+        .orbit-hero-title {
           font-size: 2.2rem;
         }
-
         .features-row {
+          grid-template-columns: 1fr;
+        }
+        .orbit-hero-buttons {
           flex-direction: column;
-          gap: 3rem;
         }
-
-        .section-header h2 {
-          font-size: 2rem;
-        }
-
-        .feature-icon img {
-          width: 50px;
-          height: 50px;
-        }
-
-        .hero-indicators {
-          bottom: 20px;
-        }
-
-        .carousel-container {
-          padding: 0 20px;
-        }
-
-        .carousel-nav {
-          margin-top: 2rem;
-          gap: 1.5rem;
-        }
-
-        .carousel-arrow {
-          width: 28px;
-          height: 28px;
-          font-size: 0.8rem;
-        }
-
-        .carousel-dot {
-          width: 6px;
-          height: 6px;
+        .btn-orbit-hero {
+          width: 100%;
+          justify-content: center;
         }
       }
     </style>
@@ -581,60 +575,45 @@
   <body>
     <%- include("partials/nav") %>
 
-    <!-- Hero Section with Dynamic Background -->
-    <section class="hero">
-      <div class="hero-backgrounds">
+    <!-- Hero Section with Dynamic Slideshow -->
+    <section class="orbit-hero">
+      <div class="orbit-hero-bg-wrapper">
         <div
-          class="hero-background active"
+          class="orbit-hero-bg active"
           style="
-            background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
           "
         ></div>
         <div
-          class="hero-background"
-          style="
-            background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
-          "
+          class="orbit-hero-bg"
+          data-bg="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
         ></div>
         <div
-          class="hero-background"
-          style="
-            background-image: url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
-          "
+          class="orbit-hero-bg"
+          data-bg="https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
         ></div>
         <div
-          class="hero-background"
-          style="
-            background-image: url('https://images.unsplash.com/photo-1439066615861-d1af74d74000?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
-          "
+          class="orbit-hero-bg"
+          data-bg="https://images.unsplash.com/photo-1439066615861-d1af74d74000?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
         ></div>
         <div
-          class="hero-background"
-          style="
-            background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
-          "
+          class="orbit-hero-bg"
+          data-bg="https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
         ></div>
         <div
-          class="hero-background"
-          style="
-            background-image: url('https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
-          "
+          class="orbit-hero-bg"
+          data-bg="https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
         ></div>
         <div
-          class="hero-background"
-          style="
-            background-image: url('https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
-          "
-        ></div>
-        <div
-          class="hero-background"
-          style="
-            background-image: url('https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
-          "
+          class="orbit-hero-bg"
+          data-bg="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
         ></div>
       </div>
 
-      <div class="hero-indicators">
+      <div class="orbit-hero-overlay"></div>
+
+      <!-- Slide Indicators -->
+      <div class="orbit-hero-indicators">
         <div class="indicator active" data-slide="0"></div>
         <div class="indicator" data-slide="1"></div>
         <div class="indicator" data-slide="2"></div>
@@ -642,338 +621,341 @@
         <div class="indicator" data-slide="4"></div>
         <div class="indicator" data-slide="5"></div>
         <div class="indicator" data-slide="6"></div>
-        <div class="indicator" data-slide="7"></div>
       </div>
 
       <div class="container">
-        <div class="hero-content">
-          <h1>Discover Amazing Destinations</h1>
-          <p>
-            Explore breathtaking locations around the world with our carefully
-            curated tour packages. Create unforgettable memories and embark on
-            the adventure of a lifetime.
+        <div class="orbit-hero-content">
+          <div class="orbit-hero-badge">
+            <i class="fas fa-sparkles text-warning"></i>
+            <span>Curated Expeditions Worldwide</span>
+          </div>
+
+          <h1 class="orbit-hero-title">Discover the World Beyond Horizons</h1>
+          <p class="orbit-hero-subtitle">
+            Immerse yourself in extraordinary journeys crafted with obsessive attention to luxury, culture, and untamed discovery.
           </p>
 
-          <div class="hero-buttons">
-            <a href="/tour" class="btn-hero btn-primary-hero">
+          <div class="orbit-hero-buttons">
+            <a href="/tour" class="btn-orbit-hero btn-orbit-primary">
               <i class="fas fa-compass"></i>
-              Explore Tours
+              <span>Explore All Tours</span>
             </a>
+
             <% if (user && user.role === 'ADMIN') { %>
-            <a href="/tour/admin/dashboard" class="btn-hero btn-outline-hero">
-              <i class="fas fa-cog"></i>
-              Admin Dashboard
-            </a>
+              <a href="/tour/admin/dashboard" class="btn-orbit-hero btn-orbit-glass">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+              </a>
             <% } else if (user) { %>
-            <span class="btn-hero btn-outline-hero" style="cursor: default">
-              <i class="fas fa-user"></i>
-              Welcome, <%= user.fullName %>
-            </span>
+              <span class="btn-orbit-hero btn-orbit-glass" style="cursor: default">
+                <i class="fas fa-user-check"></i>
+                <span>Welcome back, <%= user.fullName.split(' ')[0] %></span>
+              </span>
             <% } else { %>
-            <a href="/user/signin" class="btn-hero btn-outline-hero">
-              <i class="fas fa-sign-in-alt"></i>
-              Sign In
-            </a>
+              <a href="/user/signin" class="btn-orbit-hero btn-orbit-glass">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Member Sign In</span>
+              </a>
             <% } %>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Featured Tours - PERFECT SMOOTH CAROUSEL -->
+    <!-- Quick Search / Discover Highlights Floating Bar -->
+    <div class="container">
+      <div class="orbit-search-strip">
+        <div class="orbit-search-card">
+          <div class="orbit-search-item">
+            <div class="orbit-search-icon">
+              <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <div>
+              <div class="orbit-search-label">Handcrafted Tours</div>
+              <div class="orbit-search-val"><%= tours.length %> Luxury Packages</div>
+            </div>
+          </div>
+
+          <div class="orbit-search-item">
+            <div class="orbit-search-icon" style="background: rgba(249, 115, 22, 0.1); color: var(--orbit-accent);">
+              <i class="fas fa-user-shield"></i>
+            </div>
+            <div>
+              <div class="orbit-search-label">Verified Escorts</div>
+              <div class="orbit-search-val">100% Certified Guides</div>
+            </div>
+          </div>
+
+          <div class="orbit-search-item">
+            <div class="orbit-search-icon" style="background: rgba(2, 132, 199, 0.12); color: #0284c7;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display: block;">
+                <path d="m22.436 0-11.91 7.773-1.174 4.276 6.625-4.323L12.35 24h4.483l6.78-14.887zM6.559 13.91l-1.922 6.973 5.438-3.55 1.173-4.256z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="orbit-search-label">Payment Security</div>
+              <div class="orbit-search-val">Razorpay Protected</div>
+            </div>
+          </div>
+
+          <a href="/tour/enquire" class="btn-orbit-hero btn-orbit-primary" style="padding: 0.75rem 1.6rem; font-size: 0.92rem;">
+            <span>Enquiry</span>
+            <i class="fas fa-paper-plane ms-1"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Tours Carousel Section -->
     <section class="featured-section">
       <div class="container">
-        <div class="section-title">
-          <h2>Featured Tours</h2>
-          <p class="section-subtitle">
-            Discover our most popular destinations and create memories that will
-            last a lifetime
+        <div class="section-header-wrap">
+          <div class="section-badge-pill">
+            <i class="fas fa-star"></i> Hand-Picked Adventures
+          </div>
+          <h2 class="section-main-heading">Featured Expeditions</h2>
+          <p class="section-subtitle-text">
+            Step outside the ordinary with our most requested luxury travel experiences across mountain peaks, azure coastlines, and ancient wonders.
           </p>
         </div>
 
         <% if (tours.length === 0) { %>
-        <div class="empty-state">
-          <i class="fas fa-map-signs"></i>
-          <h3>No Tours Available Yet</h3>
-          <p>
-            Amazing destinations coming soon. Stay tuned for incredible
-            adventures!
-          </p>
-          <% if (user && user.role === 'ADMIN') { %>
-          <a href="/tour/admin/create" class="btn-hero btn-primary-hero">
-            <i class="fas fa-plus"></i>
-            Create First Tour
-          </a>
-          <% } %>
-        </div>
+          <div class="empty-state">
+            <i class="fas fa-map-signs"></i>
+            <h3>New Expeditions Coming Soon</h3>
+            <p class="text-muted">Our travel curators are assembling exceptional new itineraries.</p>
+            <% if (user && user.role === 'ADMIN') { %>
+              <a href="/tour/admin/create" class="btn-orbit-hero btn-orbit-primary mt-3">
+                <i class="fas fa-plus"></i> Create First Tour
+              </a>
+            <% } %>
+          </div>
         <% } else { %>
-        <div class="carousel-container">
-          <div class="carousel-viewport">
-            <div class="carousel-track" id="carouselTrack">
-              <% tours.forEach(function(tour, index) { %>
-              <div class="carousel-slide">
-                <div class="tour-card">
-                  <img
-                    src="<%= tour.coverImage || '/images/default-tour.jpg' %>"
-                    alt="<%= tour.name %>"
-                    class="tour-image"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div class="tour-card-body">
-                    <div class="tour-content">
-                      <h3 class="tour-title"><%= tour.name %></h3>
-                      <div class="tour-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <%= tour.location %>
+          <div class="carousel-container">
+            <div class="carousel-viewport">
+              <div class="carousel-track" id="carouselTrack">
+                <% tours.forEach(function(tour, index) { %>
+                  <div class="carousel-slide">
+                    <article class="tour-card">
+                      <div class="tour-image-wrap">
+                        <img
+                          src="<%= tour.coverImage || '/images/default-tour.jpg' %>"
+                          alt="<%= tour.name %>"
+                          class="tour-image"
+                          loading="eager"
+                          decoding="sync"
+                        />
+                        <div class="tour-price-badge">
+                          ₹<%= (tour.price != null ? tour.price : 0).toLocaleString('en-IN') %>
+                        </div>
                       </div>
-                      <div class="tour-price">
-                        ₹<%= tour.price.toLocaleString() %>
-                      </div>
-                    </div>
-                    <a
-                      href="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>"
-                      class="btn-tour"
-                    >
-                      View Details
-                      <i class="fas fa-arrow-right"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <% }) %>
-            </div>
-          </div>
 
-          <!-- Elegant Small Navigation -->
-          <div class="carousel-nav">
-            <div class="carousel-arrow" id="prevBtn">
-              <i class="fas fa-chevron-left"></i>
+                      <div class="tour-card-body">
+                        <div>
+                          <div class="tour-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <%= tour.location %>
+                          </div>
+                          <h3 class="tour-title"><%= tour.name %></h3>
+                        </div>
+
+                        <a
+                          href="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>"
+                          class="btn-tour"
+                        >
+                          <span>Explore Itinerary</span>
+                          <i class="fas fa-arrow-right"></i>
+                        </a>
+                      </div>
+                    </article>
+                  </div>
+                <% }) %>
+              </div>
             </div>
-            <div class="carousel-dots" id="carouselDots">
-              <% var maxDots = tours.length > 3 ? tours.length - 2 :
-              tours.length; %> <% for (let i = 0; i < maxDots; i++) { %>
-              <div
-                class="carousel-dot <%= i === 0 ? 'active' : '' %>"
-                data-slide="<%= i %>"
-              ></div>
-              <% } %>
-            </div>
-            <div class="carousel-arrow" id="nextBtn">
-              <i class="fas fa-chevron-right"></i>
+
+            <!-- Carousel Navigation Controls -->
+            <div class="carousel-nav">
+              <button class="carousel-arrow" id="prevBtn" aria-label="Previous Slide">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <div class="carousel-dots" id="carouselDots">
+                <% var maxDots = tours.length > 3 ? tours.length - 2 : tours.length; %>
+                <% for (let i = 0; i < maxDots; i++) { %>
+                  <div
+                    class="carousel-dot <%= i === 0 ? 'active' : '' %>"
+                    data-slide="<%= i %>"
+                  ></div>
+                <% } %>
+              </div>
+              <button class="carousel-arrow" id="nextBtn" aria-label="Next Slide">
+                <i class="fas fa-chevron-right"></i>
+              </button>
             </div>
           </div>
-        </div>
         <% } %>
       </div>
     </section>
 
-    <!-- Why Choose Us Section -->
+    <!-- Why Choose OrbitRush Section -->
     <section class="why-choose-section">
       <div class="container">
-        <div class="section-header">
-          <p class="section-brand">ORBITRUSH TOURISM</p>
-          <h2>Why must choose us</h2>
+        <div class="section-header-wrap">
+          <div class="section-badge-pill">
+            <i class="fas fa-shield-alt"></i> The OrbitRush Standard
+          </div>
+          <h2 class="section-main-heading">Why Discerning Travelers Choose Us</h2>
+          <p class="section-subtitle-text">
+            From hyper-personalized bespoke scheduling to 24/7 on-trip concierge, every detail is engineered for perfection.
+          </p>
         </div>
 
         <div class="features-row">
           <div class="feature-item">
-            <div class="feature-icon">
-              <img
-                src="https://thrillblazers.in/assets/images/guide.svg"
-                alt="Best Guide"
-              />
+            <div class="feature-icon-box">
+              <i class="fas fa-user-tie"></i>
             </div>
-            <h3>Best Guide,<br />Best Experience.</h3>
+            <h3>Master Storytellers & Guides</h3>
             <p>
-              Your trip will be very <strong>memorable</strong> with the best
-              guide.
+              Travel with vetted naturalists and cultural historians who transform every path into an unforgettable story.
             </p>
           </div>
 
           <div class="feature-item">
-            <div class="feature-icon">
-              <img
-                src="https://thrillblazers.in/assets/images/ticket.svg"
-                alt="Special Tickets"
-              />
+            <div class="feature-icon-box" style="background: rgba(249, 115, 22, 0.1); color: var(--orbit-accent);">
+              <i class="fas fa-ticket-alt"></i>
             </div>
-            <h3>Always have<br />Special Tickets.</h3>
+            <h3>Exclusive VIP Access</h3>
             <p>
-              We always offer <strong>special tickets</strong> and we give them
-              to all customers.
+              Skip tourist crowds with private access permits, priority heritage entry, and curated private tastings.
             </p>
           </div>
 
           <div class="feature-item">
-            <div class="feature-icon">
-              <img
-                src="https://thrillblazers.in/assets/images/24.svg"
-                alt="24/7 Support"
-              />
+            <div class="feature-icon-box" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+              <i class="fas fa-headset"></i>
             </div>
-            <h3>Always Ready,<br />Support 24/7.</h3>
+            <h3>24/7 Private Concierge</h3>
             <p>
-              we always make time to <strong>ask questions</strong> anytime and
-              anywhere.
+              Instant assistance before, during, and after your trip through our live platform chat and local staff.
             </p>
           </div>
 
           <div class="feature-item">
-            <div class="feature-icon">
-              <img
-                src="https://thrillblazers.in/assets/images/wonderful.svg"
-                alt="Wonderful Places"
-              />
+            <div class="feature-icon-box" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+              <i class="fas fa-mountain"></i>
             </div>
-            <h3>Wonderfull<br />Places</h3>
+            <h3>Breathtaking Destinations</h3>
             <p>
-              A tourist attraction is a <strong>place</strong> of interest that
-              tourists visit.
+              Hand-scouted panoramic summits, secret beaches, and luxury eco-lodges chosen for unparalleled ambiance.
             </p>
           </div>
         </div>
       </div>
     </section>
 
-    <%- include("partials/footer") %> <%- include("partials/scripts") %>
+    <%- include("partials/footer") %>
+    <%- include("partials/scripts") %>
 
-    <!-- PERFECT CAROUSEL SCRIPT -->
+    <!-- Carousel & Hero Slideshow Script -->
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         // Hero Background Slideshow
-        const backgrounds = document.querySelectorAll(".hero-background");
+        const backgrounds = document.querySelectorAll(".orbit-hero-bg");
         const indicators = document.querySelectorAll(".indicator");
-        let currentIndex = 0;
+        let currentSlide = 0;
+        let slideTimer;
+
+        function loadSlideBg(index) {
+          const bg = backgrounds[index];
+          if (bg && bg.dataset.bg && !bg.style.backgroundImage) {
+            bg.style.backgroundImage = "url('" + bg.dataset.bg + "')";
+          }
+        }
 
         function showSlide(index) {
-          backgrounds.forEach(function (bg) {
-            bg.classList.remove("active");
-          });
-          indicators.forEach(function (ind) {
-            ind.classList.remove("active");
-          });
+          loadSlideBg(index);
+          backgrounds.forEach((bg) => bg.classList.remove("active"));
+          indicators.forEach((ind) => ind.classList.remove("active"));
 
-          backgrounds[index].classList.add("active");
-          indicators[index].classList.add("active");
+          if (backgrounds[index]) backgrounds[index].classList.add("active");
+          if (indicators[index]) indicators[index].classList.add("active");
 
-          currentIndex = index;
+          currentSlide = index;
         }
 
         function nextSlide() {
-          const nextIndex = (currentIndex + 1) % backgrounds.length;
-          showSlide(nextIndex);
+          let next = (currentSlide + 1) % backgrounds.length;
+          showSlide(next);
         }
 
-        setInterval(nextSlide, 2000);
-
-        indicators.forEach(function (indicator, index) {
-          indicator.addEventListener("click", function () {
-            showSlide(index);
+        indicators.forEach((ind) => {
+          ind.addEventListener("click", function () {
+            clearInterval(slideTimer);
+            showSlide(parseInt(this.dataset.slide));
+            slideTimer = setInterval(nextSlide, 6000);
           });
         });
 
-        // PERFECT SMOOTH CAROUSEL
-        const carouselTrack = document.getElementById("carouselTrack");
-        const slides = document.querySelectorAll(".carousel-slide");
-        const dots = document.querySelectorAll(".carousel-dot");
+        // Preload next image
+        if (backgrounds.length > 1) loadSlideBg(1);
+        slideTimer = setInterval(nextSlide, 6000);
+
+        // Featured Tours Carousel
+        const track = document.getElementById("carouselTrack");
         const prevBtn = document.getElementById("prevBtn");
         const nextBtn = document.getElementById("nextBtn");
+        const dots = document.querySelectorAll(".carousel-dot");
+        const slides = document.querySelectorAll(".carousel-slide");
 
-        if (!carouselTrack || slides.length === 0) return;
+        if (track && slides.length > 0) {
+          let carouselIndex = 0;
 
-        let currentSlide = 0;
-        const totalSlides = slides.length;
-
-        // Get slides to show based on screen size
-        function getSlidesToShow() {
-          if (window.innerWidth >= 1024) return Math.min(3, totalSlides);
-          if (window.innerWidth >= 768) return Math.min(2, totalSlides);
-          return 1;
-        }
-
-        let slidesToShow = getSlidesToShow();
-        const maxSlide = Math.max(0, totalSlides - slidesToShow);
-
-        function updateCarousel() {
-          const slideWidth = 100 / slidesToShow;
-          const translateX = -(currentSlide * slideWidth);
-
-          carouselTrack.style.transform = "translateX(" + translateX + "%)";
-
-          // Update dots
-          dots.forEach(function (dot, index) {
-            dot.classList.remove("active");
-            if (index === currentSlide) {
-              dot.classList.add("active");
-            }
-          });
-        }
-
-        function nextCarouselSlide() {
-          currentSlide = currentSlide >= maxSlide ? 0 : currentSlide + 1;
-          updateCarousel();
-        }
-
-        function prevCarouselSlide() {
-          currentSlide = currentSlide <= 0 ? maxSlide : currentSlide - 1;
-          updateCarousel();
-        }
-
-        // Auto-scroll every 4 seconds
-        let carouselInterval = setInterval(nextCarouselSlide, 4000);
-
-        // Manual navigation
-        if (nextBtn) {
-          nextBtn.addEventListener("click", function () {
-            clearInterval(carouselInterval);
-            nextCarouselSlide();
-            carouselInterval = setInterval(nextCarouselSlide, 4000);
-          });
-        }
-
-        if (prevBtn) {
-          prevBtn.addEventListener("click", function () {
-            clearInterval(carouselInterval);
-            prevCarouselSlide();
-            carouselInterval = setInterval(nextCarouselSlide, 4000);
-          });
-        }
-
-        // Dot navigation
-        dots.forEach(function (dot, index) {
-          dot.addEventListener("click", function () {
-            clearInterval(carouselInterval);
-            currentSlide = Math.min(index, maxSlide);
-            updateCarousel();
-            carouselInterval = setInterval(nextCarouselSlide, 4000);
-          });
-        });
-
-        // Pause on hover
-        const carouselContainer = document.querySelector(".carousel-container");
-        if (carouselContainer) {
-          carouselContainer.addEventListener("mouseenter", function () {
-            clearInterval(carouselInterval);
-          });
-
-          carouselContainer.addEventListener("mouseleave", function () {
-            carouselInterval = setInterval(nextCarouselSlide, 4000);
-          });
-        }
-
-        // Handle resize
-        window.addEventListener("resize", function () {
-          const newSlidesToShow = getSlidesToShow();
-          if (newSlidesToShow !== slidesToShow) {
-            slidesToShow = newSlidesToShow;
-            currentSlide = 0;
-            updateCarousel();
+          function getVisibleSlides() {
+            if (window.innerWidth < 768) return 1;
+            if (window.innerWidth < 1024) return 2;
+            return 3;
           }
-        });
 
-        // Initialize
-        updateCarousel();
+          function getMaxIndex() {
+            const visible = getVisibleSlides();
+            return Math.max(0, slides.length - visible);
+          }
+
+          function updateCarousel() {
+            const visible = getVisibleSlides();
+            const slideWidth = 100 / visible;
+            track.style.transform = `translateX(-${carouselIndex * slideWidth}%)`;
+
+            dots.forEach((d, idx) => {
+              d.classList.toggle("active", idx === carouselIndex);
+            });
+          }
+
+          if (nextBtn) {
+            nextBtn.addEventListener("click", function () {
+              const max = getMaxIndex();
+              carouselIndex = carouselIndex < max ? carouselIndex + 1 : 0;
+              updateCarousel();
+            });
+          }
+
+          if (prevBtn) {
+            prevBtn.addEventListener("click", function () {
+              const max = getMaxIndex();
+              carouselIndex = carouselIndex > 0 ? carouselIndex - 1 : max;
+              updateCarousel();
+            });
+          }
+
+          dots.forEach((dot) => {
+            dot.addEventListener("click", function () {
+              carouselIndex = Math.min(parseInt(this.dataset.slide), getMaxIndex());
+              updateCarousel();
+            });
+          });
+
+          window.addEventListener("resize", updateCarousel);
+        }
       });
     </script>
   </body>

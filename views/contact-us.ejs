@@ -2,175 +2,175 @@
 <html lang="en">
   <head>
     <%- include("partials/head") %>
-    <title>Contact Us - OrbitRush Tourism</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-      rel="stylesheet"
-    />
+    <title>Contact Concierge | OrbitRush Tourism</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+      .contact-page {
+        background-color: var(--orbit-light);
       }
 
-      body {
-        font-family: "Inter", sans-serif;
-        line-height: 1.6;
-        color: #1a1a1a;
-        background: #fff;
+      /* Hero */
+      .contact-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 70%, #0369a1 100%);
+        color: white;
+        padding: 5rem 0 6rem;
+        text-align: center;
       }
 
-      /* Contact Methods Section */
-      .contact-methods {
-        padding: 8rem 0;
-        background: #fafafa;
+      .contact-hero-title {
+        font-size: 3.6rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        margin-bottom: 1rem;
+        color: #ffffff;
       }
 
-      .methods-container {
-        max-width: 1400px;
+      .contact-hero-subtitle {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.88);
+        max-width: 600px;
         margin: 0 auto;
+        line-height: 1.6;
+      }
+
+      /* Contact Cards */
+      .contact-main {
+        padding: 4rem 0 6rem;
+        margin-top: -3rem;
+        position: relative;
+        z-index: 5;
+      }
+
+      .contact-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 4rem;
+        gap: 2rem;
+        margin-bottom: 4rem;
       }
 
-      .method-card {
-        background: white;
-        border-radius: 24px;
-        padding: 4rem 3rem;
+      .contact-card {
+        background: #ffffff;
+        border-radius: var(--orbit-radius-lg);
+        padding: 3rem 2rem;
         text-align: center;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-        transition: all 0.4s ease;
-        position: relative;
-        border: 1px solid #f1f5f9;
+        border: 1px solid var(--orbit-border);
+        box-shadow: var(--orbit-shadow-md);
+        transition: var(--orbit-transition);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
 
-      .method-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.12);
+      .contact-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+        border-color: var(--orbit-primary);
       }
 
-      .method-icon {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
+      .contact-icon-box {
+        width: 75px;
+        height: 75px;
+        border-radius: 20px;
+        background: rgba(2, 132, 199, 0.1);
+        color: var(--orbit-primary);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 2rem;
-        background: #f8fafc;
-        border: 2px solid #e2e8f0;
-        transition: all 0.3s ease;
+        font-size: 1.8rem;
+        margin: 0 auto 1.5rem;
+        transition: var(--orbit-transition);
       }
 
-      .method-icon svg {
-        width: 60px;
-        height: 60px;
-        fill: #64748b;
-        transition: all 0.3s ease;
-      }
-
-      .method-card:hover .method-icon {
-        background: #3b82f6;
-        border-color: #3b82f6;
+      .contact-card:hover .contact-icon-box {
+        background: var(--orbit-primary);
+        color: #ffffff;
         transform: scale(1.1);
       }
 
-      .method-card:hover .method-icon svg {
-        fill: white;
+      .contact-card-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
+        margin-bottom: 0.5rem;
       }
 
-      .method-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 1rem;
-      }
-
-      .method-info {
+      .contact-card-info {
         font-size: 1.1rem;
-        color: #3b82f6;
-        font-weight: 600;
-        margin-bottom: 1rem;
+        font-weight: 700;
+        color: var(--orbit-primary);
+        margin-bottom: 0.75rem;
         word-break: break-all;
       }
 
-      .method-description {
+      .contact-card-desc {
+        font-size: 0.9rem;
         color: #64748b;
-        line-height: 1.7;
-        margin-bottom: 2rem;
+        line-height: 1.6;
+        margin-bottom: 1.8rem;
       }
 
-      .method-action {
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 50px;
+      .btn-contact-action {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        color: var(--orbit-dark);
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--orbit-radius-full);
+        font-weight: 700;
+        font-size: 0.9rem;
         text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5rem;
+        transition: var(--orbit-transition);
       }
 
-      .method-action:hover {
+      .btn-contact-action:hover {
+        background: var(--orbit-primary);
+        border-color: var(--orbit-primary);
+        color: #ffffff;
         transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+      }
+
+      /* Hours & Support Banner */
+      .hours-card {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
         color: white;
-      }
-
-      /* Business Hours Section */
-      .hours-section {
-        background: #0f172a;
-        color: white;
-        padding: 6rem 0;
-        text-align: center;
-      }
-
-      .hours-content {
-        max-width: 800px;
-        margin: 0 auto;
-      }
-
-      .hours-title {
-        font-size: 2.8rem;
-        font-weight: 800;
-        margin-bottom: 2rem;
+        border-radius: var(--orbit-radius-lg);
+        padding: 3.5rem 3rem;
+        box-shadow: var(--orbit-shadow-lg);
       }
 
       .hours-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 3rem;
-        margin-top: 3rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        margin-top: 2rem;
       }
 
       .hours-item {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 2rem;
+        border-radius: var(--orbit-radius-md);
+        padding: 1.5rem;
+        text-align: center;
       }
 
-      .hours-label {
+      .hours-item-title {
         font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #3b82f6;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 0.4rem;
       }
 
-      .hours-time {
-        font-size: 1rem;
-        opacity: 0.9;
+      .hours-item-val {
+        color: #38bdf8;
+        font-weight: 700;
+        font-size: 0.95rem;
       }
 
-      /* Responsive Design */
-      @media (max-width: 768px) {
-        .methods-container {
+      @media (max-width: 991px) {
+        .contact-grid {
           grid-template-columns: 1fr;
-          gap: 2rem;
         }
         .hours-grid {
           grid-template-columns: 1fr;
@@ -179,109 +179,108 @@
     </style>
   </head>
 
-  <body>
+  <body class="contact-page">
     <%- include("partials/nav") %>
 
-    <!-- Contact Methods Section -->
-    <section class="contact-methods">
+    <!-- Hero -->
+    <section class="contact-hero">
       <div class="container">
-        <div class="methods-container">
-          <!-- Phone Contact -->
-          <div class="method-card">
-            <div class="method-icon">
-              <!-- Phone SVG Icon -->
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"
-                />
-              </svg>
-            </div>
-            <h3 class="method-title">Call Us</h3>
-            <p class="method-info">+91 7862801349</p>
-            <p class="method-description">
-              Speak directly with our travel specialists for immediate
-              assistance and personalized recommendations.
-            </p>
-            <a href="tel:+917862801349" class="method-action">
-              <i class="fas fa-phone"></i>
-              Call Now
-            </a>
-          </div>
-
-          <!-- Email Contact -->
-          <div class="method-card">
-            <div class="method-icon">
-              <!-- Email SVG Icon -->
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
-                />
-              </svg>
-            </div>
-            <h3 class="method-title">Email Us</h3>
-            <p class="method-info">orbitrushtourism@gmail.com</p>
-            <p class="method-description">
-              Send us detailed inquiries and receive comprehensive responses
-              from our expert travel consultants.
-            </p>
-            <a href="mailto:orbitrushtourism@gmail.com" class="method-action">
-              <i class="fas fa-envelope"></i>
-              Send Email
-            </a>
-          </div>
-
-          <!-- Office Visit -->
-          <div class="method-card">
-            <div class="method-icon">
-              <!-- Location SVG Icon -->
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path
-                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                />
-              </svg>
-            </div>
-            <h3 class="method-title">Visit Us</h3>
-            <p class="method-info">Faculty of Technology</p>
-            <p class="method-description">
-              Visit our premium office for in-person consultations and
-              comprehensive travel planning sessions.
-            </p>
-            <a
-              href="https://maps.app.goo.gl/CQdDe2q5MaAtYxLu6"
-              target="_blank"
-              class="method-action"
-            >
-              <i class="fas fa-directions"></i>
-              Get Directions
-            </a>
-          </div>
-        </div>
+        <span class="about-badge" style="background: rgba(255,255,255,0.15); color: #38bdf8; border: 1px solid rgba(255,255,255,0.3); padding: 0.4rem 1rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 700; text-transform: uppercase;">
+          <i class="fas fa-headset me-1"></i> Dedicated Concierge
+        </span>
+        <h1 class="contact-hero-title">We are Here for Your Journey</h1>
+        <p class="contact-hero-subtitle">
+          Have an inquiry about an upcoming departure, private charter, or bespoke route? Our travel specialists are available 24/7.
+        </p>
       </div>
     </section>
 
-    <!-- Business Hours -->
-    <section class="hours-section">
+    <!-- Main Contact Channels -->
+    <main class="contact-main">
       <div class="container">
-        <div class="hours-content">
-          <h2 class="hours-title">Business Hours</h2>
-          <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 3rem">
-            Our expert team is available to assist you during the following
-            hours
-          </p>
+        <div class="contact-grid">
+          <!-- Phone -->
+          <div class="contact-card">
+            <div>
+              <div class="contact-icon-box">
+                <i class="fas fa-phone-alt"></i>
+              </div>
+              <h2 class="contact-card-title">Phone & Direct Call</h2>
+              <div class="contact-card-info">+91 98765 43210</div>
+              <p class="contact-card-desc">
+                Speak directly with an expedition specialist for instant availability and route guidance.
+              </p>
+            </div>
+            <a href="tel:+919876543210" class="btn-contact-action">
+              <i class="fas fa-phone"></i> Call Concierge
+            </a>
+          </div>
+
+          <!-- Email -->
+          <div class="contact-card">
+            <div>
+              <div class="contact-icon-box" style="background: rgba(249, 115, 22, 0.1); color: var(--orbit-accent);">
+                <i class="fas fa-envelope-open-text"></i>
+              </div>
+              <h2 class="contact-card-title">Email Inquiries</h2>
+              <div class="contact-card-info" style="color: var(--orbit-accent);">orbitrushtourism@gmail.com</div>
+              <p class="contact-card-desc">
+                Send us your detailed travel wishlist or itinerary questions. We respond within 2 hours.
+              </p>
+            </div>
+            <a href="mailto:orbitrushtourism@gmail.com" class="btn-contact-action">
+              <i class="fas fa-paper-plane"></i> Email Team
+            </a>
+          </div>
+
+          <!-- Custom Trip Plan -->
+          <div class="contact-card">
+            <div>
+              <div class="contact-icon-box" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                <i class="fas fa-magic"></i>
+              </div>
+              <h2 class="contact-card-title">Custom Trip Request</h2>
+              <div class="contact-card-info" style="color: #8b5cf6;">Bespoke Planning</div>
+              <p class="contact-card-desc">
+                Fill out our guided inquiry form or chat with our AI planner for tailored destination quotes.
+              </p>
+            </div>
+            <a href="/tour/enquire" class="btn-contact-action">
+              <i class="fas fa-compass"></i> Create Custom Trip
+            </a>
+          </div>
+        </div>
+
+        <!-- Business Hours & Service Guarantees -->
+        <div class="hours-card">
+          <div class="text-center">
+            <h2 style="font-size: 2.2rem; font-weight: 800; color: #ffffff; margin-bottom: 0.5rem;">
+              Support Hours & Response Windows
+            </h2>
+            <p style="color: #94a3b8; max-width: 550px; margin: 0 auto;">
+              Our global team operates across timezones to ensure seamless on-trip security.
+            </p>
+          </div>
 
           <div class="hours-grid">
             <div class="hours-item">
-              <div class="hours-label">Monday - Friday</div>
-              <div class="hours-time">9:00 AM - 8:00 PM</div>
+              <div class="hours-item-title">Active Voyagers Support</div>
+              <div class="hours-item-val"><i class="fas fa-bolt me-1"></i> 24/7 VIP Emergency Line</div>
             </div>
             <div class="hours-item">
-              <div class="hours-label">Saturday - Sunday</div>
-              <div class="hours-time">10:00 AM - 6:00 PM</div>
+              <div class="hours-item-title">Booking & Consultations</div>
+              <div class="hours-item-val"><i class="far fa-clock me-1"></i> Mon - Sat: 9:00 AM - 8:00 PM IST</div>
+            </div>
+            <div class="hours-item">
+              <div class="hours-item-title">Live Chat Widget</div>
+              <div class="hours-item-val"><i class="fas fa-circle text-success me-1"></i> Online Real-Time</div>
             </div>
           </div>
         </div>
       </div>
-    </section>
-    <%- include("partials/footer") %> <%- include("partials/scripts") %>
+    </main>
+
+    <%- include("partials/footer") %>
+    <%- include("partials/scripts") %>
   </body>
 </html>

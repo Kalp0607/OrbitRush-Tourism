@@ -2,131 +2,176 @@
 <html lang="en">
   <head>
     <%- include("partials/head") %>
-    <title>Signup</title>
+    <title>Create Explorer Account | OrbitRush</title>
     <style>
-      body {
-        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+      .auth-page {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0369a1 100%);
         min-height: 100vh;
         display: flex;
         flex-direction: column;
       }
-      .card {
-        border: none;
-        border-radius: 1rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+
+      .auth-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1.5rem;
       }
-      .form-control {
-        border-radius: 0.5rem;
+
+      .auth-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        border-radius: var(--orbit-radius-lg);
+        padding: 3rem 2.5rem;
+        max-width: 460px;
+        width: 100%;
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.8);
       }
-      .btn-primary {
-        border-radius: 0.5rem;
-        padding: 0.6rem 1.2rem;
-        font-weight: 500;
-      }
-      .signup-header {
+
+      .auth-header {
         text-align: center;
-        font-weight: 600;
-        color: #1e3c72;
+        margin-bottom: 1.8rem;
+      }
+
+      .auth-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        object-fit: cover;
+      }
+
+      .auth-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
+        margin-bottom: 0.3rem;
+      }
+
+      .auth-subtitle {
+        color: #64748b;
+        font-size: 0.92rem;
+        margin: 0;
+      }
+
+      .orbit-auth-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--orbit-dark);
+        margin-bottom: 0.4rem;
+      }
+
+      .orbit-auth-input {
+        width: 100%;
+        padding: 0.85rem 1.2rem;
+        border: 1.5px solid #cbd5e1;
+        border-radius: var(--orbit-radius-sm);
+        font-size: 0.95rem;
+        outline: none;
+        transition: var(--orbit-transition);
+        font-family: inherit;
+      }
+
+      .orbit-auth-input:focus {
+        border-color: var(--orbit-primary);
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+      }
+
+      .btn-auth-submit {
+        background: linear-gradient(135deg, var(--orbit-primary), var(--orbit-primary-dark));
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 0.95rem;
+        border-radius: var(--orbit-radius-full);
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: var(--orbit-transition);
+        box-shadow: 0 8px 25px rgba(2, 132, 199, 0.35);
+        margin-top: 1rem;
+      }
+
+      .btn-auth-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(2, 132, 199, 0.45);
+        color: white;
       }
     </style>
   </head>
 
-  <body>
+  <body class="auth-page">
     <%- include("partials/nav") %>
 
-    <div
-      class="container d-flex justify-content-center align-items-center flex-grow-1"
-    >
-      <div class="card p-4 mt-5" style="max-width: 420px; width: 100%">
-        <!-- MOVE ALERT HERE - INSIDE THE CARD -->
-        <!-- Replace the existing alert with this bold version -->
+    <main class="auth-container">
+      <div class="auth-card">
         <% if (locals.message) { %>
-        <div
-          class="alert mb-3 text-center"
-          style="
-            background: #ff4757;
-            color: white;
-            border: 2px solid #ff3742;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            padding: 15px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
-          "
-        >
-          <i
-            class="fas fa-exclamation-triangle me-2"
-            style="font-size: 1.2rem"
-          ></i>
-          <%= locals.message %>
-        </div>
+          <div class="alert alert-danger mb-3 text-center" style="border-radius: 12px; font-weight: 600; font-size: 0.92rem;">
+            <i class="fas fa-exclamation-triangle me-2"></i> <%= locals.message %>
+          </div>
         <% } %>
 
-        <h3 class="signup-header mb-3">Create Your Account 🚀</h3>
-        <p class="text-center text-muted mb-4">
-          Join OrbitRush and start your adventure
-        </p>
+        <div class="auth-header">
+          <img src="/images/1760177356614.png" alt="OrbitRush" class="auth-logo" />
+          <h1 class="auth-title">Join OrbitRush</h1>
+          <p class="auth-subtitle">Begin your voyage into the extraordinary</p>
+        </div>
 
         <form action="/user/signup" method="post">
           <div class="mb-3">
-            <label for="fullName" class="form-label fw-semibold"
-              >Full Name</label
-            >
+            <label for="fullName" class="orbit-auth-label">Full Name</label>
             <input
               type="text"
-              class="form-control"
+              class="orbit-auth-input"
               id="fullName"
               name="fullName"
-              placeholder="Enter your full name"
+              placeholder="e.g. Maya Lin"
               required
             />
           </div>
 
           <div class="mb-3">
-            <label for="email" class="form-label fw-semibold"
-              >Email address</label
-            >
+            <label for="exampleInputEmail1" class="orbit-auth-label">Email Address</label>
             <input
               type="email"
-              class="form-control"
+              class="orbit-auth-input"
               id="exampleInputEmail1"
               name="email"
-              placeholder="Enter your email"
+              placeholder="explorer@orbitrush.com"
               required
             />
-            <small id="emailHelp" class="form-text text-muted">
-              We'll never share your email with anyone else.
-            </small>
+            <small class="text-muted" style="font-size: 0.75rem;">We will never share your email.</small>
           </div>
 
           <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label fw-semibold"
-              >Password</label
-            >
+            <label for="exampleInputPassword1" class="orbit-auth-label">Create Password</label>
             <input
               type="password"
-              class="form-control"
+              class="orbit-auth-input"
               id="exampleInputPassword1"
-              placeholder="Create a strong password"
+              placeholder="Min. 6 characters"
               name="password"
               required
             />
           </div>
 
-          <div class="d-grid mt-4">
-            <button type="submit" class="btn btn-primary">Sign Up</button>
-          </div>
+          <button type="submit" class="btn-auth-submit">
+            <span>Create Account</span>
+            <i class="fas fa-arrow-right ms-1"></i>
+          </button>
 
-          <p class="text-center mt-3 mb-0 text-muted">
-            Already have an account?
-            <a href="/user/signin" class="text-decoration-none fw-semibold"
-              >Sign in here</a
-            >
+          <p class="text-center text-muted mt-4 mb-0" style="font-size: 0.9rem;">
+            Already an explorer?
+            <a href="/user/signin" style="font-weight: 700; color: var(--orbit-primary); text-decoration: none;">
+              Sign in here
+            </a>
           </p>
         </form>
       </div>
-    </div>
+    </main>
 
     <%- include("partials/scripts") %>
   </body>

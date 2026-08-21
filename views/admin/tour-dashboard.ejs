@@ -1,609 +1,423 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard | OrbitRush Tourism</title>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
+    <%- include("../partials/head") %>
+    <title>Expeditions Management | Admin Control Center</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+      .admin-layout {
+        background-color: #f1f5f9;
+        min-height: 100vh;
+        padding-bottom: 5rem;
       }
 
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: #f1f3f4;
-        color: #333;
-      }
-
-      .header {
-        background: linear-gradient(135deg, #2c3e50, #34495e);
+      /* Admin Top Bar */
+      .admin-topbar {
+        background: #0f172a;
         color: white;
-        padding: 1rem 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 1.25rem 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       }
 
-      .header-content {
-        max-width: 1200px;
-        margin: 0 auto;
+      .admin-nav-links {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
       }
 
-      .admin-title {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        font-size: 1.5rem;
-        font-weight: bold;
-      }
-
-      .admin-nav {
-        display: flex;
-        gap: 1.5rem;
-        align-items: center;
-      }
-
-      .admin-nav a {
-        color: white;
+      .admin-nav-btn {
+        color: #cbd5e1;
         text-decoration: none;
         padding: 0.5rem 1rem;
-        border-radius: 6px;
-        transition: background 0.3s;
+        border-radius: var(--orbit-radius-full);
+        font-size: 0.88rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: var(--orbit-transition);
       }
 
-      .admin-nav a:hover {
+      .admin-nav-btn:hover, .admin-nav-btn.active {
+        color: #ffffff;
         background: rgba(255, 255, 255, 0.1);
       }
 
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
+      .admin-nav-btn.active {
+        background: var(--orbit-primary);
       }
 
-      .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
+      /* Dashboard Main Content */
+      .dashboard-body {
+        max-width: 1320px;
+        margin: 2.5rem auto 0;
+        padding: 0 1.5rem;
       }
 
-      .page-title {
-        font-size: 2.5rem;
-        color: #2c3e50;
-        font-weight: bold;
-      }
-
-      .create-btn {
-        background: linear-gradient(135deg, #27ae60, #2ecc71);
-        color: white;
-        padding: 1rem 2rem;
-        border: none;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: transform 0.3s;
-        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-      }
-
-      .create-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
-      }
-      .view-btn {
-        background: linear-gradient(135deg, #e74c3c, #c0392b);
-        color: white;
-        padding: 1rem 2rem;
-        border: none;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: transform 0.3s;
-        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-        margin-left: 1rem; /* Add some space between buttons */
-      }
-
-      .view-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
-      }
-      .view-users-btn {
-        background: linear-gradient(135deg, #9b59b6, #8e44ad);
-        color: white;
-        padding: 1rem 2rem;
-        border: none;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: transform 0.3s;
-        box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
-        margin-left: 1rem; /* Add space between buttons */
-      }
-
-      .view-users-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
-      }
-
-      .stats-grid {
+      /* Stat Cards Grid */
+      .stats-grid-4 {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 1.5rem;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
       }
 
-      .stat-card {
-        background: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      .stat-card-admin {
+        background: #ffffff;
+        border-radius: var(--orbit-radius-lg);
+        padding: 1.8rem;
+        border: 1px solid var(--orbit-border);
+        box-shadow: var(--orbit-shadow-sm);
         display: flex;
         align-items: center;
-        gap: 1rem;
+        justify-content: space-between;
+        transition: var(--orbit-transition);
       }
 
-      .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
+      .stat-card-admin:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--orbit-shadow-md);
+      }
+
+      .stat-admin-label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+      }
+
+      .stat-admin-val {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--orbit-dark);
+        line-height: 1;
+      }
+
+      .stat-icon-wrapper {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
-        color: white;
       }
 
-      .stat-icon.tours {
-        background: linear-gradient(135deg, #3498db, #2980b9);
-      }
-      .stat-icon.bookings {
-        background: linear-gradient(135deg, #e74c3c, #c0392b);
-      }
-      .stat-icon.revenue {
-        background: linear-gradient(135deg, #f39c12, #e67e22);
-      }
-      .stat-icon.users {
-        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+      /* Admin Content Card */
+      .admin-table-card {
+        background: #ffffff;
+        border-radius: var(--orbit-radius-lg);
+        border: 1px solid var(--orbit-border);
+        box-shadow: var(--orbit-shadow-sm);
+        overflow: hidden;
       }
 
-      .stat-content h3 {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #2c3e50;
-      }
-
-      .stat-content p {
-        color: #666;
-        font-size: 0.9rem;
-      }
-
-      .tours-section {
-        background: white;
-        border-radius: 15px;
-        padding: 2rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .section-header {
+      .table-card-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #e2e8f0;
         display: flex;
-        justify-content: between;
         align-items: center;
-        margin-bottom: 1.5rem;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
       }
 
-      .section-title {
-        font-size: 1.5rem;
-        color: #2c3e50;
-        font-weight: 600;
+      .table-card-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
+        margin: 0;
       }
 
-      .tours-table {
+      .admin-table {
         width: 100%;
         border-collapse: collapse;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
 
-      .tours-table th {
-        background: #34495e;
-        color: white;
-        padding: 1rem;
+      .admin-table th {
+        background: #f8fafc;
+        padding: 1rem 1.5rem;
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #e2e8f0;
         text-align: left;
-        font-weight: 600;
       }
 
-      .tours-table td {
-        padding: 1rem;
-        border-bottom: 1px solid #eee;
+      .admin-table td {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+        font-size: 0.92rem;
       }
 
-      .tours-table tr:hover {
-        background: #f8f9fa;
+      .admin-table tr:hover td {
+        background: #f8fafc;
       }
 
-      .tour-image {
+      .tour-thumb-img {
         width: 60px;
-        height: 40px;
+        height: 45px;
+        border-radius: 8px;
         object-fit: cover;
-        border-radius: 6px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       }
 
-      .tour-name {
-        font-weight: 600;
-        color: #2c3e50;
-      }
-
-      .tour-location {
-        color: #666;
-        font-size: 0.9rem;
-      }
-
-      .price {
-        font-weight: bold;
-        color: #27ae60;
-      }
-
-      .actions {
+      .action-btn-group {
         display: flex;
         gap: 0.5rem;
       }
 
-      .btn {
-        padding: 0.4rem 0.8rem;
-        border: none;
-        border-radius: 4px;
+      .btn-action-sm {
+        padding: 0.45rem 0.85rem;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 700;
         text-decoration: none;
-        font-size: 0.8rem;
-        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        border: none;
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: var(--orbit-transition);
       }
 
-      .btn:hover {
-        transform: translateY(-1px);
+      .btn-action-view {
+        background: #e0f2fe;
+        color: #0369a1;
       }
+      .btn-action-view:hover { background: #bae6fd; color: #0284c7; }
 
-      .btn-view {
-        background: #3498db;
-        color: white;
+      .btn-action-edit {
+        background: #fef3c7;
+        color: #92400e;
       }
+      .btn-action-edit:hover { background: #fde68a; color: #78350f; }
 
-      .btn-edit {
-        background: #f39c12;
-        color: white;
+      .btn-action-delete {
+        background: #fee2e2;
+        color: #991b1b;
       }
+      .btn-action-delete:hover { background: #fecaca; color: #7f1d1d; }
 
-      .btn-delete {
-        background: #e74c3c;
-        color: white;
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 3rem;
-        color: #666;
-      }
-
-      .empty-state i {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        opacity: 0.3;
-      }
-
-      @media (max-width: 768px) {
-        .dashboard-header {
-          flex-direction: column;
-          gap: 1rem;
-          text-align: center;
+      @media (max-width: 991px) {
+        .stats-grid-4 {
+          grid-template-columns: repeat(2, 1fr);
         }
+      }
 
-        .tours-table {
-          font-size: 0.8rem;
-        }
-
-        .tours-table th,
-        .tours-table td {
-          padding: 0.5rem;
-        }
-
-        .actions {
-          flex-direction: column;
-        }
-
-        .header-content {
-          flex-direction: column;
-          gap: 1rem;
+      @media (max-width: 600px) {
+        .stats-grid-4 {
+          grid-template-columns: 1fr;
         }
       }
     </style>
   </head>
-  <body>
-    <!-- Header -->
-    <div class="header">
-      <div class="header-content">
-        <div class="admin-title">
-          <i class="fas fa-shield-alt"></i>
-          Admin Dashboard
-        </div>
-        <div class="admin-nav">
-          <a href="/">
-            <i class="fas fa-home"></i>
-            Public Site
-          </a>
-          <a href="/tour/admin/create">
-            <i class="fas fa-plus"></i>
-            Add Tour
-          </a>
-          <a href="/user/logout">
-            <i class="fas fa-sign-out-alt"></i>
-            Logout
+
+  <body class="admin-layout">
+    <!-- Admin Top Navbar -->
+    <header class="admin-topbar">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <a href="/" class="d-flex align-items-center gap-2 text-white text-decoration-none">
+            <img src="/images/1760177356614.png" alt="OrbitRush" style="width: 34px; height: 34px; border-radius: 8px;" />
+            <span style="font-family: var(--orbit-font-heading); font-weight: 800; font-size: 1.25rem;">OrbitRush Admin</span>
           </a>
         </div>
+
+        <nav class="admin-nav-links">
+          <a href="/tour/admin/dashboard" class="admin-nav-btn active">
+            <i class="fas fa-mountain"></i> Tours
+          </a>
+          <a href="/booking/admin/bookings" class="admin-nav-btn">
+            <i class="fas fa-calendar-check"></i> Bookings
+          </a>
+          <a href="/tour/admin/dashboard/enquiries-details" class="admin-nav-btn">
+            <i class="fas fa-clipboard-list"></i> Inquiries
+          </a>
+          <a href="/tour/admin/dashboard/custom-enquiries" class="admin-nav-btn">
+            <i class="fas fa-magic"></i> AI Trips
+          </a>
+          <a href="/tour/admin/chat" class="admin-nav-btn">
+            <i class="fas fa-comments"></i> Live Chat
+          </a>
+          <a href="/tour/admin/dashboard/user-details" class="admin-nav-btn">
+            <i class="fas fa-users"></i> Users
+          </a>
+          <a href="/" class="admin-nav-btn" style="background: rgba(255,255,255,0.08);">
+            <i class="fas fa-external-link-alt"></i> View Site
+          </a>
+        </nav>
       </div>
-    </div>
+    </header>
 
-    <div class="container">
-      <!-- Dashboard Header -->
-      <div class="dashboard-header">
-        <h1 class="page-title">
-          <i class="fas fa-tachometer-alt"></i>
-          Dashboard Overview
-        </h1>
-        <a href="/tour/admin/chat" class="create-btn" style="background: linear-gradient(135deg, #0284c7, #0369a1);">
-          <i class="fas fa-headset"></i>
-          Live Support Chat
-        </a>
-        <a href="/tour/admin/create" class="create-btn">
-          <i class="fas fa-plus"></i>
-          Create New Tour
-        </a>
-        <a href="/tour/admin/dashboard/user-details" class="view-users-btn">
-          <i class="fas fa-users"></i>
-          View All Users
-        </a>
-
-        <a href="/tour/admin/dashboard/enquiries-details" class="view-btn">
-          <i class="fas fa-envelope-open"></i>
-          View All Enquiries
-        </a>
-      </div>
-
-      <!-- Stats Grid -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon tours">
-            <i class="fas fa-route"></i>
+    <!-- Main Dashboard Area -->
+    <main class="dashboard-body">
+      <!-- 4 Stat Counters -->
+      <div class="stats-grid-4">
+        <div class="stat-card-admin">
+          <div>
+            <div class="stat-admin-label">Total Tours</div>
+            <div class="stat-admin-val"><%= (locals.tours && locals.tours.length) || 0 %></div>
           </div>
-          <div class="stat-content">
-            <h3><%= tours.length %></h3>
-            <p>Total Tours</p>
+          <div class="stat-icon-wrapper" style="background: #e0f2fe; color: #0284c7;">
+            <i class="fas fa-map-marked-alt"></i>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon bookings">
-            <i class="fas fa-calendar-check"></i>
+
+        <div class="stat-card-admin">
+          <div>
+            <div class="stat-admin-label">Registered Users</div>
+            <div class="stat-admin-val"><%= locals.totalUsers != null ? locals.totalUsers : 0 %></div>
           </div>
-          <div class="stat-content">
-            <h3><%= totalEnquiries %></h3>
-            <p>Total Enquiry</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon revenue">
-            <i class="fas fa-rupee-sign"></i>
-          </div>
-          <div class="stat-content">
-            <h3>
-              ₹<%= tours.reduce((sum, tour) => sum + tour.price,
-              0).toLocaleString() %>
-            </h3>
-            <p>Total Revenue Value</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon users">
+          <div class="stat-icon-wrapper" style="background: #dcfce7; color: #16a34a;">
             <i class="fas fa-users"></i>
           </div>
-          <div class="stat-content">
-            <h3><%= totalUsers %></h3>
-            <p>Active Users</p>
+        </div>
+
+        <div class="stat-card-admin">
+          <div>
+            <div class="stat-admin-label">Standard Inquiries</div>
+            <div class="stat-admin-val"><%= locals.totalEnquiries != null ? locals.totalEnquiries : 0 %></div>
+          </div>
+          <div class="stat-icon-wrapper" style="background: #fef3c7; color: #d97706;">
+            <i class="fas fa-paper-plane"></i>
+          </div>
+        </div>
+
+        <div class="stat-card-admin">
+          <div>
+            <div class="stat-admin-label">AI Custom Trips</div>
+            <div class="stat-admin-val"><%= locals.totalCustomEnquiries != null ? locals.totalCustomEnquiries : 0 %></div>
+          </div>
+          <div class="stat-icon-wrapper" style="background: #ede9fe; color: #7c3aed;">
+            <i class="fas fa-sparkles"></i>
           </div>
         </div>
       </div>
 
-      <!-- Tours Management -->
-      <div class="tours-section">
-        <div class="section-header">
-          <h2 class="section-title">
-            <i class="fas fa-map-marked-alt"></i>
-            Manage Tours
-          </h2>
-        </div>
-
-        <% if (tours && tours.length > 0) { %>
-        <table class="tours-table">
-          <thead>
-            <tr>
-              <th>Tour</th>
-              <th>Location</th>
-              <th>Duration</th>
-              <th>Price</th>
-              <th>Created</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% tours.forEach(tour => { %>
-            <tr>
-              <td>
-                <div style="display: flex; align-items: center; gap: 1rem">
-                  <img
-                    src="<%= tour.coverImage || '/images/default-tour.jpg' %>"
-                    alt="<%= tour.name %>"
-                    class="tour-image"
-                  />
-                  <div>
-                    <div class="tour-name"><%= tour.name %></div>
-                    <div class="tour-location">
-                      <i class="fas fa-eye"></i>
-                      Views: 245
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <i class="fas fa-map-marker-alt"></i>
-                <%= tour.location %>
-              </td>
-              <td>
-                <i class="far fa-clock"></i>
-                <%= tour.duration %>
-              </td>
-
-              <td class="price">₹<%= (tour.price != null ? tour.price : 0).toLocaleString() %></td>
-              <td><%= new Date(tour.createdAt).toLocaleDateString() %></td>
-              <td>
-                <div class="actions">
-                  <a
-                    href="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>"
-                    class="btn btn-view"
-                    target="_blank"
-                  >
-                    <i class="fas fa-eye"></i>
-                    View
-                  </a>
-
-                  <a
-                    href="/tour/admin/edit/<%= tour._id %>"
-                    class="btn btn-edit"
-                  >
-                    <i class="fas fa-edit"></i>
-                    Edit
-                  </a>
-
-                  <button
-                    onclick="deleteTour('<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>', '<%= tour.name %>')"
-                    class="btn btn-delete"
-                  >
-                    <i class="fas fa-trash"></i>
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <% }) %>
-          </tbody>
-        </table>
-        <% } else { %>
-        <div class="empty-state">
-          <i class="fas fa-map-signs"></i>
-          <h3>No Tours Created Yet</h3>
-          <p>Start by creating your first amazing tour package!</p>
-          <a
-            href="/tour/admin/create"
-            class="create-btn"
-            style="margin-top: 1rem; display: inline-flex"
-          >
-            <i class="fas fa-plus"></i>
-            Create First Tour
+      <!-- Tours Management Table Card -->
+      <div class="admin-table-card">
+        <div class="table-card-header">
+          <div>
+            <h2 class="table-card-title">Expeditions Portfolio</h2>
+            <small class="text-muted">Manage active itineraries, pricing, and destination details</small>
+          </div>
+          <a href="/tour/admin/create" class="btn-orbit-hero btn-orbit-primary" style="padding: 0.65rem 1.4rem; font-size: 0.9rem;">
+            <i class="fas fa-plus"></i> Create New Tour
           </a>
         </div>
-        <% } %>
+
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Tour</th>
+                <th>Location</th>
+                <th>Price (INR)</th>
+                <th>Duration</th>
+                <th>Rating</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (tours && tours.length > 0) { %>
+                <% tours.forEach(tour => { %>
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-3">
+                        <img
+                          src="<%= tour.coverImage || '/images/default-tour.jpg' %>"
+                          alt="<%= tour.name %>"
+                          class="tour-thumb-img"
+                        />
+                        <span style="font-weight: 800; color: var(--orbit-dark);"><%= tour.name %></span>
+                      </div>
+                    </td>
+                    <td>
+                      <i class="fas fa-map-marker-alt text-primary me-1"></i>
+                      <%= tour.location %>
+                    </td>
+                    <td>
+                      <strong style="color: #10b981;">₹<%= (tour.price != null ? tour.price : 0).toLocaleString('en-IN') %></strong>
+                    </td>
+                    <td><%= tour.duration %></td>
+                    <td>
+                      <span class="badge bg-warning text-dark" style="font-weight: 700;">
+                        ★ <%= tour.ratingsAverage || '4.9' %>
+                      </span>
+                    </td>
+                    <td style="text-align: right;">
+                      <div class="action-btn-group justify-content-end">
+                        <a
+                          href="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>"
+                          class="btn-action-sm btn-action-view"
+                          target="_blank"
+                          title="View Live Tour"
+                        >
+                          <i class="fas fa-eye"></i> View
+                        </a>
+                        <a
+                          href="/tour/admin/edit/<%= tour._id %>"
+                          class="btn-action-sm btn-action-edit"
+                          title="Edit Tour"
+                        >
+                          <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button
+                          class="btn-action-sm btn-action-delete"
+                          onclick="deleteTour('<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>')"
+                          title="Delete Tour"
+                        >
+                          <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="6" class="text-center py-5 text-muted">
+                    <i class="fas fa-map-signs fa-3x mb-3 opacity-50"></i>
+                    <p>No tours created yet. Click "+ Create New Tour" to begin.</p>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </main>
+
+    <%- include("../partials/scripts") %>
 
     <script>
-      function deleteTour(tourSlug, tourName) {
-        if (
-          confirm(
-            `Are you sure you want to delete "${tourName}"?\n\nThis action cannot be undone and will also delete all related comments and images.`
-          )
-        ) {
-          // Show loading state
-          const deleteBtn = event.target;
-          const originalText = deleteBtn.innerHTML;
-          deleteBtn.innerHTML =
-            '<i class="fas fa-spinner fa-spin"></i> Deleting...';
-          deleteBtn.disabled = true;
+      async function deleteTour(slug) {
+        if (!confirm("Are you sure you want to permanently delete this expedition?")) {
+          return;
+        }
 
-          fetch(`/tour/${tourSlug}`, {
+        try {
+          const response = await fetch(`/tour/${slug}`, {
             method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              if (data.message === "Tour deleted successfully") {
-                // Show success message
-                alert("Tour deleted successfully!");
-                // Reload page to update the list
-                window.location.reload();
-              } else {
-                throw new Error(data.message || "Failed to delete tour");
-              }
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-              alert("Error deleting tour: " + error.message);
+          });
 
-              // Restore button
-              deleteBtn.innerHTML = originalText;
-              deleteBtn.disabled = false;
-            });
+          const data = await response.json();
+
+          if (data.success) {
+            alert("✅ " + data.message);
+            window.location.reload();
+          } else {
+            alert("❌ " + (data.message || "Failed to delete tour"));
+          }
+        } catch (error) {
+          console.error("Error deleting tour:", error);
+          alert("❌ Something went wrong while deleting the tour.");
         }
       }
-
-      // Add some interactive effects
-      document.addEventListener("DOMContentLoaded", function () {
-        // Animate stat cards on load
-        const statCards = document.querySelectorAll(".stat-card");
-        statCards.forEach((card, index) => {
-          card.style.opacity = "0";
-          card.style.transform = "translateY(20px)";
-          setTimeout(() => {
-            card.style.transition = "opacity 0.5s ease, transform 0.5s ease";
-            card.style.opacity = "1";
-            card.style.transform = "translateY(0)";
-          }, index * 100);
-        });
-
-        // Add hover effects to table rows
-        const tableRows = document.querySelectorAll(".tours-table tbody tr");
-        tableRows.forEach((row) => {
-          row.addEventListener("mouseenter", function () {
-            this.style.transform = "scale(1.01)";
-            this.style.transition = "transform 0.2s ease";
-          });
-
-          row.addEventListener("mouseleave", function () {
-            this.style.transform = "scale(1)";
-          });
-        });
-      });
-
-      // Auto-refresh stats every 30 seconds (optional)
-      setInterval(() => {
-        // You can add AJAX calls here to update stats without page reload
-        console.log("Stats refresh interval - implement as needed");
-      }, 30000);
     </script>
   </body>
 </html>
