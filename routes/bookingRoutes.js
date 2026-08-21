@@ -3,57 +3,58 @@ const router = express.Router();
 const Razorpay = require("razorpay");
 const Booking = require("../models/bookings");
 const Tour = require("../models/tour");
-const nodemailer = require("nodemailer");
+const { sendEmail } = require("../services/mailer");
 
-//tours fetch for all nav bars (ADD THIS)
-async function getTours() {
-  try {
-    return await Tour.find({}).select("name").limit(10); // Only get name field, limit to 10
-  } catch (error) {
-    return [];
-  }
-}
-
-// Initialize Razorpay with your keys
+// Initialize Razorpay with credentials
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// ✅ Mail transporter setup
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: process.env.GMAIL_ID,
-//     pass: process.env.GMAIL_PASSWORD, // Your Gmail App Password
-//   },
-// });
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS,
-  },
-});
+// Helper: Calculate trip end date from start date and tour duration
+function getTripEndDate(startDate, durationStr) {
+  const start = new Date(startDate);
+  if (isNaN(start.getTime())) return new Date();
+
+  let days = 1;
+  if (durationStr && typeof durationStr === "string") {
+    const match = durationStr.match(/(\d+)\s*day/i);
+    if (match) {
+      days = parseInt(match[1], 10);
+    }
+  }
+  const endDate = new Date(start);
+  endDate.setDate(endDate.getDate() + (days > 1 ? days - 1 : 0));
+  return endDate;
+}
 
 // Route 1: Show Booking Page (GET)
 router.get("/book/:tourId", async (req, res) => {
-  // Check if user is logged in
   if (!req.user) {
-    return res.redirect("/user/login?message=Please login to book a tour");
+    return res.redirect("/user/signin?message=Please login to book a tour");
+  }
+
+  if (req.user.role === "ADMIN") {
+    return res.redirect("/tour?error=Admins are not allowed to book tours.");
   }
 
   try {
-    // Get tour details from database
-    const tour = await Tour.findById(req.params.tourId);
+    const tour = await Tour.findById(req.params.tourId).lean();
 
     if (!tour) {
       return res.redirect("/tours?error=Tour not found");
     }
 
-    // Render booking page with tour and user info
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    if (tour.availableDates && Array.isArray(tour.availableDates)) {
+      tour.availableDates = tour.availableDates.filter((date) => {
+        const d = new Date(date);
+        return d >= startOfToday;
+      });
+    }
+
     res.render("booking", {
       user: req.user,
       tour: tour,
@@ -61,34 +62,33 @@ router.get("/book/:tourId", async (req, res) => {
       success: null,
     });
   } catch (error) {
-    console.error(error);
     res.redirect("/tours?error=Something went wrong");
   }
 });
 
 // Route 2: Create Razorpay Order (POST)
 router.post("/create-order", async (req, res) => {
+  if (req.user && req.user.role === "ADMIN") {
+    return res.status(403).json({ error: "Admins are not allowed to make tour bookings." });
+  }
+
   try {
     const { tourId, travelDate, numberOfPeople } = req.body;
 
-    // Get tour to calculate price
     const tour = await Tour.findById(tourId);
     if (!tour) {
       return res.status(404).json({ error: "Tour not found" });
     }
 
-    // Calculate total amount in paise (Razorpay needs paise)
     const amountInRupees = tour.price * numberOfPeople;
-    const amountInPaise = amountInRupees * 100;
+    const amountInPaise = Math.round(amountInRupees * 100);
 
-    // Create Razorpay order
     const order = await razorpay.orders.create({
       amount: amountInPaise,
       currency: "INR",
       receipt: `order_${Date.now()}`,
     });
 
-    // Send order details to frontend
     res.json({
       orderId: order.id,
       amount: amountInPaise,
@@ -96,13 +96,16 @@ router.post("/create-order", async (req, res) => {
       keyId: process.env.RAZORPAY_KEY_ID,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Failed to create order" });
   }
 });
 
-// Route 3: Verify Payment & Save Booking (POST) - UPDATED WITH EMAILS
+// Route 3: Verify Payment & Save Booking (POST)
 router.post("/verify-payment", async (req, res) => {
+  if (req.user && req.user.role === "ADMIN") {
+    return res.status(403).json({ success: false, error: "Admins are not allowed to make tour bookings." });
+  }
+
   try {
     const {
       razorpay_payment_id,
@@ -116,14 +119,12 @@ router.post("/verify-payment", async (req, res) => {
       travelers,
     } = req.body;
 
-    // Verify payment signature (security check)
     const crypto = require("crypto");
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
-    // Check if signature matches
     if (expectedSignature !== razorpay_signature) {
       return res.status(400).json({
         success: false,
@@ -131,15 +132,13 @@ router.post("/verify-payment", async (req, res) => {
       });
     }
 
-    // Validate travelers array
-    if (!travelers || travelers.length !== numberOfPeople) {
+    if (!travelers || travelers.length !== parseInt(numberOfPeople, 10)) {
       return res.status(400).json({
         success: false,
         error: "Traveler details are incomplete",
       });
     }
 
-    // Validate each traveler has name and Aadhaar
     for (let i = 0; i < travelers.length; i++) {
       if (!travelers[i].name || !travelers[i].aadhaarNumber) {
         return res.status(400).json({
@@ -148,7 +147,6 @@ router.post("/verify-payment", async (req, res) => {
         });
       }
 
-      // Validate Aadhaar is 12 digits
       if (!/^\d{12}$/.test(travelers[i].aadhaarNumber)) {
         return res.status(400).json({
           success: false,
@@ -157,285 +155,97 @@ router.post("/verify-payment", async (req, res) => {
       }
     }
 
-    // Payment verified - Save booking to database
+    const tour = await Tour.findById(tourId);
+    const startDate = travelDate ? new Date(travelDate) : (tour ? tour.tripStartDate : new Date());
+    const endDate = tour ? getTripEndDate(startDate, tour.duration) : startDate;
+
     const booking = new Booking({
       userId: req.user._id,
       fullName: req.user.fullName,
       email: req.user.email,
       tourId: tourId,
       tourName: tourName,
-      travelDate: travelDate,
+      travelDate: startDate,
+      tripStartDate: startDate,
+      tripEndDate: endDate,
       numberOfPeople: numberOfPeople,
       travelers: travelers,
-      amount: amount / 100, // Convert back to rupees
+      amount: amount / 100,
       paymentId: razorpay_payment_id,
       orderId: razorpay_order_id,
       paymentStatus: "completed",
+      status: "BOOKED",
+      refundStatus: "NONE",
     });
 
     await booking.save();
-    console.log("✅ Booking saved to database:", booking._id);
 
-    // ============================================
-    // 📧 SEND EMAIL NOTIFICATIONS - NEW SECTION
-    // ============================================
-    try {
-      const amountInRupees = (amount / 100).toLocaleString("en-IN");
-      const formattedDate = new Date(travelDate).toLocaleDateString("en-IN", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
+    // Email Notifications via Gmail Nodemailer Service
+    const amountInRupees = (amount / 100).toLocaleString("en-IN");
+    const formattedDate = new Date(startDate).toLocaleDateString("en-IN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const formattedEndDate = new Date(endDate).toLocaleDateString("en-IN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
-      // Generate travelers list HTML
-      const travelersListHTML = travelers
-        .map(
-          (traveler, index) => `
-        <tr style="border-bottom: 1px solid #e5e7eb;">
-          <td style="padding: 12px; color: #374151;">${index + 1}</td>
-          <td style="padding: 12px; color: #374151; font-weight: 500;">${
-            traveler.name
-          }</td>
-          <td style="padding: 12px; color: #374151;">${
-            traveler.aadhaarNumber
-          }</td>
-        </tr>
-      `
-        )
-        .join("");
-
-      // 1️⃣ Send notification to business owner
-      await transporter.sendMail({
-        from: "Orbit Rush <orbitrushtourism@gmail.com>",
-        to: process.env.GMAIL_ID,
+    // 1. Business Owner Notification
+    const recipientOwner = process.env.GMAIL_USER || process.env.GMAIL_ID;
+    if (recipientOwner) {
+      await sendEmail({
+        to: recipientOwner,
         subject: `💰 New Booking Confirmed: ${tourName} - ₹${amountInRupees}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 12px;">
-            <!-- Header -->
             <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px;">
               <h1 style="margin: 0; font-size: 28px;">🎉 New Booking Alert!</h1>
               <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.95;">OrbitRush Tourism</p>
             </div>
-            
-            <!-- Payment Summary -->
-            <div style="background: #dcfce7; border-left: 5px solid #10b981; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-              <h2 style="margin: 0 0 15px 0; color: #065f46; font-size: 20px;">💵 Payment Confirmed</h2>
-              <p style="margin: 5px 0; color: #047857; font-size: 32px; font-weight: bold;">₹${amountInRupees}</p>
-              <p style="margin: 5px 0; color: #065f46;"><strong>Payment ID:</strong> ${razorpay_payment_id}</p>
-              <p style="margin: 5px 0; color: #065f46;"><strong>Order ID:</strong> ${razorpay_order_id}</p>
-            </div>
-            
-            <!-- Tour Details -->
             <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
-              <h3 style="color: #1f2937; border-bottom: 3px solid #667eea; padding-bottom: 12px; margin-bottom: 18px;">📍 Tour Details</h3>
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="padding: 10px 0; color: #6b7280; width: 40%;">Tour Name:</td>
-                  <td style="padding: 10px 0; color: #1f2937; font-weight: 600;">${tourName}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 0; color: #6b7280;">Travel Date:</td>
-                  <td style="padding: 10px 0; color: #1f2937; font-weight: 600;">${formattedDate}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 0; color: #6b7280;">Number of People:</td>
-                  <td style="padding: 10px 0; color: #1f2937; font-weight: 600;">${numberOfPeople} Person(s)</td>
-                </tr>
-              </table>
-            </div>
-            
-            <!-- Customer Details -->
-            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
-              <h3 style="color: #1f2937; border-bottom: 3px solid #667eea; padding-bottom: 12px; margin-bottom: 18px;">👤 Customer Information</h3>
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="padding: 10px 0; color: #6b7280; width: 40%;">Name:</td>
-                  <td style="padding: 10px 0; color: #1f2937; font-weight: 600;">${
-                    req.user.fullName
-                  }</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px 0; color: #6b7280;">Email:</td>
-                  <td style="padding: 10px 0; color: #1f2937; font-weight: 600;">${
-                    req.user.email
-                  }</td>
-                </tr>
-              </table>
-            </div>
-            
-            <!-- Travelers List -->
-            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
-              <h3 style="color: #1f2937; border-bottom: 3px solid #667eea; padding-bottom: 12px; margin-bottom: 18px;">👥 Traveler Details</h3>
-              <table style="width: 100%; border-collapse: collapse; background: #f9fafb; border-radius: 8px; overflow: hidden;">
-                <thead>
-                  <tr style="background: #667eea; color: white;">
-                    <th style="padding: 12px; text-align: left;">#</th>
-                    <th style="padding: 12px; text-align: left;">Name</th>
-                    <th style="padding: 12px; text-align: left;">Aadhaar Number</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${travelersListHTML}
-                </tbody>
-              </table>
-            </div>
-            
-            <!-- Booking Time -->
-            <div style="background: #eff6ff; padding: 18px; border-radius: 8px; text-align: center; border: 2px solid #3b82f6;">
-              <p style="margin: 0; color: #1e40af; font-size: 15px;"><strong>⏰ Booking Time:</strong> ${new Date().toLocaleString(
-                "en-IN",
-                {
-                  dateStyle: "full",
-                  timeStyle: "short",
-                }
-              )}</p>
+              <p><strong>Tour:</strong> ${tourName}</p>
+              <p><strong>Trip Start Date:</strong> ${formattedDate}</p>
+              <p><strong>Trip End Date:</strong> ${formattedEndDate}</p>
+              <p><strong>Customer:</strong> ${req.user.fullName} (${req.user.email})</p>
+              <p><strong>Amount:</strong> ₹${amountInRupees}</p>
             </div>
           </div>
         `,
       });
-
-      // 2️⃣ Send confirmation email to customer
-      await transporter.sendMail({
-        from: "Orbit Rush <orbitrushtourism@gmail.com>",
-        to: req.user.email,
-        subject: `🎉 Booking Confirmed: ${tourName} | OrbitRush Tourism`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; background: #f9fafb;">
-            <!-- Header -->
-            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 25px;">
-              <h1 style="margin: 0; font-size: 32px;">✅ Booking Confirmed!</h1>
-              <p style="margin: 10px 0 0 0; font-size: 18px; opacity: 0.95;">Your adventure awaits</p>
-            </div>
-            
-            <!-- Success Message -->
-            <div style="background: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-              <p style="font-size: 18px; color: #1f2937; line-height: 1.7; margin: 0;">
-                Dear <strong>${req.user.fullName}</strong>,<br>
-                Thank you for booking with <strong style="color: #667eea;">OrbitRush Tourism</strong>! 
-                Your payment has been successfully processed and your booking is confirmed.
-              </p>
-            </div>
-            
-            <!-- Booking Details -->
-            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
-              <h2 style="color: #1f2937; border-bottom: 3px solid #ff6b35; padding-bottom: 12px; margin-top: 0;">📋 Your Booking Details</h2>
-              
-              <div style="background: #fef3c7; border-left: 5px solid #f59e0b; padding: 18px; border-radius: 8px; margin: 20px 0;">
-                <p style="margin: 0; color: #92400e; font-size: 16px;"><strong>🎫 Booking ID:</strong> ${booking._id}</p>
-              </div>
-              
-              <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                <tr>
-                  <td style="padding: 12px 0; color: #6b7280; width: 45%; border-bottom: 1px solid #e5e7eb;">Tour Package:</td>
-                  <td style="padding: 12px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #e5e7eb;">${tourName}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Travel Date:</td>
-                  <td style="padding: 12px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #e5e7eb;">${formattedDate}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Number of Travelers:</td>
-                  <td style="padding: 12px 0; color: #1f2937; font-weight: 600; border-bottom: 1px solid #e5e7eb;">${numberOfPeople} Person(s)</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; color: #6b7280; border-bottom: 1px solid #e5e7eb;">Total Amount Paid:</td>
-                  <td style="padding: 12px 0; color: #10b981; font-weight: 700; font-size: 20px; border-bottom: 1px solid #e5e7eb;">₹${amountInRupees}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px 0; color: #6b7280;">Payment Status:</td>
-                  <td style="padding: 12px 0;">
-                    <span style="background: #dcfce7; color: #065f46; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 14px;">
-                      ✓ Completed
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            
-            <!-- Travelers -->
-            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
-              <h3 style="color: #1f2937; border-bottom: 3px solid #ff6b35; padding-bottom: 12px; margin-top: 0;">👥 Traveler Information</h3>
-              <table style="width: 100%; border-collapse: collapse; background: #f9fafb; border-radius: 8px; overflow: hidden; margin-top: 15px;">
-                <thead>
-                  <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
-                    <th style="padding: 14px; text-align: left; font-weight: 600;">#</th>
-                    <th style="padding: 14px; text-align: left; font-weight: 600;">Name</th>
-                    <th style="padding: 14px; text-align: left; font-weight: 600;">Aadhaar</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${travelersListHTML}
-                </tbody>
-              </table>
-            </div>
-            
-            <!-- Payment Info -->
-            <div style="background: #eff6ff; padding: 20px; border-radius: 10px; border: 2px solid #3b82f6; margin-bottom: 20px;">
-              <h4 style="margin: 0 0 12px 0; color: #1e40af;">💳 Payment Information</h4>
-              <p style="margin: 5px 0; color: #1e3a8a; font-size: 14px;"><strong>Payment ID:</strong> ${razorpay_payment_id}</p>
-              <p style="margin: 5px 0; color: #1e3a8a; font-size: 14px;"><strong>Order ID:</strong> ${razorpay_order_id}</p>
-              <p style="margin: 5px 0; color: #1e3a8a; font-size: 14px;"><strong>Payment Method:</strong> Razorpay (Secure)</p>
-            </div>
-            
-            <!-- What's Next -->
-            <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
-              <h3 style="color: #1f2937; border-bottom: 3px solid #ff6b35; padding-bottom: 12px; margin-top: 0;">📌 What Happens Next?</h3>
-              <ul style="color: #374151; line-height: 2; padding-left: 20px; margin: 15px 0;">
-                <li>Our team will contact you <strong>within 24 hours</strong> with complete tour details</li>
-                <li>You will receive pickup location and timing information via email/SMS</li>
-                <li>Please carry valid <strong>ID proofs</strong> matching the Aadhaar numbers provided</li>
-                <li>Arrive at the pickup point <strong>15 minutes early</strong></li>
-                <li>For any changes or queries, contact us immediately</li>
-              </ul>
-            </div>
-            
-            <!-- Important Notes -->
-            <div style="background: #fef2f2; border-left: 5px solid #ef4444; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h4 style="margin: 0 0 12px 0; color: #991b1b;">⚠️ Important Reminders</h4>
-              <ul style="color: #7f1d1d; line-height: 1.8; padding-left: 20px; margin: 0;">
-                <li>Keep this email for your records</li>
-                <li>Carry original Aadhaar cards for all travelers</li>
-                <li>Cancellation policy: Free cancellation up to 48 hours before travel</li>
-                <li>Contact us immediately if you need to reschedule</li>
-              </ul>
-            </div>
-            
-            <!-- Contact Section -->
-            <div style="background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-              <h3 style="margin: 0 0 15px 0;">📞 Need Assistance?</h3>
-              <p style="margin: 8px 0; font-size: 16px;">We're here to help 24/7!</p>
-              <p style="margin: 8px 0; font-size: 22px; font-weight: bold;">+91 98765 43210</p>
-              <p style="margin: 8px 0; font-size: 16px;">orbitrushtourism@gmail.com</p>
-            </div>
-            
-            <!-- Footer -->
-            <div style="text-align: center; padding: 20px; color: #6b7280; font-size: 14px;">
-              <p style="margin: 5px 0;">Thank you for choosing OrbitRush Tourism!</p>
-              <p style="margin: 5px 0;">We look forward to making your journey memorable 🌟</p>
-              <p style="margin: 15px 0 5px 0; font-size: 12px; color: #9ca3af;">
-                This is an automated confirmation email. Please do not reply to this email.
-              </p>
-            </div>
-          </div>
-        `,
-      });
-
-      console.log("📧 Booking confirmation emails sent successfully!");
-    } catch (emailError) {
-      console.error("❌ Email notification failed:", emailError);
-      // Don't fail the booking if email fails - just log it
     }
-    // END EMAIL SECTION
 
-    // Send success response
+    // 2. Customer Confirmation Email
+    await sendEmail({
+      to: req.user.email,
+      subject: `🎉 Booking Confirmed: ${tourName} | OrbitRush Tourism`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; background: #f9fafb;">
+          <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 25px;">
+            <h1 style="margin: 0; font-size: 32px;">✅ Booking Confirmed!</h1>
+          </div>
+          <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px;">
+            <p>Dear <strong>${req.user.fullName}</strong>,</p>
+            <p>Your booking for <strong>${tourName}</strong> has been successfully confirmed!</p>
+            <p><strong>Trip Start Date:</strong> ${formattedDate}</p>
+            <p><strong>Trip End Date:</strong> ${formattedEndDate}</p>
+            <p><strong>Booking ID:</strong> ${booking._id}</p>
+            <p><strong>Amount Paid:</strong> ₹${amountInRupees}</p>
+          </div>
+        </div>
+      `,
+    });
+
     res.json({
       success: true,
       message: "Booking confirmed!",
       bookingId: booking._id,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({
       success: false,
       error: "Payment verification failed",
@@ -443,55 +253,159 @@ router.post("/verify-payment", async (req, res) => {
   }
 });
 
-// Route 4: User's Bookings Page (GET)
-router.get("/my-bookings", async (req, res) => {
-  // Check if user is logged in
+// Route 4: Booking Cancellation & Refund (POST)
+router.post("/cancel/:bookingId", async (req, res) => {
   if (!req.user) {
-    return res.redirect("/user/login?message=Please login to view bookings");
+    return res.status(401).json({ success: false, error: "Please log in to cancel your booking." });
   }
 
   try {
-    // Get all bookings for this user
+    const booking = await Booking.findById(req.params.bookingId);
+    if (!booking) {
+      return res.status(404).json({ success: false, error: "Booking not found." });
+    }
+
+    if (booking.userId.toString() !== req.user._id.toString() && req.user.role !== "ADMIN") {
+      return res.status(403).json({ success: false, error: "Unauthorized access to this booking." });
+    }
+
+    if (booking.status === "CANCELLED") {
+      return res.status(400).json({ success: false, error: "Booking has already been cancelled." });
+    }
+
+    const createdAtTime = new Date(booking.createdAt).getTime();
+    const currentTime = Date.now();
+    const hoursElapsed = (currentTime - createdAtTime) / (1000 * 60 * 60);
+
+    if (hoursElapsed > 24) {
+      return res.status(400).json({
+        success: false,
+        error: "Cancellation period expired. Bookings can only be cancelled within 24 hours of booking.",
+      });
+    }
+
+    let refund = null;
+    let refundError = null;
+
+    if (booking.paymentId) {
+      try {
+        const amountInPaise = Math.round(booking.amount * 100);
+        refund = await razorpay.payments.refund(booking.paymentId, {
+          amount: amountInPaise,
+          notes: {
+            reason: req.body.reason || "Customer cancelled within 24 hours",
+            bookingId: booking._id.toString(),
+          },
+        });
+      } catch (err) {
+        refundError = err.message || "Failed to process Razorpay refund";
+      }
+    }
+
+    booking.status = "CANCELLED";
+    booking.cancelledAt = new Date();
+    booking.cancellationReason = req.body.reason || "Cancelled by user within 24 hours";
+
+    if (refund && refund.id) {
+      booking.refundStatus = "REFUNDED";
+      booking.refundId = refund.id;
+      booking.refundAmount = booking.amount;
+    } else if (refundError) {
+      booking.refundStatus = "FAILED";
+    } else {
+      booking.refundStatus = "REFUNDED";
+      booking.refundAmount = booking.amount;
+    }
+
+    await booking.save();
+
+    // Send cancellation & refund email notification via Gmail Nodemailer
+    await sendEmail({
+      to: booking.email,
+      subject: `⚠️ Booking Cancelled & Refund Initiated: ${booking.tourName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; background: #f9fafb; border-radius: 12px;">
+          <div style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 25px; border-radius: 10px; text-align: center; margin-bottom: 25px;">
+            <h1 style="margin: 0; font-size: 26px;">Booking Cancelled</h1>
+            <p style="margin: 5px 0 0 0;">OrbitRush Tourism</p>
+          </div>
+          <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <p>Dear <strong>${booking.fullName}</strong>,</p>
+            <p>Your booking for <strong>${booking.tourName}</strong> (Booking ID: <code>${booking._id}</code>) has been successfully cancelled.</p>
+            <div style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 15px; border-radius: 6px; margin: 20px 0;">
+              <h3 style="margin: 0 0 10px 0; color: #15803d;">💰 Refund Details</h3>
+              <p style="margin: 5px 0;"><strong>Refund Amount:</strong> ₹${booking.amount.toLocaleString("en-IN")}</p>
+              <p style="margin: 5px 0;"><strong>Refund Status:</strong> ${booking.refundStatus}</p>
+              ${booking.refundId ? `<p style="margin: 5px 0;"><strong>Refund ID:</strong> <code>${booking.refundId}</code></p>` : ""}
+            </div>
+            <p>The refunded amount will reflect in your bank account within 5-7 business days.</p>
+          </div>
+        </div>
+      `,
+    });
+
+    return res.json({
+      success: true,
+      message: "Booking cancelled successfully and refund processed.",
+      booking: {
+        status: booking.status,
+        refundStatus: booking.refundStatus,
+        refundId: booking.refundId,
+        refundAmount: booking.refundAmount,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: "Failed to process cancellation." });
+  }
+});
+
+// Route 5: User's Bookings Page (GET)
+router.get("/my-bookings", async (req, res) => {
+  if (!req.user) {
+    return res.redirect("/user/signin?message=Please login to view bookings");
+  }
+
+  try {
     const bookings = await Booking.find({ userId: req.user._id })
-      .populate("tourId", "name location duration coverImage")
-      .sort({ createdAt: -1 }); // Newest first
-    const tours = await getTours();
-    console.log(tours);
+      .populate("tourId", "name location duration coverImage tripStartDate tripEndDate")
+      .sort({ createdAt: -1 })
+      .lean();
+
     res.render("booking/my-bookings", {
       user: req.user,
       bookings: bookings,
-      tours,
     });
   } catch (error) {
-    console.error(error);
     res.redirect("/?error=Failed to load bookings");
   }
 });
 
-// Route 5: Admin - All Bookings by Tour (GET)
+// Route 6: Admin - All Bookings by Tour (GET)
 router.get("/admin/bookings", async (req, res) => {
-  // Check if user is admin
   if (!req.user || req.user.role !== "ADMIN") {
     return res.redirect("/?error=Unauthorized access");
   }
 
   try {
-    // Get all tours
     const tours = await Tour.find({}).select("name").sort({ name: 1 });
-
-    // Get selected tour from query
     const selectedTourId = req.query.tour;
     let bookings = [];
     let selectedTour = null;
 
     if (selectedTourId) {
-      // Get bookings for selected tour
       bookings = await Booking.find({ tourId: selectedTourId })
         .populate("userId", "fullName email")
-        .populate("tourId", "name location price")
-        .sort({ createdAt: -1 });
+        .populate("tourId", "name location price tripStartDate tripEndDate")
+        .sort({ createdAt: -1 })
+        .lean();
 
-      selectedTour = await Tour.findById(selectedTourId);
+      selectedTour = await Tour.findById(selectedTourId).lean();
+    } else {
+      bookings = await Booking.find({})
+        .populate("userId", "fullName email")
+        .populate("tourId", "name location price tripStartDate tripEndDate")
+        .sort({ createdAt: -1 })
+        .lean();
     }
 
     res.render("admin/admin-bookings", {
@@ -501,7 +415,6 @@ router.get("/admin/bookings", async (req, res) => {
       selectedTour: selectedTour,
     });
   } catch (error) {
-    console.error(error);
     res.redirect("/?error=Failed to load bookings");
   }
 });

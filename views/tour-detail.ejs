@@ -1278,9 +1278,20 @@
           <!-- Reviews -->
           <div class="tour-card">
             <div class="card-content">
-              <h2 class="section-title">Reviews & Comments</h2>
+              <h2 class="section-title">Reviews & Verified Traveler Ratings</h2>
 
-              <% if (user) { %>
+              <% if (locals.error) { %>
+                <div class="alert alert-danger mb-3" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem;">
+                  <i class="fas fa-exclamation-circle me-2"></i> <%= locals.error %>
+                </div>
+              <% } %>
+              <% if (locals.success) { %>
+                <div class="alert alert-success mb-3" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem;">
+                  <i class="fas fa-check-circle me-2"></i> <%= locals.success %>
+                </div>
+              <% } %>
+
+              <% if (locals.canReview) { %>
               <div class="comment-form">
                 <h4
                   style="
@@ -1293,12 +1304,13 @@
                     class="fas fa-star"
                     style="color: #ffd700; margin-right: 0.5rem"
                   ></i>
-                  Rate & Review This Tour
+                  Rate & Review Your Completed Trip
                 </h4>
 
                 <form
                   method="POST"
                   action="/tour/<%= tour.name.replace(/\s+/g, '-').toLowerCase() %>/comment"
+                  enctype="multipart/form-data"
                 >
                   <!-- Star Rating Section -->
                   <div class="rating-section">
@@ -1325,7 +1337,7 @@
                   </div>
 
                   <!-- Review Text -->
-                  <div class="form-group" style="margin-top: 2rem">
+                  <div class="form-group" style="margin-top: 1.5rem">
                     <label for="content" class="rating-label"
                       >Your Review *</label
                     >
@@ -1333,7 +1345,7 @@
                       id="content"
                       name="content"
                       rows="4"
-                      placeholder="Share your experience about this tour..."
+                      placeholder="Share your trip experience, highlights, and travel tips..."
                       style="
                         width: 100%;
                         padding: 1rem;
@@ -1343,10 +1355,30 @@
                         line-height: 1.5;
                         resize: vertical;
                         font-family: inherit;
-                        transition: border-color 0.3s ease;
                       "
                       required
                     ></textarea>
+                  </div>
+
+                  <!-- Review Photos Upload -->
+                  <div class="form-group" style="margin-top: 1.5rem">
+                    <label class="rating-label" style="display: block; margin-bottom: 0.5rem;">
+                      <i class="fas fa-camera me-1"></i> Add Trip Photos (Optional)
+                    </label>
+                    <input
+                      type="file"
+                      name="photos"
+                      multiple
+                      accept="image/*"
+                      style="
+                        width: 100%;
+                        padding: 0.8rem;
+                        border: 2px dashed #cbd5e1;
+                        border-radius: 8px;
+                        background: #f8fafc;
+                      "
+                    />
+                    <small style="color: #64748b; font-size: 0.85rem;">You can upload up to 5 photos from your trip.</small>
                   </div>
 
                   <button
@@ -1354,58 +1386,74 @@
                     class="submit-review-btn"
                     disabled
                     id="submitBtn"
+                    style="margin-top: 1.5rem;"
                   >
                     <i class="fas fa-paper-plane"></i>
-                    Post Your Review
+                    Post Verified Review
                   </button>
                 </form>
               </div>
-              <% } %> <% if (comments && comments.length > 0) { %> <%
-              comments.forEach(comment => { %>
-              <div class="review-item">
-                <div class="review-header">
-                  <div class="reviewer-avatar">
-                    <%= comment.createdBy.fullName.charAt(0).toUpperCase() %>
-                  </div>
-                  <div>
-                    <h5 style="margin: 0; color: #2c3e50; font-weight: 600">
-                      <%= comment.createdBy.fullName %>
-                    </h5>
-                    <small class="text-muted" style="color: #6b7280">
-                      <i class="far fa-calendar"></i>
-                      <%= new
-                      Date(comment.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric', month: 'long', day: 'numeric' }) %>
-                    </small>
-                  </div>
-                  <div class="review-stars">
-                    <% for(let i = 1; i <= 5; i++) { %>
-                    <span
-                      class="star <%= comment.rating >= i ? 'filled' : '' %>"
-                      >★</span
-                    >
-                    <% } %>
-                    <span class="review-rating-emoji">
-                      <%= comment.rating === 5 ? '🤩' : comment.rating === 4 ?
-                      '😊' : comment.rating === 3 ? '🙂' : comment.rating === 2
-                      ? '😐' : '😞' %>
-                    </span>
-                  </div>
+              <% } else { %>
+                <div style="background: #f8fafc; border-left: 4px solid #3b82f6; padding: 1.2rem 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                  <h5 style="margin: 0 0 6px 0; color: #1e40af;">
+                    <i class="fas fa-shield-alt me-2"></i> Verified Reviews Policy
+                  </h5>
+                  <p style="margin: 0; color: #475569; font-size: 0.95rem;">
+                    <%= locals.reviewRestrictionReason || "Only customers who have booked this tour and completed their trip can submit a review." %>
+                  </p>
                 </div>
-                <p style="line-height: 1.7; color: #374151; margin: 0">
-                  <%= comment.content %>
-                </p>
-              </div>
-              <% }) %> <% } else { %>
-              <div style="text-align: center; padding: 3rem; color: #6c757d">
-                <i
-                  class="far fa-comments"
-                  style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5"
-                ></i>
-                <p style="font-size: 1.1rem">
-                  No reviews yet. Be the first to share your experience!
-                </p>
-              </div>
+              <% } %>
+
+              <% if (comments && comments.length > 0) { %>
+                <% comments.forEach(comment => { %>
+                <div class="review-item" style="margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9;">
+                  <div class="review-header">
+                    <div class="reviewer-avatar">
+                      <%= comment.createdBy ? comment.createdBy.fullName.charAt(0).toUpperCase() : 'U' %>
+                    </div>
+                    <div>
+                      <h5 style="margin: 0; color: #2c3e50; font-weight: 600">
+                        <%= comment.createdBy ? comment.createdBy.fullName : 'Verified Traveler' %>
+                      </h5>
+                      <small class="text-muted" style="color: #6b7280">
+                        <i class="far fa-calendar"></i>
+                        <%= new Date(comment.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                      </small>
+                    </div>
+                    <div class="review-stars">
+                      <% for(let i = 1; i <= 5; i++) { %>
+                      <span class="star <%= comment.rating >= i ? 'filled' : '' %>">★</span>
+                      <% } %>
+                    </div>
+                  </div>
+                  <p style="line-height: 1.7; color: #374151; margin: 1rem 0 0.5rem 0;">
+                    <%= comment.content %>
+                  </p>
+
+                  <!-- Review Photos Gallery -->
+                  <% if (comment.photos && comment.photos.length > 0) { %>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+                      <% comment.photos.forEach(photo => { %>
+                        <img
+                          src="<%= photo %>"
+                          alt="Review photo"
+                          style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;"
+                        />
+                      <% }) %>
+                    </div>
+                  <% } %>
+                </div>
+                <% }) %>
+              <% } else { %>
+                <div style="text-align: center; padding: 3rem; color: #6c757d">
+                  <i
+                    class="far fa-comments"
+                    style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5"
+                  ></i>
+                  <p style="font-size: 1.1rem">
+                    No reviews yet for this tour.
+                  </p>
+                </div>
               <% } %>
             </div>
           </div>
@@ -1756,27 +1804,6 @@
         if (document.getElementById("gallerySlider")) {
           initGallerySlider();
         }
-
-        const observerOptions = {
-          threshold: 0.1,
-          rootMargin: "0px 0px -50px 0px",
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.style.opacity = "1";
-              entry.target.style.transform = "translateY(0)";
-            }
-          });
-        }, observerOptions);
-
-        document.querySelectorAll(".tour-card").forEach((card) => {
-          card.style.opacity = "0";
-          card.style.transform = "translateY(30px)";
-          card.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-          observer.observe(card);
-        });
       });
 
       // Smooth scrolling

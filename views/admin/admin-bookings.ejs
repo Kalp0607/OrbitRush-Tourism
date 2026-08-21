@@ -135,7 +135,7 @@
       font-weight: 700;
       color: #2c3e50;
       border-bottom: 2px solid #e9ecef;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -144,6 +144,7 @@
       padding: 1.2rem;
       border-bottom: 1px solid #e9ecef;
       color: #2c3e50;
+      font-size: 0.9rem;
     }
 
     tbody tr:hover {
@@ -151,7 +152,7 @@
     }
 
     .travelers-cell {
-      max-width: 300px;
+      max-width: 250px;
     }
 
     .traveler-tag {
@@ -160,22 +161,27 @@
       padding: 0.3rem 0.7rem;
       border-radius: 20px;
       margin: 0.2rem;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #1565c0;
       font-weight: 600;
     }
 
-    .payment-badge {
+    .status-badge {
       display: inline-block;
-      padding: 0.4rem 1rem;
+      padding: 0.4rem 0.8rem;
       border-radius: 20px;
       font-weight: 600;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
 
-    .payment-badge.completed {
+    .status-badge.booked {
       background: #d4edda;
       color: #155724;
+    }
+
+    .status-badge.cancelled {
+      background: #f8d7da;
+      color: #721c24;
     }
 
     .empty-state {
@@ -202,7 +208,7 @@
       }
       
       table {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
       }
     }
   </style>
@@ -213,8 +219,8 @@
   <div class="container">
     <!-- Page Header -->
     <div class="page-header">
-      <h1>🎯 Admin - Tour Bookings</h1>
-      <p>Manage and view all tour bookings</p>
+      <h1>🎯 Admin - Tour Bookings & Refunds</h1>
+      <p>Manage tour bookings, track start/end dates, and monitor Razorpay refunds</p>
     </div>
 
     <!-- Tour Filter -->
@@ -223,7 +229,7 @@
         <i class="fas fa-filter"></i> Select Tour to View Bookings
       </div>
       <select class="filter-select" onchange="filterByTour(this.value)">
-        <option value="">-- Select a Tour --</option>
+        <option value="">-- All Tours --</option>
         <% tours.forEach(tour => { %>
           <option value="<%= tour._id %>" <%= selectedTour && selectedTour._id.toString() === tour._id.toString() ? 'selected' : '' %>>
             <%= tour.name %>
@@ -232,7 +238,7 @@
       </select>
     </div>
 
-    <% if (selectedTour && bookings.length > 0) { %>
+    <% if (bookings && bookings.length > 0) { %>
       <!-- Stats Grid -->
       <div class="stats-grid">
         <div class="stat-card">
@@ -244,37 +250,42 @@
           <div class="stat-label">Total Travelers</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">₹<%= bookings.reduce((sum, b) => sum + b.amount, 0).toLocaleString('en-IN') %></div>
-          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value">₹<%= bookings.filter(b => b.status !== 'CANCELLED').reduce((sum, b) => sum + b.amount, 0).toLocaleString('en-IN') %></div>
+          <div class="stat-label">Net Revenue</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value"><%= bookings.filter(b => b.paymentStatus === 'completed').length %></div>
-          <div class="stat-label">Completed</div>
+          <div class="stat-value" style="color: #ef4444;"><%= bookings.filter(b => b.status === 'CANCELLED').length %></div>
+          <div class="stat-label">Cancelled / Refunded</div>
         </div>
       </div>
 
       <!-- Bookings Table -->
       <div class="bookings-table">
         <div class="table-header">
-          📋 Bookings for <%= selectedTour.name %>
+          📋 <%= selectedTour ? 'Bookings for ' + selectedTour.name : 'All Tour Bookings' %>
         </div>
         <table>
           <thead>
             <tr>
               <th>Booking ID</th>
               <th>Customer</th>
-              <th>Travel Date</th>
+              <th>Trip Start Date</th>
+              <th>Trip End Date</th>
               <th>People</th>
               <th>Amount</th>
-              <th>Status</th>
+              <th>Booking Status</th>
+              <th>Refund Status</th>
               <th>Travelers</th>
-              <th>Booked On</th>
             </tr>
           </thead>
           <tbody>
             <% bookings.forEach(booking => { %>
+              <%
+                var startD = booking.tripStartDate || booking.travelDate;
+                var endD = booking.tripEndDate || startD;
+              %>
               <tr>
-                <td style="font-family: monospace; font-size: 0.85rem;">
+                <td style="font-family: monospace; font-size: 0.8rem;">
                   <%= booking._id.toString().substring(0, 8) %>...
                 </td>
                 <td>
@@ -282,16 +293,31 @@
                   <small style="color: #6c757d;"><%= booking.email %></small>
                 </td>
                 <td>
-                  <%= new Date(booking.travelDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                  <%= new Date(startD).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                </td>
+                <td>
+                  <%= new Date(endD).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
                 </td>
                 <td><%= booking.numberOfPeople %></td>
                 <td style="font-weight: 700; color: #667eea;">
                   ₹<%= booking.amount.toLocaleString('en-IN') %>
                 </td>
                 <td>
-                  <span class="payment-badge <%= booking.paymentStatus %>">
-                    ✓ <%= booking.paymentStatus %>
+                  <span class="status-badge <%= booking.status === 'CANCELLED' ? 'cancelled' : 'booked' %>">
+                    <%= booking.status || 'BOOKED' %>
                   </span>
+                </td>
+                <td>
+                  <% if (booking.status === 'CANCELLED') { %>
+                    <span style="font-size: 0.8rem; font-weight: 600; color: #dc2626;">
+                      <%= booking.refundStatus || 'REFUNDED' %>
+                    </span>
+                    <% if (booking.refundId) { %>
+                      <br><small style="font-family: monospace; font-size: 0.75rem; color: #64748b;">ID: <%= booking.refundId %></small>
+                    <% } %>
+                  <% } else { %>
+                    <span style="font-size: 0.8rem; color: #94a3b8;">N/A</span>
+                  <% } %>
                 </td>
                 <td class="travelers-cell">
                   <% booking.travelers.forEach(traveler => { %>
@@ -300,30 +326,17 @@
                     </span>
                   <% }) %>
                 </td>
-                <td>
-                  <%= new Date(booking.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) %>
-                </td>
               </tr>
             <% }) %>
           </tbody>
         </table>
       </div>
-    <% } else if (selectedTour && bookings.length === 0) { %>
-      <!-- No Bookings for Selected Tour -->
+    <% } else { %>
       <div class="bookings-table">
         <div class="empty-state">
           <i class="fas fa-inbox"></i>
-          <h3>No Bookings Yet</h3>
-          <p>No bookings found for <%= selectedTour.name %></p>
-        </div>
-      </div>
-    <% } else { %>
-      <!-- No Tour Selected -->
-      <div class="bookings-table">
-        <div class="empty-state">
-          <i class="fas fa-hand-pointer"></i>
-          <h3>Select a Tour</h3>
-          <p>Please select a tour from the dropdown to view its bookings</p>
+          <h3>No Bookings Found</h3>
+          <p>No bookings matching your criteria.</p>
         </div>
       </div>
     <% } %>

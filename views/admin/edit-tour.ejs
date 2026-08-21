@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create New Tour | Admin</title>
+    <title>Edit Tour | Admin Panel</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
@@ -14,7 +14,136 @@
         background: #f5f6fa;
         color: #333;
       }
-      /* Available Dates Section */
+      .header {
+        background: #2c3e50;
+        color: white;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .back-btn {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .container {
+        max-width: 850px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .form-header {
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+      }
+      .form-container {
+        padding: 2rem;
+      }
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+      input, textarea, select {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+      }
+      input:focus, textarea:focus {
+        outline: none;
+        border-color: #f39c12;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .file-input-wrapper {
+        border: 2px dashed #ddd;
+        padding: 1.5rem;
+        text-align: center;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+      }
+      .file-input-wrapper:hover {
+        border-color: #f39c12;
+        background: #fff8f0;
+      }
+      .file-input-wrapper input[type="file"] {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+      }
+      .file-input-content {
+        pointer-events: none;
+      }
+      .submit-btn {
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        transition: transform 0.3s;
+      }
+      .submit-btn:hover {
+        transform: translateY(-2px);
+      }
+      .itinerary-item {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        align-items: start;
+      }
+      .day-number {
+        background: #f39c12;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        flex-shrink: 0;
+        margin-top: 0.5rem;
+      }
+      .add-day-btn {
+        background: #95a5a6;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
       .dates-section {
         border: 2px solid #e9ecef;
         border-radius: 10px;
@@ -22,20 +151,12 @@
         margin-bottom: 1.5rem;
         background: #f8f9fa;
       }
-
       .dates-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1rem;
       }
-
-      .dates-header h3 {
-        margin: 0;
-        color: #2c3e50;
-        font-size: 1.2rem;
-      }
-
       .add-date-btn {
         background: #3498db;
         color: white;
@@ -48,11 +169,6 @@
         align-items: center;
         gap: 0.5rem;
       }
-
-      .add-date-btn:hover {
-        background: #2980b9;
-      }
-
       .date-item {
         display: flex;
         align-items: center;
@@ -63,207 +179,34 @@
         border-radius: 6px;
         border: 1px solid #ddd;
       }
-
       .date-item input[type="date"] {
         flex: 1;
         margin: 0;
       }
-
       .remove-date-btn {
         background: #e74c3c;
         color: white;
         border: none;
-        padding: 0.5rem;
         border-radius: 4px;
         cursor: pointer;
-        font-size: 0.8rem;
         width: 35px;
         height: 35px;
         display: flex;
         align-items: center;
         justify-content: center;
       }
-
-      .remove-date-btn:hover {
-        background: #c0392b;
-      }
-
-      .dates-info {
-        background: #e8f4f8;
-        padding: 1rem;
+      .current-img-preview {
+        max-width: 150px;
+        max-height: 100px;
+        object-fit: cover;
         border-radius: 6px;
-        margin-top: 1rem;
-        font-size: 0.9rem;
-        color: #0c5460;
-      }
-
-      .date-count {
-        font-size: 0.9rem;
-        color: #6c757d;
-        margin: 0;
-      }
-
-      .header {
-        background: #2c3e50;
-        color: white;
-        padding: 1rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .back-btn {
-        color: white;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .container {
-        max-width: 800px;
-        margin: 2rem auto;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-      }
-
-      .form-header {
-        background: linear-gradient(135deg, #3498db, #2980b9);
-        color: white;
-        padding: 2rem;
-        text-align: center;
-      }
-
-      .form-container {
-        padding: 2rem;
-      }
-
-      .form-group {
-        margin-bottom: 1.5rem;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: #2c3e50;
-      }
-
-      input,
-      textarea,
-      select {
-        width: 100%;
-        padding: 0.8rem;
-        border: 2px solid #ddd;
-        border-radius: 6px;
-        font-size: 1rem;
-        transition: border-color 0.3s;
-      }
-
-      input:focus,
-      textarea:focus {
-        outline: none;
-        border-color: #3498db;
-      }
-
-      textarea {
-        resize: vertical;
-        min-height: 100px;
-      }
-
-      .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-      }
-
-      .file-input-wrapper {
-        border: 2px dashed #ddd;
-        padding: 2rem;
-        text-align: center;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s;
-        position: relative;
-      }
-
-      .file-input-wrapper:hover {
-        border-color: #3498db;
-        background: #f8f9fa;
-      }
-
-      .file-input-wrapper input[type="file"] {
-        position: absolute;
-        opacity: 0;
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-      }
-
-      .file-input-content {
-        pointer-events: none;
-      }
-
-      .submit-btn {
-        background: linear-gradient(135deg, #27ae60, #2ecc71);
-        color: white;
-        padding: 1rem 2rem;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        transition: transform 0.3s;
-      }
-
-      .submit-btn:hover {
-        transform: translateY(-2px);
-      }
-
-      .itinerary-item {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        align-items: start;
-      }
-
-      .day-number {
-        background: #3498db;
-        color: white;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        flex-shrink: 0;
         margin-top: 0.5rem;
       }
-
-      .add-day-btn {
-        background: #95a5a6;
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.9rem;
-      }
-
-      @media (max-width: 768px) {
-        .form-row {
-          grid-template-columns: 1fr;
-        }
-
-        .container {
-          margin: 1rem;
-        }
+      .gallery-preview-container {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
       }
     </style>
   </head>
@@ -278,27 +221,18 @@
 
     <div class="container">
       <div class="form-header">
-        <h1><i class="fas fa-plus-circle"></i> Create New Tour</h1>
-        <p>Add a new exciting destination to your tour collection</p>
+        <h1><i class="fas fa-edit"></i> Edit Tour: <%= tour.name %></h1>
+        <p>Update tour details, itinerary, pricing, and available dates</p>
       </div>
 
       <div class="form-container">
         <% if (typeof error !== 'undefined' && error) { %>
-        <div
-          style="
-            background: #e74c3c;
-            color: white;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-          "
-        >
+        <div style="background: #e74c3c; color: white; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
           <%= error %>
         </div>
         <% } %>
 
-        <!-- ✅ CRITICAL: Added enctype and method -->
-        <form method="POST" action="/tour" enctype="multipart/form-data">
+        <form method="POST" action="/tour/admin/edit/<%= tour._id %>" enctype="multipart/form-data">
           <!-- Basic Info -->
           <div class="form-group">
             <label for="name">Tour Name *</label>
@@ -306,8 +240,8 @@
               type="text"
               id="name"
               name="name"
+              value="<%= tour.name %>"
               required
-              placeholder="e.g., Royal Rajasthan Heritage"
             />
           </div>
 
@@ -318,8 +252,8 @@
                 type="text"
                 id="location"
                 name="location"
+                value="<%= tour.location %>"
                 required
-                placeholder="e.g., Jaipur, Rajasthan"
               />
             </div>
             <div class="form-group">
@@ -328,8 +262,8 @@
                 type="number"
                 id="price"
                 name="price"
+                value="<%= tour.price %>"
                 required
-                placeholder="25000"
               />
             </div>
           </div>
@@ -341,8 +275,8 @@
                 type="text"
                 id="duration"
                 name="duration"
+                value="<%= tour.duration %>"
                 required
-                placeholder="e.g., 5 Days 4 Nights"
               />
             </div>
             <div class="form-group">
@@ -351,6 +285,7 @@
                 type="date"
                 id="tripStartDate"
                 name="tripStartDate"
+                value="<%= tour.tripStartDate ? new Date(tour.tripStartDate).toISOString().split('T')[0] : '' %>"
                 required
               />
             </div>
@@ -362,42 +297,45 @@
               id="overview"
               name="overview"
               required
-              placeholder="Describe what makes this tour special..."
-            ></textarea>
+            ><%= tour.overview %></textarea>
           </div>
 
           <!-- Cover Image -->
           <div class="form-group">
-            <label>Cover Image (Optional)</label>
-            <div class="file-input-wrapper">
+            <label>Cover Image</label>
+            <% if (tour.coverImage) { %>
+            <div>
+              <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Current Cover Image:</p>
+              <img src="<%= tour.coverImage %>" alt="Cover" class="current-img-preview" />
+            </div>
+            <% } %>
+            <div class="file-input-wrapper" style="margin-top: 0.8rem;">
               <input type="file" name="coverImage" accept="image/*" />
               <div class="file-input-content">
-                <i
-                  class="fas fa-image fa-2x"
-                  style="color: #bbb; margin-bottom: 0.5rem"
-                ></i>
-                <p>Click to select cover image</p>
-                <p style="font-size: 0.8rem; color: #999">
-                  JPG, PNG, GIF (Max 5MB)
-                </p>
+                <i class="fas fa-image fa-2x" style="color: #bbb; margin-bottom: 0.5rem"></i>
+                <p>Click to replace cover image (optional)</p>
               </div>
             </div>
           </div>
 
           <!-- Gallery Images -->
           <div class="form-group">
-            <label>Gallery Images (Optional)</label>
-            <div class="file-input-wrapper">
+            <label>Gallery Images</label>
+            <% if (tour.moreImages && tour.moreImages.length > 0) { %>
+            <div>
+              <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Current Gallery Images:</p>
+              <div class="gallery-preview-container">
+                <% tour.moreImages.forEach(img => { %>
+                <img src="<%= img %>" alt="Gallery" class="current-img-preview" />
+                <% }) %>
+              </div>
+            </div>
+            <% } %>
+            <div class="file-input-wrapper" style="margin-top: 0.8rem;">
               <input type="file" name="moreImages" accept="image/*" multiple />
               <div class="file-input-content">
-                <i
-                  class="fas fa-images fa-2x"
-                  style="color: #bbb; margin-bottom: 0.5rem"
-                ></i>
-                <p>Select multiple gallery images (up to 8)</p>
-                <p style="font-size: 0.8rem; color: #999">
-                  Hold Ctrl/Cmd to select multiple
-                </p>
+                <i class="fas fa-images fa-2x" style="color: #bbb; margin-bottom: 0.5rem"></i>
+                <p>Select new gallery images to add/replace (optional)</p>
               </div>
             </div>
           </div>
@@ -409,34 +347,52 @@
               type="url"
               id="video"
               name="video"
-              placeholder="https://www.youtube.com/embed/..."
+              value="<%= tour.video || '' %>"
             />
           </div>
 
           <!-- Includes/Excludes -->
           <div class="form-row">
             <div class="form-group">
-              <label for="included">Included Services</label>
+              <label for="included">Included Services (one per line)</label>
               <textarea
                 id="included"
                 name="included"
-                placeholder="Hotel accommodation&#10;Meals&#10;Transportation&#10;Tour guide"
-              ></textarea>
+              ><%= Array.isArray(tour.included) ? tour.included.join('\n') : (tour.included || '') %></textarea>
             </div>
             <div class="form-group">
-              <label for="excluded">Excluded Services</label>
+              <label for="excluded">Excluded Services (one per line)</label>
               <textarea
                 id="excluded"
                 name="excluded"
-                placeholder="Personal expenses&#10;Tips&#10;Travel insurance&#10;Flight tickets"
-              ></textarea>
+              ><%= Array.isArray(tour.excluded) ? tour.excluded.join('\n') : (tour.excluded || '') %></textarea>
             </div>
           </div>
 
           <!-- Itinerary -->
           <div class="form-group">
-            <label>Day by Day Itinerary (Optional)</label>
+            <label>Day by Day Itinerary</label>
             <div id="itinerary-container">
+              <% if (tour.itinerary && tour.itinerary.length > 0) { %>
+              <% tour.itinerary.forEach((day, index) => { %>
+              <div class="itinerary-item">
+                <div class="day-number"><%= index + 1 %></div>
+                <div style="flex: 1">
+                  <input
+                    type="text"
+                    name="itinerary[<%= index %>][title]"
+                    value="<%= day.title %>"
+                    placeholder="Day <%= index + 1 %> - Title"
+                    style="margin-bottom: 0.5rem"
+                  />
+                  <textarea
+                    name="itinerary[<%= index %>][description]"
+                    placeholder="Day <%= index + 1 %> activities..."
+                  ><%= day.description %></textarea>
+                </div>
+              </div>
+              <% }) %>
+              <% } else { %>
               <div class="itinerary-item">
                 <div class="day-number">1</div>
                 <div style="flex: 1">
@@ -452,6 +408,7 @@
                   ></textarea>
                 </div>
               </div>
+              <% } %>
             </div>
             <button
               type="button"
@@ -461,6 +418,7 @@
               + Add Another Day
             </button>
           </div>
+
           <!-- Available Dates Section -->
           <div class="form-group">
             <div class="dates-section">
@@ -480,28 +438,39 @@
               </div>
 
               <div id="available-dates-container">
-                <!-- Dates will be added here dynamically -->
-              </div>
-
-              <div class="dates-info">
-                <i class="fas fa-info-circle"></i>
-                <strong>Tip:</strong> Add multiple dates when this tour will be
-                available for booking. Past dates will be automatically removed.
-                You can always add more dates later from the admin dashboard.
+                <% if (tour.availableDates && tour.availableDates.length > 0) { %>
+                <% tour.availableDates.forEach((date, idx) => {
+                  const dObj = new Date(date);
+                  const formatted = dObj.toISOString().split('T')[0];
+                %>
+                <div class="date-item" id="date-item-existing-<%= idx %>">
+                  <input
+                    type="date"
+                    name="availableDates[]"
+                    value="<%= formatted %>"
+                    required
+                    onchange="validateDate(this)"
+                  />
+                  <button type="button" class="remove-date-btn" onclick="this.parentElement.remove(); updateDateCount();">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+                <% }) %>
+                <% } %>
               </div>
             </div>
           </div>
 
           <button type="submit" class="submit-btn">
             <i class="fas fa-save"></i>
-            Create Tour
+            Update Tour
           </button>
         </form>
       </div>
     </div>
 
     <script>
-      let dayCount = 1;
+      let dayCount = <%= (tour.itinerary && tour.itinerary.length) ? tour.itinerary.length : 1 %>;
       let dateCount = 0;
 
       function addItineraryDay() {
@@ -510,20 +479,15 @@
         const newDay = document.createElement("div");
         newDay.className = "itinerary-item";
         newDay.innerHTML = `
-    <div class="day-number">${dayCount}</div>
-    <div style="flex: 1;">
-      <input type="text" name="itinerary[${
-        dayCount - 1
-      }][title]" placeholder="Day ${dayCount} - Title" style="margin-bottom: 0.5rem;">
-      <textarea name="itinerary[${
-        dayCount - 1
-      }][description]" placeholder="Day ${dayCount} activities..."></textarea>
-    </div>
-  `;
+          <div class="day-number">${dayCount}</div>
+          <div style="flex: 1;">
+            <input type="text" name="itinerary[${dayCount - 1}][title]" placeholder="Day ${dayCount} - Title" style="margin-bottom: 0.5rem;">
+            <textarea name="itinerary[${dayCount - 1}][description]" placeholder="Day ${dayCount} activities..."></textarea>
+          </div>
+        `;
         container.appendChild(newDay);
       }
 
-      // Available Dates Functions
       function addAvailableDate() {
         dateCount++;
         const container = document.getElementById("available-dates-container");
@@ -531,21 +495,20 @@
         dateItem.className = "date-item";
         dateItem.id = `date-item-${dateCount}`;
 
-        // Set minimum date to today
         const today = new Date().toISOString().split("T")[0];
 
         dateItem.innerHTML = `
-    <input 
-      type="date" 
-      name="availableDates[]" 
-      min="${today}"
-      required
-      onchange="validateDate(this)"
-    />
-    <button type="button" class="remove-date-btn" onclick="removeAvailableDate(${dateCount})">
-      <i class="fas fa-trash"></i>
-    </button>
-  `;
+          <input 
+            type="date" 
+            name="availableDates[]" 
+            min="${today}"
+            required
+            onchange="validateDate(this)"
+          />
+          <button type="button" class="remove-date-btn" onclick="removeAvailableDate(${dateCount})">
+            <i class="fas fa-trash"></i>
+          </button>
+        `;
 
         container.appendChild(dateItem);
         updateDateCount();
@@ -563,9 +526,7 @@
         const activeDates = document.querySelectorAll(
           "#available-dates-container .date-item"
         ).length;
-        document.getElementById(
-          "dateCount"
-        ).textContent = `${activeDates} dates added`;
+        document.getElementById("dateCount").textContent = `${activeDates} dates added`;
       }
 
       function validateDate(input) {
@@ -579,10 +540,7 @@
           return false;
         }
 
-        // Check for duplicate dates
-        const allDates = document.querySelectorAll(
-          'input[name="availableDates[]"]'
-        );
+        const allDates = document.querySelectorAll('input[name="availableDates[]"]');
         const currentValue = input.value;
         let duplicateCount = 0;
 
@@ -593,9 +551,7 @@
         });
 
         if (duplicateCount > 1) {
-          alert(
-            "This date has already been selected. Please choose a different date."
-          );
+          alert("This date has already been selected. Please choose a different date.");
           input.value = "";
           return false;
         }
@@ -603,36 +559,9 @@
         return true;
       }
 
-      // Add some initial dates for better UX
       document.addEventListener("DOMContentLoaded", function () {
-        // Automatically add first date field
-        addAvailableDate();
+        updateDateCount();
       });
-
-      // File input feedback (existing code)
-      document
-        .querySelector('input[name="coverImage"]')
-        .addEventListener("change", function () {
-          const fileName = this.files[0]?.name;
-          if (fileName) {
-            const content = this.parentElement.querySelector(
-              ".file-input-content"
-            );
-            content.innerHTML = `<i class="fas fa-check-circle" style="color: #27ae60; font-size: 2rem; margin-bottom: 0.5rem;"></i><p>Selected: ${fileName}</p>`;
-          }
-        });
-
-      document
-        .querySelector('input[name="moreImages"]')
-        .addEventListener("change", function () {
-          const fileCount = this.files.length;
-          if (fileCount > 0) {
-            const content = this.parentElement.querySelector(
-              ".file-input-content"
-            );
-            content.innerHTML = `<i class="fas fa-check-circle" style="color: #27ae60; font-size: 2rem; margin-bottom: 0.5rem;"></i><p>Selected: ${fileCount} images</p>`;
-          }
-        });
     </script>
   </body>
 </html>

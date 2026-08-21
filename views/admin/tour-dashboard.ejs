@@ -366,6 +366,10 @@
           <i class="fas fa-tachometer-alt"></i>
           Dashboard Overview
         </h1>
+        <a href="/tour/admin/chat" class="create-btn" style="background: linear-gradient(135deg, #0284c7, #0369a1);">
+          <i class="fas fa-headset"></i>
+          Live Support Chat
+        </a>
         <a href="/tour/admin/create" class="create-btn">
           <i class="fas fa-plus"></i>
           Create New Tour
@@ -473,7 +477,7 @@
                 <%= tour.duration %>
               </td>
 
-              <td class="price">₹<%= tour.price.toLocaleString() %></td>
+              <td class="price">₹<%= (tour.price != null ? tour.price : 0).toLocaleString() %></td>
               <td><%= new Date(tour.createdAt).toLocaleDateString() %></td>
               <td>
                 <div class="actions">
@@ -484,6 +488,14 @@
                   >
                     <i class="fas fa-eye"></i>
                     View
+                  </a>
+
+                  <a
+                    href="/tour/admin/edit/<%= tour._id %>"
+                    class="btn btn-edit"
+                  >
+                    <i class="fas fa-edit"></i>
+                    Edit
                   </a>
 
                   <button

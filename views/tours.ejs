@@ -453,6 +453,7 @@
               src="<%= tour.coverImage || '/images/default-tour.jpg' %>"
               alt="<%= tour.name %>"
               loading="lazy"
+              decoding="async"
             />
             <div class="price-badge">₹<%= tour.price.toLocaleString() %></div>
           </div>

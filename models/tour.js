@@ -1,5 +1,23 @@
 const mongoose = require("mongoose");
 
+// Helper to calculate tripEndDate from tripStartDate and duration string
+function calculateEndDate(startDate, durationStr) {
+  if (!startDate) return null;
+  const start = new Date(startDate);
+  if (isNaN(start.getTime())) return null;
+
+  let days = 1;
+  if (durationStr && typeof durationStr === "string") {
+    const match = durationStr.match(/(\d+)\s*day/i);
+    if (match) {
+      days = parseInt(match[1], 10);
+    }
+  }
+  const endDate = new Date(start);
+  endDate.setDate(endDate.getDate() + (days > 1 ? days - 1 : 0));
+  return endDate;
+}
+
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -40,7 +58,21 @@ const tourSchema = new mongoose.Schema(
     included: [String],
     excluded: [String],
 
-    // NEW: Simple array of available dates
+    // Tour Start & End Dates
+    tripStartDate: {
+      type: Date,
+      required: true,
+      default: function () {
+        const d = new Date();
+        d.setDate(d.getDate() + 7); // Default to 7 days from now
+        d.setHours(0, 0, 0, 0);
+        return d;
+      },
+    },
+    tripEndDate: {
+      type: Date,
+    },
+
     availableDates: [Date],
   },
   {
@@ -48,47 +80,34 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
-// Simple middleware to remove past dates before save
+// Pre-save middleware to calculate tripEndDate and filter past dates
 tourSchema.pre("save", function (next) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Set to start of day
-
-  // Keep only future dates
-  this.availableDates = this.availableDates.filter((date) => {
-    const checkDate = new Date(date);
-    checkDate.setHours(0, 0, 0, 0);
-    return checkDate >= today;
-  });
-
-  next();
-});
-
-// Simple method to add a date
-tourSchema.methods.addDate = function (dateString) {
-  const newDate = new Date(dateString);
-  newDate.setHours(0, 0, 0, 0);
-
-  // Check if date is in future
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  if (newDate < today) {
-    throw new Error("Cannot add past dates");
+  if (!this.tripStartDate) {
+    const defaultStart = new Date();
+    defaultStart.setDate(defaultStart.getDate() + 7);
+    defaultStart.setHours(0, 0, 0, 0);
+    this.tripStartDate = defaultStart;
   }
 
-  // Check if date already exists
-  const exists = this.availableDates.some(
-    (date) => date.getTime() === newDate.getTime()
-  );
+  // Calculate tripEndDate automatically based on duration
+  this.tripEndDate = calculateEndDate(this.tripStartDate, this.duration);
 
-  if (exists) {
-    throw new Error("Date already exists");
+  // Keep availableDates in sync if provided
+  if (!this.availableDates || this.availableDates.length === 0) {
+    this.availableDates = [this.tripStartDate];
+  } else {
+    this.availableDates = this.availableDates.filter((date) => {
+      const checkDate = new Date(date);
+      checkDate.setHours(0, 0, 0, 0);
+      return checkDate >= today;
+    });
   }
 
-  this.availableDates.push(newDate);
-  this.availableDates.sort((a, b) => a - b); // Keep dates sorted
-  return this.save();
-};
+  next();
+});
 
 const Tour = mongoose.model("Tour", tourSchema);
 module.exports = Tour;

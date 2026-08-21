@@ -1,161 +1,77 @@
-const Enquiry = require("../models/enquiry");
 const express = require("express");
-const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const Tour = require("../models/tour");
 const Comment = require("../models/comments");
-const { requireAdmin } = require("../middlewares/authentication");
+const Booking = require("../models/bookings");
+const Enquiry = require("../models/enquiry");
 const User = require("../models/user");
-const nodemailer = require("nodemailer");
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-//All tours function
-async function getTours() {
-  try {
-    return await Tour.find({}); // Remove .select("name") to get all fields
-  } catch (error) {
-    return [];
-  }
-}
-
-// Simple storage configuration - upload to general folder first
-//All this is used for our storage of images but now we are using cloudinary so not needed
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     const uploadPath = path.resolve(`./public/uploads/tours/`);
-
-//     // Create directory if it doesn't exist
-//     if (!fs.existsSync(uploadPath)) {
-//       fs.mkdirSync(uploadPath, { recursive: true });
-//     }
-
-//     cb(null, uploadPath);
-//   },
-//   filename: function (req, file, cb) {
-//     const timestamp = Date.now();
-//     const fileExt = path.extname(file.originalname);
-//     const random = Math.random().toString(36).substr(2, 5);
-
-//     let fileName;
-//     if (file.fieldname === "coverImage") {
-//       fileName = `cover-${timestamp}-${random}${fileExt}`;
-//     } else if (file.fieldname === "moreImages") {
-//       fileName = `gallery-${timestamp}-${random}${fileExt}`;
-//     } else {
-//       fileName = `${file.fieldname}-${timestamp}${fileExt}`;
-//     }
-
-//     cb(null, fileName);
-//   },
-// });
-
-// // File filter for images only
-// const fileFilter = (req, file, cb) => {
-//   if (file.mimetype.startsWith("image/")) {
-//     cb(null, true);
-//   } else {
-//     cb(new Error("Only image files are allowed!"), false);
-//   }
-// };
-
-// const upload = multer({
-//   storage: storage,
-//   fileFilter: fileFilter,
-//   limits: {
-//     fileSize: 20 * 1024 * 1024, // 5MB limit per file
-//     files: 10, // Maximum 10 files total
-//   },
-// });
-
-// Cloudinary storage configuration
-// Change this - Replace your entire multer storage configuration
-const storage = multer.memoryStorage(); // ✅ This line replaces all your diskStorage code
-
-// Keep your fileFilter (no changes)
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image/")) {
-    cb(null, true);
-  } else {
-    cb(new Error("Only image files are allowed!"), false);
-  }
-};
-
-// Keep your upload config (no changes)
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: {
-    fileSize: 20 * 1024 * 1024,
-    files: 10,
-  },
-});
+const { requireAdmin } = require("../middlewares/authentication");
+const { sendEmail } = require("../services/mailer");
+const { getNavTours, clearNavToursCache } = require("../services/navCache");
+const {
+  upload,
+  processUploadedFile,
+  processUploadedFiles,
+} = require("../services/imageStorage");
 
 const router = express.Router();
 
-//mail transporter setup
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: process.env.GMAIL_ID,
-//     pass: process.env.GMAIL_PASSWORD, // Your Gmail App Password
-//   },
-// });
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS,
-  },
-});
+// Helper: Calculate trip end date from start date and duration string
+function calculateTripEndDate(startDate, durationStr) {
+  if (!startDate) return null;
+  const start = new Date(startDate);
+  if (isNaN(start.getTime())) return null;
+
+  let days = 1;
+  if (durationStr && typeof durationStr === "string") {
+    const match = durationStr.match(/(\d+)\s*day/i);
+    if (match) {
+      days = parseInt(match[1], 10);
+    }
+  }
+  const endDate = new Date(start);
+  endDate.setDate(endDate.getDate() + (days > 1 ? days - 1 : 0));
+  return endDate;
+}
 
 // GET Routes (Public Access)
 
 // 1. Display all tours
 router.get("/", async (req, res) => {
   try {
-    const tours = await Tour.find({}).sort({ createdAt: -1 });
+    const tours = await Tour.find({}).sort({ createdAt: -1 }).lean();
     res.render("tours", {
       user: req.user,
       tours,
     });
   } catch (error) {
-    const tours = await getTours(); // ADD THIS LINE
+    const tours = await getNavTours();
     res.status(500).render("error", {
       message: "Error fetching tours",
       user: req.user,
       tours,
-    }); // ADD tours
+    });
   }
 });
 
-//These are Enquiry Routes
-
+// Enquiry Routes
 router.get("/enquire", async (req, res) => {
-  // Simple check - if not logged in, show alert and redirect to signup
   if (!req.user) {
     return res.redirect(
       "/user/signup?message=Please create an account to make an enquiry"
     );
   }
 
-  try {
-    // Get all tours for dropdown
-    const tours = await Tour.find({})
-      .select("name availableDates")
-      .sort({ name: 1 });
+  if (req.user.role === "ADMIN") {
+    return res.redirect("/tour?error=Admins are not allowed to submit tour enquiries.");
+  }
 
+  try {
+    const tours = await getNavTours();
     res.render("enquire", {
       user: req.user,
-      tours: tours, // Pass tours for dropdown
+      tours: tours,
       error: null,
       success: null,
     });
@@ -170,15 +86,21 @@ router.get("/enquire", async (req, res) => {
 });
 
 router.post("/enquire", async (req, res) => {
-  // Check if user is logged in
+  if (req.user && req.user.role === "ADMIN") {
+    const tours = await getNavTours();
+    return res.render("enquire", {
+      user: req.user,
+      tours: tours,
+      error: "Admins are not allowed to submit tour enquiries.",
+      success: null,
+    });
+  }
 
   try {
-    const { phone, tourName, numberOfPeople, preferredDate, message } =
-      req.body;
+    const { phone, tourName, numberOfPeople, preferredDate, message } = req.body;
 
-    // Validate required fields
     if (!phone || !tourName || !numberOfPeople || !message) {
-      const tours = await Tour.find({}).select("name").sort({ name: 1 });
+      const tours = await getNavTours();
       return res.render("enquire", {
         user: req.user,
         tours: tours,
@@ -187,7 +109,6 @@ router.post("/enquire", async (req, res) => {
       });
     }
 
-    // Create new enquiry
     const enquiry = await Enquiry.create({
       fullName: req.user.fullName,
       email: req.user.email,
@@ -199,120 +120,46 @@ router.post("/enquire", async (req, res) => {
       userId: req.user._id,
     });
 
-    console.log("✅ New enquiry created:", {
-      id: enquiry._id,
-      tourName: enquiry.tourName,
-      user: enquiry.fullName,
-    });
-
-    // 📧 SEND EMAIL NOTIFICATIONS (ADD THIS SECTION)
-    try {
-      // Send notification to business owner
-      await transporter.sendMail({
-        from: "Orbit Rush <orbitrushtourism@gmail.com>",
-        to: process.env.GMAIL_ID,
+    const recipientOwner = process.env.GMAIL_USER || process.env.GMAIL_ID;
+    if (recipientOwner) {
+      await sendEmail({
+        to: recipientOwner,
         subject: `🎯 New Tour Enquiry: ${tourName}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-              <h2 style="margin: 0;">🚀 New Enquiry Received!</h2>
-              <p style="margin: 5px 0;">OrbitRush Tourism</p>
-            </div>
-            
-            <h3 style="color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px;">Tour Details</h3>
-            <p><strong>📍 Tour:</strong> ${tourName}</p>
-            <p><strong>👥 Number of People:</strong> ${numberOfPeople}</p>
-            <p><strong>📅 Preferred Date:</strong> ${
-              preferredDate
-                ? new Date(preferredDate).toLocaleDateString("en-IN")
-                : "Flexible"
-            }</p>
-            
-            <h3 style="color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px;">Customer Information</h3>
-            <p><strong>👤 Name:</strong> ${req.user.fullName}</p>
-            <p><strong>📧 Email:</strong> ${req.user.email}</p>
-            <p><strong>📱 Phone:</strong> ${phone}</p>
-            
-            <h3 style="color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px;">Customer Message</h3>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #667eea;">
-              <p style="margin: 0; line-height: 1.6;">${message}</p>
-            </div>
-            
-            <div style="background: #e8f4f8; padding: 15px; border-radius: 5px; margin-top: 20px; text-align: center;">
-              <p style="margin: 0; color: #2c3e50;"><strong>⏰ Enquiry Time:</strong> ${new Date().toLocaleString(
-                "en-IN"
-              )}</p>
-            </div>
+            <h2>🚀 New Enquiry Received!</h2>
+            <p><strong>Tour:</strong> ${tourName}</p>
+            <p><strong>Customer:</strong> ${req.user.fullName} (${req.user.email})</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Message:</strong> ${message}</p>
           </div>
         `,
       });
-
-      // Send confirmation to customer
-      await transporter.sendMail({
-        from: "Orbit Rush <orbitrushtourism@gmail.com>",
-        to: req.user.email,
-        subject: `✅ Enquiry Confirmation - ${tourName} | OrbitRush Tourism`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-            <div style="background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-              <h2 style="margin: 0;">🎉 Thank You for Your Enquiry!</h2>
-              <p style="margin: 5px 0;">OrbitRush Tourism</p>
-            </div>
-            
-            <p>Dear <strong>${req.user.fullName}</strong>,</p>
-            <p>Thank you for your interest in our <strong>${tourName}</strong> tour! We have received your enquiry and our team will get back to you within <strong>24 hours</strong>.</p>
-            
-            <h3 style="color: #333; border-bottom: 2px solid #ff6b35; padding-bottom: 10px;">Your Enquiry Details</h3>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
-              <p><strong>📍 Tour:</strong> ${tourName}</p>
-              <p><strong>👥 Number of People:</strong> ${numberOfPeople}</p>
-              <p><strong>📅 Preferred Date:</strong> ${
-                preferredDate
-                  ? new Date(preferredDate).toLocaleDateString("en-IN")
-                  : "Flexible"
-              }</p>
-              <p><strong>📱 Contact Number:</strong> ${phone}</p>
-            </div>
-            
-            <div style="background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745;">
-              <h4 style="margin: 0 0 10px 0; color: #28a745;">What happens next?</h4>
-              <ul style="margin: 0; padding-left: 20px;">
-                <li>Our tour expert will review your requirements</li>
-                <li>We'll prepare a customized itinerary and quote</li>
-                <li>You'll receive a detailed response within 24 hours</li>
-                <li>We'll be available for any questions or modifications</li>
-              </ul>
-            </div>
-            
-            <div style="text-align: center; margin: 20px 0;">
-              <p style="color: #666;">Need immediate assistance?</p>
-              <p style="color: #333; font-size: 18px;"><strong>📞 +91 98765 43210</strong></p>
-            </div>
-          </div>
-        `,
-      });
-
-      console.log("📧 Email notifications sent successfully!");
-    } catch (emailError) {
-      console.error("❌ Email notification failed:", emailError);
     }
-    // END EMAIL SECTION
 
-    // Get tours for dropdown
-    const tours = await Tour.find({}).select("name").sort({ name: 1 });
+    await sendEmail({
+      to: req.user.email,
+      subject: `✅ Enquiry Confirmation - ${tourName} | OrbitRush Tourism`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <h2>🎉 Thank You for Your Enquiry!</h2>
+          <p>Dear <strong>${req.user.fullName}</strong>,</p>
+          <p>We have received your enquiry for <strong>${tourName}</strong> and will contact you within 24 hours.</p>
+        </div>
+      `,
+    });
 
-    // Show success message
+    const tours = await getNavTours();
+
     res.render("enquire", {
       user: req.user,
       tours: tours,
       error: null,
-      success: `Thank you ${req.user.fullName}! Your enquiry for "${tourName}" has been submitted successfully. Check your email for confirmation. We'll contact you within 24 hours.`,
+      success: `Thank you ${req.user.fullName}! Your enquiry for "${tourName}" has been submitted successfully. We'll contact you within 24 hours.`,
     });
   } catch (error) {
     console.error("❌ Error creating enquiry:", error);
-
-    const tours = await Tour.find({}).select("name").sort({ name: 1 });
-
+    const tours = await getNavTours();
     res.render("enquire", {
       user: req.user,
       tours: tours,
@@ -322,39 +169,76 @@ router.post("/enquire", async (req, res) => {
   }
 });
 
-// 2. Show single tour by name
+// 2. Show single tour by name (with review eligibility check)
 router.get("/:tourName", async (req, res) => {
   try {
+    const tourNameDecoded = req.params.tourName.replace(/-/g, " ");
     const tour = await Tour.findOne({
-      name: { $regex: new RegExp(req.params.tourName.replace(/-/g, " "), "i") },
-    });
+      name: { $regex: new RegExp("^" + tourNameDecoded + "$", "i") },
+    }).lean();
 
     if (!tour) {
-      const tours = await getTours(); // ADD THIS LINE
       return res.status(404).render("error", {
         message: "Tour not found",
         user: req.user,
-        tours, // ADD THIS
       });
     }
 
-    const comments = await Comment.find({ tourId: tour._id })
-      .populate("createdBy")
-      .sort({ createdAt: -1 });
+    // Auto calculate tripEndDate if missing on tour
+    if (tour.tripStartDate && !tour.tripEndDate) {
+      tour.tripEndDate = calculateTripEndDate(tour.tripStartDate, tour.duration);
+    }
 
-    const tours = await getTours(); // ADD THIS LINE
+    const comments = await Comment.find({ tourId: tour._id })
+      .populate("createdBy", "fullName profileImageURL")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Check if user is eligible to submit a review
+    let canReview = false;
+    let reviewRestrictionReason = "";
+
+    if (req.user) {
+      const userBookings = await Booking.find({
+        userId: req.user._id,
+        tourId: tour._id,
+        status: { $ne: "CANCELLED" },
+        paymentStatus: "completed",
+      }).sort({ createdAt: -1 });
+
+      if (!userBookings || userBookings.length === 0) {
+        reviewRestrictionReason = "You can only write a review if you have booked this tour.";
+      } else {
+        const now = new Date();
+        const completedBooking = userBookings.find((b) => {
+          const endDate = b.tripEndDate ? new Date(b.tripEndDate) : calculateTripEndDate(b.travelDate, tour.duration);
+          return now >= endDate;
+        });
+
+        if (completedBooking) {
+          canReview = true;
+        } else {
+          reviewRestrictionReason = "You can only write a review after your trip has been completed.";
+        }
+      }
+    } else {
+      reviewRestrictionReason = "Please sign in to write a review.";
+    }
+
     res.render("tour-detail", {
       user: req.user,
       tour,
       comments,
-      tours, // ADD THIS
+      canReview,
+      reviewRestrictionReason,
+      error: req.query.error || null,
+      success: req.query.success || null,
     });
   } catch (error) {
-    const tours = await getTours(); // ADD THIS LINE
+    console.error("Error fetching tour details:", error);
     res.status(500).render("error", {
       message: "Error fetching tour details",
       user: req.user,
-      tours, // ADD THIS
     });
   }
 });
@@ -363,41 +247,62 @@ router.get("/:tourName", async (req, res) => {
 
 // 3. Show create tour form (Admin only)
 router.get("/admin/create", requireAdmin, async (req, res) => {
-  // ADD async
-  const tours = await getTours(); // ADD THIS LINE
   res.render("admin/create-tour", {
     user: req.user,
-    tours, // ADD THIS
   });
+});
+
+// 3b. Show edit tour form (Admin only)
+router.get("/admin/edit/:id", requireAdmin, async (req, res) => {
+  try {
+    const tour = await Tour.findById(req.params.id).lean();
+    if (!tour) {
+      return res.status(404).render("error", {
+        message: "Tour not found",
+        user: req.user,
+      });
+    }
+    res.render("admin/edit-tour", {
+      user: req.user,
+      tour,
+    });
+  } catch (error) {
+    res.status(500).render("error", {
+      message: "Error loading edit tour page",
+      user: req.user,
+    });
+  }
 });
 
 // 4. Admin dashboard - manage all tours
 router.get("/admin/dashboard", requireAdmin, async (req, res) => {
   try {
     const totalUsers = await User.countDocuments({ role: { $ne: "ADMIN" } });
-    const tours = await Tour.find({}).sort({ createdAt: -1 });
+    const tours = await Tour.find({}).sort({ createdAt: -1 }).lean();
     const totalEnquiries = await Enquiry.countDocuments({});
-    const toursForNav = await getTours(); // ADD THIS LINE
     res.render("admin/tour-dashboard", {
       user: req.user,
       totalUsers,
       tours,
       totalEnquiries,
-      tours: toursForNav, // ADD THIS (rename tours to toursForNav to avoid conflict)
     });
   } catch (error) {
-    const tours = await getTours(); // ADD THIS LINE
     res.status(500).render("error", {
       message: "Error fetching tours dashboard",
       user: req.user,
-      tours, // ADD THIS
     });
   }
 });
 
+// Admin Live Support Chat Dashboard
+router.get("/admin/chat", requireAdmin, async (req, res) => {
+  res.render("admin/chat", {
+    user: req.user,
+  });
+});
+
 // POST Routes
 
-// 5. Create new tour (Admin only)
 // 5. Create new tour (Admin only)
 router.post(
   "/",
@@ -408,9 +313,6 @@ router.post(
   ]),
   async (req, res) => {
     try {
-      console.log("Files received:", req.files); // Debug log
-      console.log("Body received:", req.body); // Debug log
-
       const {
         name,
         location,
@@ -421,42 +323,21 @@ router.post(
         included,
         excluded,
         itinerary,
-        availableDates, // ADD THIS LINE
+        tripStartDate,
+        availableDates,
       } = req.body;
 
-      // Upload images to Cloudinary (keep existing code)
       let coverImagePath = "";
       let moreImagesPaths = [];
 
-      // Upload cover image to Cloudinary
-      if (req.files && req.files["coverImage"]) {
-        const result = await new Promise((resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream({ folder: "tours/covers" }, (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            })
-            .end(req.files["coverImage"][0].buffer);
-        });
-        coverImagePath = result.secure_url;
+      if (req.files && req.files["coverImage"] && req.files["coverImage"][0]) {
+        coverImagePath = await processUploadedFile(req.files["coverImage"][0], "tours");
       }
 
-      // Upload gallery images to Cloudinary
       if (req.files && req.files["moreImages"]) {
-        for (const file of req.files["moreImages"]) {
-          const result = await new Promise((resolve, reject) => {
-            cloudinary.uploader
-              .upload_stream({ folder: "tours/gallery" }, (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-              })
-              .end(file.buffer);
-          });
-          moreImagesPaths.push(result.secure_url);
-        }
+        moreImagesPaths = await processUploadedFiles(req.files["moreImages"], "tours");
       }
 
-      // Process itinerary if it exists
       let processedItinerary = [];
       if (itinerary && Array.isArray(itinerary)) {
         processedItinerary = itinerary.map((day, index) => ({
@@ -466,19 +347,17 @@ router.post(
         }));
       }
 
-      // ADD THIS: Process available dates
-      let processedDates = [];
+      const startDate = tripStartDate ? new Date(tripStartDate) : new Date();
+      const endDate = calculateTripEndDate(startDate, duration);
+
+      let processedDates = [startDate];
       if (availableDates) {
-        if (Array.isArray(availableDates)) {
-          processedDates = availableDates
-            .filter((date) => date && date.trim()) // Remove empty dates
-            .map((date) => new Date(date));
-        } else if (
-          typeof availableDates === "string" &&
-          availableDates.trim()
-        ) {
-          processedDates = [new Date(availableDates)];
-        }
+        let rawDates = Array.isArray(availableDates)
+          ? availableDates
+          : [availableDates];
+        processedDates = rawDates
+          .filter((d) => d && d.trim())
+          .map((d) => new Date(d));
       }
 
       const tour = await Tour.create({
@@ -501,28 +380,128 @@ router.post(
           ? excluded.split("\n").filter((item) => item.trim())
           : [],
         itinerary: processedItinerary,
-        availableDates: processedDates, // ADD THIS LINE
+        tripStartDate: startDate,
+        tripEndDate: endDate,
+        availableDates: processedDates,
       });
 
-      console.log("Tour created successfully:", tour.name);
-
+      clearNavToursCache();
       const tourUrlName = name.replace(/\s+/g, "-").toLowerCase();
       res.redirect(`/tour/${tourUrlName}`);
     } catch (error) {
       console.error("Error creating tour:", error);
       if (error.code === 11000) {
-        const tours = await getTours(); // ADD THIS LINE
         return res.status(400).render("admin/create-tour", {
           user: req.user,
-          tours, // ADD THIS
           error: "Tour name already exists. Please choose a different name.",
         });
       }
-      const tours = await getTours(); // ADD THIS LINE
       res.status(500).render("error", {
         message: "Error creating tour: " + error.message,
         user: req.user,
-        tours, // ADD THIS
+      });
+    }
+  }
+);
+
+// 5b. Update existing tour (Admin only)
+router.post(
+  "/admin/edit/:id",
+  requireAdmin,
+  upload.fields([
+    { name: "coverImage", maxCount: 1 },
+    { name: "moreImages", maxCount: 8 },
+  ]),
+  async (req, res) => {
+    try {
+      const existingTour = await Tour.findById(req.params.id);
+      if (!existingTour) {
+        return res.status(404).render("error", {
+          message: "Tour not found",
+          user: req.user,
+        });
+      }
+
+      const {
+        name,
+        location,
+        price,
+        duration,
+        overview,
+        video,
+        included,
+        excluded,
+        itinerary,
+        tripStartDate,
+        availableDates,
+      } = req.body;
+
+      let coverImagePath = existingTour.coverImage;
+      let moreImagesPaths = existingTour.moreImages || [];
+
+      if (req.files && req.files["coverImage"] && req.files["coverImage"][0]) {
+        coverImagePath = await processUploadedFile(req.files["coverImage"][0], "tours");
+      }
+
+      if (req.files && req.files["moreImages"] && req.files["moreImages"].length > 0) {
+        moreImagesPaths = await processUploadedFiles(req.files["moreImages"], "tours");
+      }
+
+      let processedItinerary = [];
+      if (itinerary && Array.isArray(itinerary)) {
+        processedItinerary = itinerary.map((day, index) => ({
+          day: index + 1,
+          title: day.title || "",
+          description: day.description || "",
+        }));
+      }
+
+      const startDate = tripStartDate ? new Date(tripStartDate) : (existingTour.tripStartDate || new Date());
+      const endDate = calculateTripEndDate(startDate, duration);
+
+      let processedDates = [startDate];
+      if (availableDates) {
+        let rawDates = Array.isArray(availableDates)
+          ? availableDates
+          : [availableDates];
+        processedDates = rawDates
+          .filter((d) => d && String(d).trim())
+          .map((d) => new Date(d));
+      }
+
+      existingTour.name = name;
+      existingTour.location = location;
+      existingTour.price = parseFloat(price);
+      existingTour.duration = duration;
+      existingTour.overview = overview;
+      existingTour.coverImage = coverImagePath;
+      existingTour.moreImages = moreImagesPaths;
+      existingTour.video = video || "";
+      existingTour.included = Array.isArray(included)
+        ? included
+        : included
+        ? included.split("\n").filter((item) => item.trim())
+        : [];
+      existingTour.excluded = Array.isArray(excluded)
+        ? excluded
+        : excluded
+        ? excluded.split("\n").filter((item) => item.trim())
+        : [];
+      existingTour.itinerary = processedItinerary;
+      existingTour.tripStartDate = startDate;
+      existingTour.tripEndDate = endDate;
+      existingTour.availableDates = processedDates;
+
+      await existingTour.save();
+      clearNavToursCache();
+
+      const tourUrlName = name.replace(/\s+/g, "-").toLowerCase();
+      res.redirect(`/tour/${tourUrlName}`);
+    } catch (error) {
+      console.error("Error editing tour:", error);
+      res.status(500).render("error", {
+        message: "Error updating tour: " + error.message,
+        user: req.user,
       });
     }
   }
@@ -532,14 +511,14 @@ router.post(
 router.delete("/:tourName", requireAdmin, async (req, res) => {
   try {
     const tour = await Tour.findOneAndDelete({
-      name: { $regex: new RegExp(req.params.tourName.replace(/-/g, " "), "i") },
+      name: { $regex: new RegExp("^" + req.params.tourName.replace(/-/g, " ") + "$", "i") },
     });
 
     if (!tour) {
       return res.status(404).json({ message: "Tour not found" });
     }
 
-    // Delete associated comments
+    clearNavToursCache();
     await Comment.deleteMany({ tourId: tour._id });
 
     res.json({ message: "Tour deleted successfully" });
@@ -548,44 +527,84 @@ router.delete("/:tourName", requireAdmin, async (req, res) => {
   }
 });
 
-// Comment Routes
+// Review / Comment Routes with Strict Authorization & Photos
+router.post(
+  "/:tourName/comment",
+  upload.array("photos", 5),
+  async (req, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).redirect("/user/signin?message=Please login to review");
+      }
 
-// 7. Add comment to tour (Authenticated users)
-router.post("/:tourName/comment", async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).redirect("/user/signin");
-    }
+      const tourNameDecoded = req.params.tourName.replace(/-/g, " ");
+      const tour = await Tour.findOne({
+        name: { $regex: new RegExp("^" + tourNameDecoded + "$", "i") },
+      });
 
-    const tour = await Tour.findOne({
-      name: { $regex: new RegExp(req.params.tourName.replace(/-/g, " "), "i") },
-    });
+      if (!tour) {
+        return res.status(404).render("error", {
+          message: "Tour not found",
+          user: req.user,
+        });
+      }
 
-    if (!tour) {
-      return res.status(404).render("error", {
-        message: "Tour not found",
+      // 1. Strict Check: User MUST have booked this tour
+      const userBookings = await Booking.find({
+        userId: req.user._id,
+        tourId: tour._id,
+        status: { $ne: "CANCELLED" },
+        paymentStatus: "completed",
+      });
+
+      if (!userBookings || userBookings.length === 0) {
+        const tourUrlName = tour.name.replace(/\s+/g, "-").toLowerCase();
+        return res.redirect(
+          `/tour/${tourUrlName}?error=You can only review tours that you have actually booked.`
+        );
+      }
+
+      // 2. Strict Check: User's trip MUST be completed
+      const now = new Date();
+      const completedBooking = userBookings.find((b) => {
+        const endDate = b.tripEndDate ? new Date(b.tripEndDate) : calculateTripEndDate(b.travelDate, tour.duration);
+        return now >= endDate;
+      });
+
+      if (!completedBooking) {
+        const tourUrlName = tour.name.replace(/\s+/g, "-").toLowerCase();
+        return res.redirect(
+          `/tour/${tourUrlName}?error=You cannot submit a review before completing your trip.`
+        );
+      }
+
+      // 3. Process optional photos
+      let photoPaths = [];
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+        photoPaths = await processUploadedFiles(req.files, "reviews");
+      }
+
+      await Comment.create({
+        content: req.body.content,
+        rating: parseInt(req.body.rating, 10),
+        tourId: tour._id,
+        createdBy: req.user._id,
+        photos: photoPaths,
+      });
+
+      const tourUrlName = tour.name.replace(/\s+/g, "-").toLowerCase();
+      res.redirect(`/tour/${tourUrlName}?success=Thank you for your review!`);
+    } catch (error) {
+      console.error("Error adding review:", error);
+      res.status(500).render("error", {
+        message: "Error adding review: " + error.message,
         user: req.user,
       });
     }
-
-    await Comment.create({
-      content: req.body.content,
-      rating: parseInt(req.body.rating),
-      tourId: tour._id,
-      createdBy: req.user._id,
-    });
-
-    const tourUrlName = tour.name.replace(/\s+/g, "-").toLowerCase();
-    res.redirect(`/tour/${tourUrlName}`);
-  } catch (error) {
-    res.status(500).render("error", {
-      message: "Error adding comment",
-      user: req.user,
-    });
   }
-});
+);
 
-// 8. Delete comment (Admin or comment owner)
+// Delete comment (Admin or comment owner)
 router.delete("/comment/:commentId", async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.commentId);
@@ -594,7 +613,6 @@ router.delete("/comment/:commentId", async (req, res) => {
       return res.status(404).json({ message: "Comment not found" });
     }
 
-    // Check if user is admin or comment owner
     if (
       req.user.role !== "ADMIN" &&
       comment.createdBy.toString() !== req.user._id.toString()
@@ -611,139 +629,75 @@ router.delete("/comment/:commentId", async (req, res) => {
   }
 });
 
-// 5. Admin user management page (Admin only)
+// Admin User Management
 router.get("/admin/dashboard/user-details", requireAdmin, async (req, res) => {
   try {
-    console.log("✅ Admin accessing user details page");
-
     const users = await User.find({})
       .sort({ createdAt: -1 })
-      .select("fullName email role createdAt");
+      .select("fullName email role createdAt")
+      .lean();
 
-    console.log(`📊 Found ${users.length} users in database`);
-
-    const tours = await getTours(); // ADD THIS LINE
     res.render("admin/user-details", {
       user: req.user,
       users: users,
-      tours, // ADD THIS
     });
   } catch (error) {
-    console.error("❌ Error fetching users:", error);
-    const tours = await getTours(); // ADD THIS LINE
     res.status(500).render("error", {
       message: "Error fetching user details",
       user: req.user,
-      tours, // ADD THIS
     });
   }
 });
 
-// 6. Delete user (Admin only)
 router.delete("/admin/user/:userId", requireAdmin, async (req, res) => {
   try {
     const userId = req.params.userId;
     const userToDelete = await User.findById(userId);
 
     if (!userToDelete) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    // Can't delete admin users
     if (userToDelete.role === "ADMIN") {
-      return res.status(403).json({
-        success: false,
-        message: "Cannot delete admin users",
-      });
+      return res.status(403).json({ success: false, message: "Cannot delete admin users" });
     }
 
-    // Delete the user
     await User.findByIdAndDelete(userId);
+    res.json({ success: true, message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error deleting user" });
+  }
+});
 
-    console.log(`✅ Deleted user: ${userToDelete.fullName}`);
-
-    res.json({
-      success: true,
-      message: `User deleted successfully`,
+// Admin Enquiries Management
+router.get("/admin/dashboard/enquiries-details", requireAdmin, async (req, res) => {
+  try {
+    const enquiries = await Enquiry.find({}).sort({ createdAt: -1 }).lean();
+    res.render("admin/enquiries-details", {
+      user: req.user,
+      enquiries: enquiries,
     });
   } catch (error) {
-    console.error("❌ Error deleting user:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error deleting user",
+    res.status(500).render("error", {
+      message: "Error fetching enquiries data",
+      user: req.user,
     });
   }
 });
 
-// 7. Admin enquiries management page (Admin only)
-
-// 7. Admin enquiries management page (Admin only)
-router.get(
-  "/admin/dashboard/enquiries-details",
-  requireAdmin,
-  async (req, res) => {
-    try {
-      console.log("✅ Admin accessing enquiries details page");
-
-      const enquiries = await Enquiry.find({}).sort({ createdAt: -1 });
-
-      console.log(`📊 Found ${enquiries.length} enquiries in database`);
-
-      const tours = await getTours(); // ADD THIS LINE
-      res.render("admin/enquiries-details", {
-        user: req.user,
-        enquiries: enquiries,
-        tours, // ADD THIS
-      });
-    } catch (error) {
-      console.error("❌ Error fetching enquiries:", error);
-      const tours = await getTours(); // ADD THIS LINE
-      res.status(500).render("error", {
-        message: "Error fetching enquiries data",
-        user: req.user,
-        tours, // ADD THIS
-      });
-    }
-  }
-);
-
-// 8. Delete enquiry (Admin only)
 router.delete("/admin/enquiry/:enquiryId", requireAdmin, async (req, res) => {
   try {
     const enquiryId = req.params.enquiryId;
-    console.log(`🗑️ Admin attempting to delete enquiry: ${enquiryId}`);
-
-    // Find the enquiry first
     const enquiryToDelete = await Enquiry.findById(enquiryId);
 
     if (!enquiryToDelete) {
-      console.log("❌ Enquiry not found for deletion");
-      return res.status(404).json({
-        success: false,
-        message: "Enquiry not found",
-      });
+      return res.status(404).json({ success: false, message: "Enquiry not found" });
     }
 
-    // Delete the enquiry
     await Enquiry.findByIdAndDelete(enquiryId);
-
-    console.log(
-      `✅ Successfully deleted enquiry for tour: ${enquiryToDelete.tourName}`
-    );
-
-    res.json({
-      success: true,
-      message: `Enquiry deleted successfully`,
-    });
+    res.json({ success: true, message: "Enquiry deleted successfully" });
   } catch (error) {
-    console.error("❌ Error deleting enquiry:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error deleting enquiry",
-    });
+    res.status(500).json({ success: false, message: "Error deleting enquiry" });
   }
 });
 

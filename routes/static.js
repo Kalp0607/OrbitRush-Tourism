@@ -6,7 +6,7 @@ const Enquiry = require("../models/enquiry");
 // Homepage Route
 router.get("/", async (req, res) => {
   try {
-    const allTours = await Tour.find({});
+    const allTours = await Tour.find({}).sort({ createdAt: -1 }).lean();
     return res.render("homepage", {
       user: req.user,
       tours: allTours,
@@ -21,37 +21,17 @@ router.get("/", async (req, res) => {
 });
 
 // About Us Route
-router.get("/about-us", async (req, res) => {
-  try {
-    const allTours = await Tour.find({});
-    return res.render("about-us", {
-      user: req.user,
-      tours: allTours,
-    });
-  } catch (error) {
-    console.error("Error loading about-us:", error);
-    return res.render("about-us", {
-      user: req.user,
-      tours: [],
-    });
-  }
+router.get("/about-us", (req, res) => {
+  return res.render("about-us", {
+    user: req.user,
+  });
 });
 
 // Contact Us Route
-router.get("/contact-us", async (req, res) => {
-  try {
-    const allTours = await Tour.find({});
-    return res.render("contact-us", {
-      user: req.user,
-      tours: allTours,
-    });
-  } catch (error) {
-    console.error("Error loading contact-us:", error);
-    return res.render("contact-us", {
-      user: req.user,
-      tours: [],
-    });
-  }
+router.get("/contact-us", (req, res) => {
+  return res.render("contact-us", {
+    user: req.user,
+  });
 });
 
 // Profile Route
@@ -61,24 +41,21 @@ router.get("/profile", async (req, res) => {
   }
 
   try {
-    const tours = await Tour.find({}).select("name").limit(10);
     const userEnquiries = await Enquiry.find({ userId: req.user._id })
       .sort({ createdAt: -1 })
-      .limit(5);
+      .limit(5)
+      .lean();
 
     res.render("profile", {
       user: req.user,
-      tours: tours,
       enquiries: userEnquiries,
       error: null,
       success: null,
     });
   } catch (error) {
     console.error("Error loading profile:", error);
-    const tours = await Tour.find({}).select("name").limit(10);
     res.render("profile", {
       user: req.user,
-      tours: tours,
       enquiries: [],
       error: "Error loading profile data",
       success: null,
@@ -86,33 +63,27 @@ router.get("/profile", async (req, res) => {
   }
 });
 
-// My Enquiries Route - NEW ROUTE
+// My Enquiries Route
 router.get("/my-enquiries", async (req, res) => {
   if (!req.user) {
     return res.redirect("/user/signin");
   }
 
   try {
-    const tours = await Tour.find({}).select("name").limit(10);
-
-    // Get all user's enquiries, sorted by newest first
-    const userEnquiries = await Enquiry.find({ userId: req.user._id }).sort({
-      createdAt: -1,
-    });
+    const userEnquiries = await Enquiry.find({ userId: req.user._id })
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.render("my-enquiries", {
       user: req.user,
-      tours: tours,
       enquiries: userEnquiries,
       error: null,
       success: null,
     });
   } catch (error) {
     console.error("Error loading my-enquiries:", error);
-    const tours = await Tour.find({}).select("name").limit(10);
     res.render("my-enquiries", {
       user: req.user,
-      tours: tours,
       enquiries: [],
       error: "Error loading your enquiries",
       success: null,

@@ -1,0 +1,409 @@
+<% if (!locals.user || locals.user.role !== 'ADMIN') { %>
+<!-- Live Customer Support Sticky Chat Widget -->
+<div id="orbit-chat-widget">
+  <!-- Floating Launcher Button -->
+  <button id="chat-launcher" aria-label="Open Customer Support Chat">
+    <i class="fas fa-comments"></i>
+    <span class="chat-launcher-text">Live Chat</span>
+    <span id="chat-badge" class="chat-badge" style="display: none;">1</span>
+  </button>
+
+  <!-- Chat Box Window -->
+  <div id="chat-window" class="chat-window-hidden">
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="status-indicator"></div>
+        <div>
+          <h4>OrbitRush Support</h4>
+          <p>We typically reply in seconds</p>
+        </div>
+      </div>
+      <button id="chat-close-btn" aria-label="Close Chat">&times;</button>
+    </div>
+
+    <!-- Chat Messages Container -->
+    <div id="chat-messages" class="chat-messages">
+      <div class="system-message">
+        <p>👋 Hello! Welcome to OrbitRush Support. How can we help you today?</p>
+      </div>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form id="chat-form" class="chat-form">
+      <input
+        type="text"
+        id="chat-input"
+        placeholder="Type a message..."
+        autocomplete="off"
+        required
+      />
+      <button type="submit" id="chat-send-btn">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+  #orbit-chat-widget {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 9999;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  #chat-launcher {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 22px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+  }
+
+  #chat-launcher:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 12px 30px rgba(0, 123, 255, 0.5);
+  }
+
+  .chat-launcher-text {
+    font-size: 0.95rem;
+  }
+
+  .chat-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 2px solid white;
+  }
+
+  /* Chat Window Styling */
+  #chat-window {
+    position: absolute;
+    bottom: 75px;
+    right: 0;
+    width: 360px;
+    max-width: 90vw;
+    height: 480px;
+    max-height: 80vh;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    transform-origin: bottom right;
+    border: 1px solid #e2e8f0;
+  }
+
+  .chat-window-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.85) translateY(20px);
+  }
+
+  .chat-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    background: #22c55e;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
+
+  .chat-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .chat-header p {
+    margin: 2px 0 0 0;
+    font-size: 0.75rem;
+    opacity: 0.85;
+  }
+
+  #chat-close-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  #chat-close-btn:hover {
+    opacity: 1;
+  }
+
+  .chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .system-message {
+    text-align: center;
+    background: #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: #475569;
+    margin-bottom: 5px;
+  }
+
+  .chat-msg-row {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+  }
+
+  .chat-msg-row.sent {
+    align-self: flex-end;
+  }
+
+  .chat-msg-row.received {
+    align-self: flex-start;
+  }
+
+  .chat-bubble {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .sent .chat-bubble {
+    background: #007bff;
+    color: white;
+    border-bottom-right-radius: 2px;
+  }
+
+  .received .chat-bubble {
+    background: white;
+    color: #1e293b;
+    border-bottom-left-radius: 2px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+  }
+
+  .chat-msg-sender {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+
+  .chat-msg-time {
+    font-size: 0.65rem;
+    opacity: 0.7;
+    margin-top: 3px;
+    text-align: right;
+  }
+
+  .chat-form {
+    display: flex;
+    padding: 12px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    gap: 8px;
+  }
+
+  #chat-input {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    border-radius: 25px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #chat-input:focus {
+    border-color: #007bff;
+  }
+
+  #chat-send-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  #chat-send-btn:hover {
+    background: #0056b3;
+  }
+</style>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  (function () {
+    const socket = io();
+    const launcher = document.getElementById("chat-launcher");
+    const windowEl = document.getElementById("chat-window");
+    const closeBtn = document.getElementById("chat-close-btn");
+    const messagesEl = document.getElementById("chat-messages");
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("chat-input");
+    const badge = document.getElementById("chat-badge");
+
+    // Current User Data (from server render)
+    const currentUser = {
+      id: "<%= locals.user ? locals.user._id : '' %>",
+      name: "<%= locals.user ? locals.user.fullName : '' %>",
+      role: "<%= locals.user ? locals.user.role : 'NORMAL' %>",
+    };
+
+    // Determine Room ID (Logged in userId or local Session ID for guest)
+    let sessionId = localStorage.getItem("orbit_chat_session_id");
+    if (!sessionId) {
+      sessionId = "guest_" + Math.random().toString(36).substring(2, 9);
+      localStorage.setItem("orbit_chat_session_id", sessionId);
+    }
+
+    const roomId = currentUser.id || sessionId;
+    const senderName = currentUser.name || "Guest Traveler";
+
+    let isOpen = false;
+    let unreadCount = 0;
+
+    launcher.addEventListener("click", () => {
+      isOpen = !isOpen;
+      if (isOpen) {
+        windowEl.classList.remove("chat-window-hidden");
+        unreadCount = 0;
+        badge.style.display = "none";
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+        input.focus();
+      } else {
+        windowEl.classList.add("chat-window-hidden");
+      }
+    });
+
+    closeBtn.addEventListener("click", () => {
+      isOpen = false;
+      windowEl.classList.add("chat-window-hidden");
+    });
+
+    // Join Chat Room
+    socket.emit("join_room", {
+      room: roomId,
+      user: currentUser.id ? { fullName: currentUser.name } : null,
+    });
+
+    // Load Chat History
+    socket.on("chat_history", (history) => {
+      if (history && history.length > 0) {
+        messagesEl.innerHTML = "";
+        history.forEach((msg) => appendMessage(msg));
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+    });
+
+    // Receive Real-Time Message
+    socket.on("receive_message", (msg) => {
+      appendMessage(msg);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      if (!isOpen && msg.senderRole === "ADMIN") {
+        unreadCount++;
+        badge.textContent = unreadCount;
+        badge.style.display = "flex";
+      }
+    });
+
+    // Handle Form Submit
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      socket.emit("send_message", {
+        room: roomId,
+        senderId: currentUser.id || null,
+        senderName: senderName,
+        senderRole: currentUser.role || "NORMAL",
+        message: text,
+      });
+
+      input.value = "";
+    });
+
+    function appendMessage(msg) {
+      const isSent = (currentUser.id && msg.sender === currentUser.id) || msg.senderName === senderName;
+      const row = document.createElement("div");
+      row.className = `chat-msg-row ${isSent ? "sent" : "received"}`;
+
+      const timeStr = new Date(msg.createdAt || Date.now()).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      row.innerHTML = `
+        ${!isSent ? `<span class="chat-msg-sender">${msg.senderRole === 'ADMIN' ? '🎧 Support Admin' : msg.senderName}</span>` : ""}
+        <div class="chat-bubble">
+          ${escapeHtml(msg.message)}
+          <div class="chat-msg-time">${timeStr}</div>
+        </div>
+      `;
+
+      messagesEl.appendChild(row);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.innerText = text;
+      return div.innerHTML;
+    }
+  })();
+</script>
+<% } %>

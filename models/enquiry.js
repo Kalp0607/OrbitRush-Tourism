@@ -57,8 +57,9 @@ const enquirySchema = new mongoose.Schema(
   }
 );
 
-// Index for email
+// Index for email and user lookup
 enquirySchema.index({ email: 1 });
+enquirySchema.index({ userId: 1, createdAt: -1 });
 enquirySchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("Enquiry", enquirySchema);

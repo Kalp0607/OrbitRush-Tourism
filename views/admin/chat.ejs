@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Customer Support Chat | Admin Panel</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f1f5f9;
+        color: #1e293b;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .admin-nav {
+        background: #0f172a;
+        color: white;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .admin-nav a {
+        color: #94a3b8;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.2s;
+      }
+      .admin-nav a:hover {
+        color: white;
+      }
+      .chat-container {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+        margin: 1.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      }
+      .rooms-sidebar {
+        width: 340px;
+        border-right: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        background: #f8fafc;
+      }
+      .rooms-header {
+        padding: 1.2rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .rooms-header h3 {
+        font-size: 1.1rem;
+        color: #0f172a;
+        font-weight: 700;
+      }
+      .rooms-list {
+        flex: 1;
+        overflow-y: auto;
+      }
+      .room-item {
+        padding: 1rem 1.2rem;
+        border-bottom: 1px solid #f1f5f9;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
+      .room-item:hover {
+        background: #f1f5f9;
+      }
+      .room-item.active {
+        background: #e0f2fe;
+        border-left: 4px solid #0284c7;
+      }
+      .room-info h5 {
+        font-size: 0.95rem;
+        color: #0f172a;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
+      .room-info p {
+        font-size: 0.82rem;
+        color: #64748b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 220px;
+      }
+      .unread-badge {
+        background: #ef4444;
+        color: white;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: bold;
+      }
+      .chat-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: white;
+      }
+      .chat-header {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+      }
+      .chat-messages {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .message-row {
+        display: flex;
+        flex-direction: column;
+        max-width: 70%;
+      }
+      .message-row.sent {
+        align-self: flex-end;
+      }
+      .message-row.received {
+        align-self: flex-start;
+      }
+      .message-bubble {
+        padding: 12px 16px;
+        border-radius: 14px;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+      .sent .message-bubble {
+        background: #007bff;
+        color: white;
+        border-bottom-right-radius: 2px;
+      }
+      .received .message-bubble {
+        background: white;
+        color: #1e293b;
+        border-bottom-left-radius: 2px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+      }
+      .message-sender {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-bottom: 3px;
+        font-weight: 600;
+      }
+      .message-time {
+        font-size: 0.68rem;
+        opacity: 0.75;
+        margin-top: 4px;
+        text-align: right;
+      }
+      .chat-input-area {
+        padding: 1.2rem;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 12px;
+        background: white;
+      }
+      .chat-input-area input {
+        flex: 1;
+        padding: 12px 18px;
+        border: 1px solid #cbd5e1;
+        border-radius: 30px;
+        font-size: 0.95rem;
+        outline: none;
+      }
+      .chat-input-area input:focus {
+        border-color: #007bff;
+      }
+      .chat-input-area button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 0 24px;
+        border-radius: 30px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .chat-input-area button:hover {
+        background: #0056b3;
+      }
+      .no-chat-selected {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 1.1rem;
+        flex-direction: column;
+        gap: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-nav">
+      <a href="/tour/admin/dashboard">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </a>
+      <h2><i class="fas fa-headset me-2"></i> Live Support Admin Center</h2>
+      <div>Admin: <strong><%= locals.user ? locals.user.fullName : 'Admin' %></strong></div>
+    </div>
+
+    <div class="chat-container">
+      <!-- Active Customer Rooms Sidebar -->
+      <div class="rooms-sidebar">
+        <div class="rooms-header">
+          <h3><i class="fas fa-users me-2"></i> Customers</h3>
+          <span id="room-count-badge" class="unread-badge" style="background: #0284c7;">0</span>
+        </div>
+        <div id="rooms-list" class="rooms-list">
+          <div style="padding: 1.5rem; color: #94a3b8; text-align: center;">Loading chats...</div>
+        </div>
+      </div>
+
+      <!-- Main Chat Area -->
+      <div class="chat-main">
+        <div id="active-chat-header" class="chat-header" style="display: none;">
+          <div>
+            <h4 id="active-user-name" style="margin: 0; font-size: 1.1rem; color: #0f172a;">Select a conversation</h4>
+            <p id="active-room-id" style="margin: 2px 0 0 0; font-size: 0.8rem; color: #64748b; font-family: monospace;"></p>
+          </div>
+          <div>
+            <span class="badge" style="background: #22c55e; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem;">
+              <i class="fas fa-circle me-1" style="font-size: 0.6rem;"></i> Live Connected
+            </span>
+          </div>
+        </div>
+
+        <div id="chat-messages" class="chat-messages">
+          <div class="no-chat-selected">
+            <i class="fas fa-comments" style="font-size: 3.5rem; color: #cbd5e1;"></i>
+            <p>Select a customer conversation from the sidebar to view messages and reply in real time.</p>
+          </div>
+        </div>
+
+        <form id="admin-chat-form" class="chat-input-area" style="display: none;">
+          <input
+            type="text"
+            id="admin-chat-input"
+            placeholder="Type your support reply as Admin..."
+            autocomplete="off"
+            required
+          />
+          <button type="submit">
+            <i class="fas fa-paper-plane me-1"></i> Send Reply
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      (function () {
+        const socket = io();
+        const roomsListEl = document.getElementById("rooms-list");
+        const roomCountBadge = document.getElementById("room-count-badge");
+        const messagesEl = document.getElementById("chat-messages");
+        const formEl = document.getElementById("admin-chat-form");
+        const inputEl = document.getElementById("admin-chat-input");
+        const headerEl = document.getElementById("active-chat-header");
+        const userNameEl = document.getElementById("active-user-name");
+        const roomIdEl = document.getElementById("active-room-id");
+
+        let activeRoom = null;
+        let roomsMap = {}; // roomId -> { name, lastMsg, updatedAt }
+
+        // Join global admin monitoring channel
+        socket.emit("join_admin");
+
+        // Received initial list of all active chat rooms from database
+        socket.on("all_chat_rooms", (rooms) => {
+          roomsMap = {};
+          if (rooms && Array.isArray(rooms)) {
+            rooms.forEach((r) => {
+              roomsMap[r._id] = {
+                name: r.lastSenderRole === 'ADMIN' ? (r.lastSenderName || 'Customer') : (r.lastSenderName || 'Customer'),
+                lastMsg: r.lastMessage,
+                updatedAt: r.updatedAt,
+              };
+            });
+          }
+          renderRoomsList();
+
+          // Auto-select first room if available and no room selected
+          const roomKeys = Object.keys(roomsMap);
+          if (roomKeys.length > 0 && !activeRoom) {
+            selectRoom(roomKeys[0], roomsMap[roomKeys[0]].name);
+          }
+        });
+
+        // Real-time activity in any room
+        socket.on("new_room_activity", (msg) => {
+          const room = msg.room;
+          roomsMap[room] = {
+            name: msg.senderRole === 'NORMAL' ? msg.senderName : (roomsMap[room] ? roomsMap[room].name : msg.senderName),
+            lastMsg: msg.message,
+            updatedAt: msg.createdAt || new Date(),
+          };
+
+          renderRoomsList();
+
+          if (activeRoom === room) {
+            appendMessage(msg);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+          }
+        });
+
+        // Received message history for selected room
+        socket.on("chat_history", (history) => {
+          messagesEl.innerHTML = "";
+          if (history && history.length > 0) {
+            history.forEach((msg) => appendMessage(msg));
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+          } else {
+            messagesEl.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 2rem;">No message history in this room</div>';
+          }
+        });
+
+        function selectRoom(room, name) {
+          activeRoom = room;
+          userNameEl.textContent = name || "Customer (" + room.substring(0, 8) + ")";
+          roomIdEl.textContent = `Room ID: ${room}`;
+          headerEl.style.display = "flex";
+          formEl.style.display = "flex";
+
+          socket.emit("join_room", {
+            room: room,
+            user: { fullName: "Support Admin" },
+          });
+
+          renderRoomsList();
+        }
+
+        function renderRoomsList() {
+          roomsListEl.innerHTML = "";
+          const keys = Object.keys(roomsMap);
+          roomCountBadge.textContent = keys.length;
+
+          if (keys.length === 0) {
+            roomsListEl.innerHTML = '<div style="padding: 1.5rem; color: #94a3b8; text-align: center;">No customer chats active yet</div>';
+            return;
+          }
+
+          // Sort rooms by latest update
+          keys.sort((a, b) => new Date(roomsMap[b].updatedAt || 0) - new Date(roomsMap[a].updatedAt || 0));
+
+          keys.forEach((room) => {
+            const data = roomsMap[room];
+            const div = document.createElement("div");
+            div.className = `room-item ${room === activeRoom ? "active" : ""}`;
+            div.innerHTML = `
+              <div class="room-info">
+                <h5>${escapeHtml(data.name)}</h5>
+                <p>${escapeHtml(data.lastMsg)}</p>
+              </div>
+            `;
+            div.addEventListener("click", () => selectRoom(room, data.name));
+            roomsListEl.appendChild(div);
+          });
+        }
+
+        formEl.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const text = inputEl.value.trim();
+          if (!text || !activeRoom) return;
+
+          socket.emit("send_message", {
+            room: activeRoom,
+            senderId: "<%= locals.user ? locals.user._id : '' %>",
+            senderName: "Support Admin",
+            senderRole: "ADMIN",
+            message: text,
+          });
+
+          inputEl.value = "";
+        });
+
+        function appendMessage(msg) {
+          const isSent = msg.senderRole === "ADMIN";
+          const row = document.createElement("div");
+          row.className = `message-row ${isSent ? "sent" : "received"}`;
+
+          const timeStr = new Date(msg.createdAt || Date.now()).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          row.innerHTML = `
+            <span class="message-sender">${isSent ? "🎧 Support Admin" : escapeHtml(msg.senderName)}</span>
+            <div class="message-bubble">
+              ${escapeHtml(msg.message)}
+              <div class="message-time">${timeStr}</div>
+            </div>
+          `;
+
+          messagesEl.appendChild(row);
+        }
+
+        function escapeHtml(text) {
+          const div = document.createElement("div");
+          div.innerText = text;
+          return div.innerHTML;
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -32,13 +32,24 @@ const bookingSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+
+  // Tour Start & End Dates
+  tripStartDate: {
+    type: Date,
+    required: true,
+  },
+  tripEndDate: {
+    type: Date,
+    required: true,
+  },
+
   numberOfPeople: {
     type: Number,
     required: true,
     min: 1,
   },
 
-  // NEW: Traveler details array
+  // Traveler details array
   travelers: [
     {
       name: {
@@ -67,11 +78,30 @@ const bookingSchema = new mongoose.Schema({
     default: "pending",
   },
 
+  // Cancellation & Refund details
+  status: {
+    type: String,
+    enum: ["BOOKED", "CANCELLED"],
+    default: "BOOKED",
+  },
+  cancelledAt: Date,
+  refundStatus: {
+    type: String,
+    enum: ["NONE", "PENDING", "REFUNDED", "FAILED"],
+    default: "NONE",
+  },
+  refundId: String,
+  refundAmount: Number,
+  cancellationReason: String,
+
   // Timestamps
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
+
+bookingSchema.index({ userId: 1, createdAt: -1 });
+bookingSchema.index({ tourId: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Booking", bookingSchema);
