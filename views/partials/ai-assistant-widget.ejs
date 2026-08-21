@@ -31,11 +31,25 @@
 
     <!-- Messages Container -->
     <div id="ai-messages" class="ai-messages">
-      <div class="ai-msg-row received">
-        <div class="ai-bubble">
-          👋 Hello Explorer! I'm your AI Trip Architect. Where would you like to travel? Share your dream destination, preferred duration, budget, or travel style!
+      <% if (!locals.user) { %>
+      <div class="orbit-widget-auth-card">
+        <div class="orbit-widget-auth-icon" style="background: rgba(139, 92, 246, 0.12); color: #8b5cf6;">
+          <i class="fas fa-sparkles"></i>
+        </div>
+        <h4>Sign In to Plan with AI</h4>
+        <p>Please log in to your OrbitRush account to craft personalized itineraries, get instant budget estimates, and request custom quotes.</p>
+        <a href="/user/signin" class="btn-widget-signin" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">Sign In to Start</a>
+        <div class="widget-signup-link">
+          New explorer? <a href="/user/signup" style="color: #8b5cf6; font-weight: 700;">Create Account</a>
         </div>
       </div>
+      <% } else { %>
+      <div class="ai-msg-row received">
+        <div class="ai-bubble">
+          👋 Hello <%= locals.user.fullName %>! I'm your AI Trip Architect. Where would you like to travel? Share your dream destination, preferred duration, budget, or travel style!
+        </div>
+      </div>
+      <% } %>
     </div>
 
     <!-- Interactive Custom Plan Preview & Action Bar -->
@@ -54,7 +68,7 @@
       <input
         type="text"
         id="ai-input"
-        placeholder="e.g., 5-day adventure in Ladakh under ₹40k..."
+        placeholder="<%= locals.user ? 'e.g., 5-day adventure in Ladakh under ₹40k...' : 'Please sign in to plan with AI...' %>"
         autocomplete="off"
         required
       />
@@ -429,6 +443,60 @@
   .btn-cancel { background: #e2e8f0; color: #475569; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; }
   .btn-submit { background: #8b5cf6; color: white; border: none; padding: 9px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 
+  .orbit-widget-auth-card {
+    margin: auto;
+    padding: 26px 20px;
+    text-align: center;
+    background: #fdfcff;
+    border-radius: 16px;
+    border: 1px solid #ddd6fe;
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.08);
+  }
+  .orbit-widget-auth-icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+  }
+  .orbit-widget-auth-card h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+  .orbit-widget-auth-card p {
+    font-size: 0.84rem;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+  .btn-widget-signin {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: white !important;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+  }
+  .btn-widget-signin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(139, 92, 246, 0.45);
+  }
+  .widget-signup-link {
+    display: block;
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: #64748b;
+  }
+
   @media (max-width: 767px) {
     #orbit-ai-widget {
       bottom: 78px;
@@ -465,6 +533,8 @@
     const modalSummaryDest = document.getElementById("modal-summary-dest");
     const modalSummaryDetails = document.getElementById("modal-summary-details");
 
+    const isAuthenticated = <%= locals.user ? 'true' : 'false' %>;
+
     let isOpen = false;
     let chatHistory = [];
     let currentState = {};
@@ -474,8 +544,13 @@
     launcher.addEventListener("click", () => {
       isOpen = !isOpen;
       if (isOpen) {
+        // Dispatch close event to Live Support chat so both never stay open simultaneously
+        window.dispatchEvent(new CustomEvent("orbit:close-chat"));
+
         windowEl.classList.remove("ai-window-hidden");
-        input.focus();
+        if (isAuthenticated) {
+          input.focus();
+        }
       } else {
         windowEl.classList.add("ai-window-hidden");
       }
@@ -486,8 +561,20 @@
       windowEl.classList.add("ai-window-hidden");
     });
 
+    // Close when Live Support widget requests it
+    window.addEventListener("orbit:close-ai", () => {
+      if (isOpen) {
+        isOpen = false;
+        windowEl.classList.add("ai-window-hidden");
+      }
+    });
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (!isAuthenticated) {
+        window.location.href = "/user/signin";
+        return;
+      }
       const text = input.value.trim();
       if (!text) return;
 
@@ -536,6 +623,10 @@
     });
 
     sendEnquiryBtn.addEventListener("click", () => {
+      if (!isAuthenticated) {
+        window.location.href = "/user/signin";
+        return;
+      }
       modalSummaryDest.textContent = `Destination: ${currentState.destination || 'Custom Tour'}`;
       modalSummaryDetails.textContent = `Duration: ${currentState.duration || 'Flexible'} | Budget: ${currentState.budget || 'Flexible'} | Travelers: ${currentState.numberOfTravelers || 1}`;
       modal.style.display = "flex";

@@ -32,12 +32,26 @@
 
     <!-- Chat Messages Container -->
     <div id="chat-messages" class="chat-messages">
+      <% if (!locals.user) { %>
+      <div class="orbit-widget-auth-card">
+        <div class="orbit-widget-auth-icon" style="background: rgba(2, 132, 199, 0.12); color: #0284c7;">
+          <i class="fas fa-user-lock"></i>
+        </div>
+        <h4>Sign In to Chat Live</h4>
+        <p>Please log in to your OrbitRush account to connect with our 24/7 expedition concierge.</p>
+        <a href="/user/signin" class="btn-widget-signin" style="background: linear-gradient(135deg, #0284c7, #0369a1);">Sign In to Chat</a>
+        <div class="widget-signup-link">
+          Don't have an account? <a href="/user/signup" style="color: #0284c7; font-weight: 700;">Sign Up</a>
+        </div>
+      </div>
+      <% } else { %>
       <div class="system-message">
         <div class="system-bubble">
           <i class="fas fa-sparkles text-primary me-1"></i>
-          <span>Welcome to OrbitRush! How can our expedition concierge assist you today?</span>
+          <span>Welcome to OrbitRush, <%= locals.user.fullName %>! How can our expedition concierge assist you today?</span>
         </div>
       </div>
+      <% } %>
     </div>
 
     <!-- Chat Input Form -->
@@ -45,7 +59,7 @@
       <input
         type="text"
         id="chat-input"
-        placeholder="Type your message..."
+        placeholder="<%= locals.user ? 'Type your message...' : 'Please sign in to chat...' %>"
         autocomplete="off"
         required
       />
@@ -57,6 +71,59 @@
 </div>
 
 <style>
+  .orbit-widget-auth-card {
+    margin: auto;
+    padding: 26px 20px;
+    text-align: center;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+  }
+  .orbit-widget-auth-icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px auto;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+  }
+  .orbit-widget-auth-card h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+  .orbit-widget-auth-card p {
+    font-size: 0.84rem;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+  .btn-widget-signin {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: white !important;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  }
+  .btn-widget-signin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45);
+  }
+  .widget-signup-link {
+    display: block;
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: #64748b;
+  }
   #orbit-chat-widget {
     position: fixed;
     bottom: 24px;
@@ -432,24 +499,36 @@
       }
     }
 
+    const isAuthenticated = <%= locals.user ? 'true' : 'false' %>;
+
     function disconnectSocket() {
       if (socket) {
         try {
           socket.emit("leave_room", { room: roomId });
+          socket.removeAllListeners();
           socket.disconnect();
+          socket = null;
         } catch (err) {}
       }
+      isConnected = false;
     }
 
     launcher.addEventListener("click", () => {
       isOpen = !isOpen;
       if (isOpen) {
-        initSocket();
+        // Dispatch close event to AI Trip Planner so both never stay open simultaneously
+        window.dispatchEvent(new CustomEvent("orbit:close-ai"));
+
+        if (isAuthenticated) {
+          initSocket();
+        }
         windowEl.classList.remove("chat-window-hidden");
         unreadCount = 0;
         badge.style.display = "none";
         messagesEl.scrollTop = messagesEl.scrollHeight;
-        input.focus();
+        if (isAuthenticated) {
+          input.focus();
+        }
       } else {
         windowEl.classList.add("chat-window-hidden");
         disconnectSocket();
@@ -462,12 +541,25 @@
       disconnectSocket();
     });
 
+    // Close when AI widget requests it
+    window.addEventListener("orbit:close-chat", () => {
+      if (isOpen) {
+        isOpen = false;
+        windowEl.classList.add("chat-window-hidden");
+        disconnectSocket();
+      }
+    });
+
     window.addEventListener("beforeunload", disconnectSocket);
     window.addEventListener("pagehide", disconnectSocket);
     window.addEventListener("unload", disconnectSocket);
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
+      if (!isAuthenticated) {
+        window.location.href = "/user/signin";
+        return;
+      }
       const text = input.value.trim();
       if (!text) return;
       initSocket();
