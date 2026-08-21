@@ -51,13 +51,18 @@
   <body>
     <div class="error-card">
       <div class="error-icon-box">
-        <i class="fas fa-exclamation-triangle"></i>
+        <i class="fas fa-<%= locals.statusCode === 404 ? 'compass' : 'exclamation-triangle' %>"></i>
       </div>
-      <h1 class="error-title">Notice</h1>
-      <p class="error-message"><%= message %></p>
-      <a href="/" class="btn-orbit-hero btn-orbit-primary" style="padding: 0.85rem 2rem; font-size: 0.95rem; display: inline-flex;">
-        <i class="fas fa-home me-1"></i> Return to Homepage
-      </a>
+      <h1 class="error-title"><%= locals.title || (locals.statusCode === 404 ? 'Page Not Found' : 'Notice') %></h1>
+      <p class="error-message"><%= locals.message || 'The requested page or resource is currently unavailable. Please return to the homepage or check our expedition catalog.' %></p>
+      <div class="d-flex justify-content-center gap-2">
+        <a href="/" class="btn-orbit-hero btn-orbit-primary" style="padding: 0.85rem 1.75rem; font-size: 0.95rem; display: inline-flex; align-items: center;">
+          <i class="fas fa-home me-2"></i> Homepage
+        </a>
+        <a href="/tour" class="btn-orbit-hero btn-orbit-secondary" style="padding: 0.85rem 1.75rem; font-size: 0.95rem; display: inline-flex; align-items: center; border: 1.5px solid var(--orbit-primary); color: var(--orbit-primary); background: transparent;">
+          <i class="fas fa-compass me-2"></i> Explore Tours
+        </a>
+      </div>
     </div>
   </body>
 </html>

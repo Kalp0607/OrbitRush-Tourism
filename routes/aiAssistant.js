@@ -106,8 +106,13 @@ Rules:
     },
   };
 
-  // List of Gemini model endpoints to try in order (gemini-3.6-flash is current active)
-  const models = ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+  // List of active Gemini model endpoints in order of preference
+  const models = [
+    "gemini-3.6-flash",
+    "gemini-3.5-flash",
+    "gemini-flash-latest",
+    "gemini-3.5-flash-lite",
+  ];
 
   for (const modelName of models) {
     try {
@@ -117,6 +122,7 @@ Rules:
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(25000),
         }
       );
 

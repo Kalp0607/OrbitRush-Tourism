@@ -7,11 +7,14 @@ const userSchema = new Schema(
     fullName: {
       type: String,
       required: true,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
     salt: {
       type: String,
@@ -49,7 +52,8 @@ userSchema.pre("save", function (next) {
 userSchema.static(
   "matchPasswordAndGenerateToken",
   async function (email, password) {
-    const user = await this.findOne({ email });
+    const normalizedEmail = (email || "").trim().toLowerCase();
+    const user = await this.findOne({ email: normalizedEmail });
     if (!user) throw new Error("user not found");
 
     const salt = user.salt;

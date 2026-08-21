@@ -19,7 +19,7 @@ router.get("/forgot-password", (req, res) => {
 });
 
 router.post("/forgot-password/send", async (req, res) => {
-  const { email } = req.body;
+  const email = (req.body.email || "").trim().toLowerCase();
 
   const user = await USER.findOne({ email }).lean();
   if (!user)
@@ -42,7 +42,8 @@ router.post("/forgot-password/send", async (req, res) => {
 });
 
 router.post("/forgot-password/reset", async (req, res) => {
-  const { email, otp, newPassword } = req.body;
+  const email = (req.body.email || "").trim().toLowerCase();
+  const { otp, newPassword } = req.body;
   const record = otpStore[email];
 
   if (!record)
@@ -96,7 +97,18 @@ router.get("/logout", (req, res) => {
 });
 
 router.post("/signup", async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const fullName = (req.body.fullName || "").trim();
+  const email = (req.body.email || "").trim().toLowerCase();
+  const password = req.body.password;
+
+  if (!fullName || !email || !password) {
+    return res.render("signup", {
+      user: null,
+      error: "All fields are required.",
+      message: null,
+    });
+  }
+
   try {
     const user = await USER.create({
       fullName,
@@ -115,10 +127,11 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/signin", async (req, res) => {
-  const { email, password } = req.body;
+  const email = (req.body.email || "").trim().toLowerCase();
+  const password = req.body.password;
+
   try {
     const token = await USER.matchPasswordAndGenerateToken(email, password);
-
     return res.cookie("token", token).redirect("/");
   } catch (error) {
     return res.render("signin", {

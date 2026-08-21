@@ -24,10 +24,12 @@ const tourSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     location: {
       type: String,
       required: true,
+      trim: true,
     },
     price: {
       type: Number,
@@ -36,6 +38,7 @@ const tourSchema = new mongoose.Schema(
     duration: {
       type: String,
       required: true,
+      trim: true,
     },
     overview: {
       type: String,
@@ -43,8 +46,29 @@ const tourSchema = new mongoose.Schema(
     },
     coverImage: {
       type: String,
+      default: "/images/default-tour.jpg",
     },
-    moreImages: [String],
+    moreImages: {
+      type: [String],
+      default: [],
+    },
+    maxGroupSize: {
+      type: Number,
+      default: 20,
+    },
+    difficulty: {
+      type: String,
+      enum: ["Easy", "Moderate", "Challenging", "Difficult"],
+      default: "Moderate",
+    },
+    startLocation: {
+      type: String,
+      default: "",
+    },
+    highlights: {
+      type: [String],
+      default: [],
+    },
     itinerary: [
       {
         day: Number,
@@ -52,16 +76,40 @@ const tourSchema = new mongoose.Schema(
         description: String,
       },
     ],
+    guides: [
+      {
+        name: String,
+        role: String,
+      },
+    ],
+    ageRestriction: {
+      type: Number,
+      default: 0,
+    },
     video: {
       type: String,
+      default: "",
     },
-    included: [String],
-    excluded: [String],
+    included: {
+      type: [String],
+      default: [],
+    },
+    excluded: {
+      type: [String],
+      default: [],
+    },
+    ratingsAverage: {
+      type: Number,
+      default: 4.9,
+    },
+    ratingsQuantity: {
+      type: Number,
+      default: 0,
+    },
 
     // Tour Start & End Dates
     tripStartDate: {
       type: Date,
-      required: true,
       default: function () {
         const d = new Date();
         d.setDate(d.getDate() + 7); // Default to 7 days from now
@@ -73,7 +121,10 @@ const tourSchema = new mongoose.Schema(
       type: Date,
     },
 
-    availableDates: [Date],
+    availableDates: {
+      type: [Date],
+      default: [],
+    },
   },
   {
     timestamps: true,

@@ -88,6 +88,27 @@ app.use("/booking", bookingRoutes);
 app.use("/api/ai-assistant", aiAssistantRoute);
 app.use("/", staticRoute);
 
+// 404 Catch-All Handler
+app.use((req, res, next) => {
+  res.status(404).render("error", {
+    statusCode: 404,
+    title: "Page Not Found",
+    message: `The page "${req.originalUrl}" does not exist on OrbitRush. Explore our signature expeditions or return to the homepage.`,
+    user: req.user,
+  });
+});
+
+// Centralized 500 Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error("Unhandled Application Error:", err);
+  res.status(500).render("error", {
+    statusCode: 500,
+    title: "Internal Server Error",
+    message: err.message || "An unexpected error occurred. Please try again in a few moments.",
+    user: req.user,
+  });
+});
+
 // Active Connected Customer Rooms Store: room -> Map(socketId -> { senderName, connectedAt })
 const activeCustomerSockets = new Map();
 

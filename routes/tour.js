@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const path = require("path");
 const fs = require("fs");
 const Tour = require("../models/tour");
@@ -17,6 +18,42 @@ const {
 } = require("../services/imageStorage");
 
 const router = express.Router();
+
+// Helper: Escape special characters for regex string
+function escapeRegex(text) {
+  if (!text) return "";
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+
+// Helper: Recalculate and update ratings statistics for a Tour
+async function updateTourRatingStats(tourId) {
+  try {
+    const stats = await Comment.aggregate([
+      { $match: { tourId: new mongoose.Types.ObjectId(tourId) } },
+      {
+        $group: {
+          _id: "$tourId",
+          nRating: { $sum: 1 },
+          avgRating: { $avg: "$rating" },
+        },
+      },
+    ]);
+
+    if (stats.length > 0) {
+      await Tour.findByIdAndUpdate(tourId, {
+        ratingsQuantity: stats[0].nRating,
+        ratingsAverage: Math.round(stats[0].avgRating * 10) / 10,
+      });
+    } else {
+      await Tour.findByIdAndUpdate(tourId, {
+        ratingsQuantity: 0,
+        ratingsAverage: 4.9,
+      });
+    }
+  } catch (err) {
+    console.error("Error updating tour rating statistics:", err);
+  }
+}
 
 // Helper: Calculate trip end date from start date and duration string
 function calculateTripEndDate(startDate, durationStr) {
@@ -174,8 +211,9 @@ router.post("/enquire", async (req, res) => {
 router.get("/:tourName", async (req, res) => {
   try {
     const tourNameDecoded = req.params.tourName.replace(/-/g, " ");
+    const safeRegexPattern = "^" + escapeRegex(tourNameDecoded) + "$";
     const tour = await Tour.findOne({
-      name: { $regex: new RegExp("^" + tourNameDecoded + "$", "i") },
+      name: { $regex: new RegExp(safeRegexPattern, "i") },
     }).lean();
 
     if (!tour) {
@@ -307,7 +345,218 @@ router.get("/admin/chat", requireAdmin, async (req, res) => {
 
 // POST Routes
 
-// 5. Create new tour (Admin only)
+// Helper parsers for form data (arrays, itineraries, guides)
+function parseArrayField(body, fieldName) {
+  let val = body[fieldName] !== undefined ? body[fieldName] : body[`${fieldName}[]`];
+  if (!val) return [];
+  if (Array.isArray(val)) {
+    return val.map((v) => (typeof v === "string" ? v.trim() : v)).filter(Boolean);
+  }
+  if (typeof val === "string") {
+    if (val.includes("\n")) {
+      return val.split("\n").map((s) => s.trim()).filter(Boolean);
+    }
+    return [val.trim()].filter(Boolean);
+  }
+  return [];
+}
+
+function parseItineraryField(body) {
+  if (Array.isArray(body.itinerary)) {
+    return body.itinerary
+      .map((item, index) => {
+        if (typeof item === "object" && item !== null) {
+          return {
+            day: parseInt(item.day, 10) || index + 1,
+            title: item.title ? String(item.title).trim() : "",
+            description: item.description ? String(item.description).trim() : "",
+          };
+        }
+        return null;
+      })
+      .filter((item) => item && (item.title || item.description));
+  }
+
+  const itineraryMap = {};
+  for (const key of Object.keys(body)) {
+    const match = key.match(/^itinerary\[(\d+)\]\[(\w+)\]$/);
+    if (match) {
+      const idx = parseInt(match[1], 10);
+      const prop = match[2];
+      if (!itineraryMap[idx]) itineraryMap[idx] = { day: idx + 1, title: "", description: "" };
+      itineraryMap[idx][prop] = body[key];
+    }
+  }
+
+  const indices = Object.keys(itineraryMap).sort((a, b) => a - b);
+  if (indices.length > 0) {
+    return indices
+      .map((idx, i) => ({
+        day: i + 1,
+        title: itineraryMap[idx].title ? String(itineraryMap[idx].title).trim() : "",
+        description: itineraryMap[idx].description ? String(itineraryMap[idx].description).trim() : "",
+      }))
+      .filter((item) => item.title || item.description);
+  }
+
+  return [];
+}
+
+function parseGuidesField(body) {
+  if (Array.isArray(body.guides)) {
+    return body.guides
+      .map((item) => {
+        if (typeof item === "object" && item !== null) {
+          return {
+            name: item.name ? String(item.name).trim() : "",
+            role: item.role ? String(item.role).trim() : "",
+          };
+        }
+        return null;
+      })
+      .filter((item) => item && item.name);
+  }
+
+  const guidesMap = {};
+  for (const key of Object.keys(body)) {
+    const match = key.match(/^guides\[(\d+)\]\[(\w+)\]$/);
+    if (match) {
+      const idx = parseInt(match[1], 10);
+      const prop = match[2];
+      if (!guidesMap[idx]) guidesMap[idx] = { name: "", role: "" };
+      guidesMap[idx][prop] = body[key];
+    }
+  }
+
+  const indices = Object.keys(guidesMap).sort((a, b) => a - b);
+  if (indices.length > 0) {
+    return indices
+      .map((idx) => ({
+        name: guidesMap[idx].name ? String(guidesMap[idx].name).trim() : "",
+        role: guidesMap[idx].role ? String(guidesMap[idx].role).trim() : "",
+      }))
+      .filter((item) => item.name);
+  }
+
+  return [];
+}
+
+// 5. Create new tour (Admin only) controller handler
+async function handleCreateTour(req, res) {
+  try {
+    const {
+      name,
+      location,
+      price,
+      duration,
+      overview,
+      maxGroupSize,
+      difficulty,
+      startLocation,
+      video,
+      ageRestriction,
+      tripStartDate,
+    } = req.body;
+
+    if (!name || !location || !price || !duration || !overview) {
+      return res.status(400).render("admin/create-tour", {
+        user: req.user,
+        error: "Please fill in all required fields (Name, Location, Price, Duration, Overview).",
+      });
+    }
+
+    let coverImagePath = "/images/default-tour.jpg";
+    let moreImagesPaths = [];
+
+    if (req.files && req.files["coverImage"] && req.files["coverImage"][0]) {
+      coverImagePath = await processUploadedFile(req.files["coverImage"][0], "tours");
+    }
+
+    if (req.files && req.files["moreImages"]) {
+      moreImagesPaths = await processUploadedFiles(req.files["moreImages"], "tours");
+    }
+
+    const processedItinerary = parseItineraryField(req.body);
+    const processedGuides = parseGuidesField(req.body);
+    const processedHighlights = parseArrayField(req.body, "highlights");
+    const processedIncluded = parseArrayField(req.body, "included");
+    const processedExcluded = parseArrayField(req.body, "excluded");
+
+    let processedDates = [];
+    const rawDates = parseArrayField(req.body, "availableDates");
+    if (rawDates.length > 0) {
+      processedDates = rawDates
+        .map((d) => new Date(d))
+        .filter((d) => !isNaN(d.getTime()));
+    }
+
+    let startDate = tripStartDate ? new Date(tripStartDate) : null;
+    if (!startDate || isNaN(startDate.getTime())) {
+      if (processedDates.length > 0) {
+        startDate = processedDates[0];
+      } else {
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() + 7);
+        startDate.setHours(0, 0, 0, 0);
+      }
+    }
+    if (processedDates.length === 0) {
+      processedDates = [startDate];
+    }
+    const endDate = calculateTripEndDate(startDate, duration);
+
+    const tour = await Tour.create({
+      name: name.trim(),
+      location: location.trim(),
+      price: parseFloat(price),
+      duration: duration.trim(),
+      overview: overview.trim(),
+      coverImage: coverImagePath,
+      moreImages: moreImagesPaths,
+      maxGroupSize: maxGroupSize ? parseInt(maxGroupSize, 10) : 20,
+      difficulty: difficulty || "Moderate",
+      startLocation: startLocation ? startLocation.trim() : "",
+      highlights: processedHighlights,
+      itinerary: processedItinerary,
+      guides: processedGuides,
+      ageRestriction: ageRestriction ? parseInt(ageRestriction, 10) : 0,
+      video: video ? video.trim() : "",
+      included: processedIncluded,
+      excluded: processedExcluded,
+      tripStartDate: startDate,
+      tripEndDate: endDate,
+      availableDates: processedDates,
+    });
+
+    clearNavToursCache();
+    const tourUrlName = name.replace(/\s+/g, "-").toLowerCase();
+    res.redirect(`/tour/${tourUrlName}`);
+  } catch (error) {
+    console.error("Error creating tour:", error);
+    if (error.code === 11000) {
+      return res.status(400).render("admin/create-tour", {
+        user: req.user,
+        error: "Tour name already exists. Please choose a unique name.",
+      });
+    }
+    res.status(500).render("error", {
+      message: "Error creating tour: " + error.message,
+      user: req.user,
+    });
+  }
+}
+
+// POST routes for create tour
+router.post(
+  "/admin/create",
+  requireAdmin,
+  upload.fields([
+    { name: "coverImage", maxCount: 1 },
+    { name: "moreImages", maxCount: 8 },
+  ]),
+  handleCreateTour
+);
+
 router.post(
   "/",
   requireAdmin,
@@ -315,97 +564,7 @@ router.post(
     { name: "coverImage", maxCount: 1 },
     { name: "moreImages", maxCount: 8 },
   ]),
-  async (req, res) => {
-    try {
-      const {
-        name,
-        location,
-        price,
-        duration,
-        overview,
-        video,
-        included,
-        excluded,
-        itinerary,
-        tripStartDate,
-        availableDates,
-      } = req.body;
-
-      let coverImagePath = "";
-      let moreImagesPaths = [];
-
-      if (req.files && req.files["coverImage"] && req.files["coverImage"][0]) {
-        coverImagePath = await processUploadedFile(req.files["coverImage"][0], "tours");
-      }
-
-      if (req.files && req.files["moreImages"]) {
-        moreImagesPaths = await processUploadedFiles(req.files["moreImages"], "tours");
-      }
-
-      let processedItinerary = [];
-      if (itinerary && Array.isArray(itinerary)) {
-        processedItinerary = itinerary.map((day, index) => ({
-          day: index + 1,
-          title: day.title || "",
-          description: day.description || "",
-        }));
-      }
-
-      const startDate = tripStartDate ? new Date(tripStartDate) : new Date();
-      const endDate = calculateTripEndDate(startDate, duration);
-
-      let processedDates = [startDate];
-      if (availableDates) {
-        let rawDates = Array.isArray(availableDates)
-          ? availableDates
-          : [availableDates];
-        processedDates = rawDates
-          .filter((d) => d && d.trim())
-          .map((d) => new Date(d));
-      }
-
-      const tour = await Tour.create({
-        name,
-        location,
-        price: parseFloat(price),
-        duration,
-        overview,
-        coverImage: coverImagePath,
-        moreImages: moreImagesPaths,
-        video: video || "",
-        included: Array.isArray(included)
-          ? included
-          : included
-          ? included.split("\n").filter((item) => item.trim())
-          : [],
-        excluded: Array.isArray(excluded)
-          ? excluded
-          : excluded
-          ? excluded.split("\n").filter((item) => item.trim())
-          : [],
-        itinerary: processedItinerary,
-        tripStartDate: startDate,
-        tripEndDate: endDate,
-        availableDates: processedDates,
-      });
-
-      clearNavToursCache();
-      const tourUrlName = name.replace(/\s+/g, "-").toLowerCase();
-      res.redirect(`/tour/${tourUrlName}`);
-    } catch (error) {
-      console.error("Error creating tour:", error);
-      if (error.code === 11000) {
-        return res.status(400).render("admin/create-tour", {
-          user: req.user,
-          error: "Tour name already exists. Please choose a different name.",
-        });
-      }
-      res.status(500).render("error", {
-        message: "Error creating tour: " + error.message,
-        user: req.user,
-      });
-    }
-  }
+  handleCreateTour
 );
 
 // 5b. Update existing tour (Admin only)
@@ -432,15 +591,15 @@ router.post(
         price,
         duration,
         overview,
+        maxGroupSize,
+        difficulty,
+        startLocation,
         video,
-        included,
-        excluded,
-        itinerary,
+        ageRestriction,
         tripStartDate,
-        availableDates,
       } = req.body;
 
-      let coverImagePath = existingTour.coverImage;
+      let coverImagePath = existingTour.coverImage || "/images/default-tour.jpg";
       let moreImagesPaths = existingTour.moreImages || [];
 
       if (req.files && req.files["coverImage"] && req.files["coverImage"][0]) {
@@ -448,50 +607,48 @@ router.post(
       }
 
       if (req.files && req.files["moreImages"] && req.files["moreImages"].length > 0) {
-        moreImagesPaths = await processUploadedFiles(req.files["moreImages"], "tours");
+        const uploadedGallery = await processUploadedFiles(req.files["moreImages"], "tours");
+        moreImagesPaths = [...moreImagesPaths, ...uploadedGallery];
       }
 
-      let processedItinerary = [];
-      if (itinerary && Array.isArray(itinerary)) {
-        processedItinerary = itinerary.map((day, index) => ({
-          day: index + 1,
-          title: day.title || "",
-          description: day.description || "",
-        }));
-      }
+      const processedItinerary = parseItineraryField(req.body);
+      const processedGuides = parseGuidesField(req.body);
+      const processedHighlights = parseArrayField(req.body, "highlights");
+      const processedIncluded = parseArrayField(req.body, "included");
+      const processedExcluded = parseArrayField(req.body, "excluded");
 
-      const startDate = tripStartDate ? new Date(tripStartDate) : (existingTour.tripStartDate || new Date());
-      const endDate = calculateTripEndDate(startDate, duration);
-
-      let processedDates = [startDate];
-      if (availableDates) {
-        let rawDates = Array.isArray(availableDates)
-          ? availableDates
-          : [availableDates];
+      let processedDates = [];
+      const rawDates = parseArrayField(req.body, "availableDates");
+      if (rawDates.length > 0) {
         processedDates = rawDates
-          .filter((d) => d && String(d).trim())
-          .map((d) => new Date(d));
+          .map((d) => new Date(d))
+          .filter((d) => !isNaN(d.getTime()));
       }
 
-      existingTour.name = name;
-      existingTour.location = location;
-      existingTour.price = parseFloat(price);
-      existingTour.duration = duration;
-      existingTour.overview = overview;
+      let startDate = tripStartDate ? new Date(tripStartDate) : (existingTour.tripStartDate || new Date());
+      if (isNaN(startDate.getTime())) startDate = new Date();
+      if (processedDates.length === 0) {
+        processedDates = existingTour.availableDates && existingTour.availableDates.length > 0 ? existingTour.availableDates : [startDate];
+      }
+      const endDate = calculateTripEndDate(startDate, duration || existingTour.duration);
+
+      existingTour.name = name ? name.trim() : existingTour.name;
+      existingTour.location = location ? location.trim() : existingTour.location;
+      existingTour.price = price ? parseFloat(price) : existingTour.price;
+      existingTour.duration = duration ? duration.trim() : existingTour.duration;
+      existingTour.overview = overview ? overview.trim() : existingTour.overview;
       existingTour.coverImage = coverImagePath;
       existingTour.moreImages = moreImagesPaths;
-      existingTour.video = video || "";
-      existingTour.included = Array.isArray(included)
-        ? included
-        : included
-        ? included.split("\n").filter((item) => item.trim())
-        : [];
-      existingTour.excluded = Array.isArray(excluded)
-        ? excluded
-        : excluded
-        ? excluded.split("\n").filter((item) => item.trim())
-        : [];
-      existingTour.itinerary = processedItinerary;
+      existingTour.maxGroupSize = maxGroupSize ? parseInt(maxGroupSize, 10) : existingTour.maxGroupSize;
+      existingTour.difficulty = difficulty || existingTour.difficulty;
+      existingTour.startLocation = startLocation !== undefined ? startLocation.trim() : existingTour.startLocation;
+      existingTour.highlights = processedHighlights.length > 0 ? processedHighlights : existingTour.highlights;
+      existingTour.itinerary = processedItinerary.length > 0 ? processedItinerary : existingTour.itinerary;
+      existingTour.guides = processedGuides.length > 0 ? processedGuides : existingTour.guides;
+      existingTour.ageRestriction = ageRestriction !== undefined ? parseInt(ageRestriction, 10) : existingTour.ageRestriction;
+      existingTour.video = video !== undefined ? video.trim() : existingTour.video;
+      existingTour.included = processedIncluded.length > 0 ? processedIncluded : existingTour.included;
+      existingTour.excluded = processedExcluded.length > 0 ? processedExcluded : existingTour.excluded;
       existingTour.tripStartDate = startDate;
       existingTour.tripEndDate = endDate;
       existingTour.availableDates = processedDates;
@@ -499,7 +656,7 @@ router.post(
       await existingTour.save();
       clearNavToursCache();
 
-      const tourUrlName = name.replace(/\s+/g, "-").toLowerCase();
+      const tourUrlName = existingTour.name.replace(/\s+/g, "-").toLowerCase();
       res.redirect(`/tour/${tourUrlName}`);
     } catch (error) {
       console.error("Error editing tour:", error);
@@ -514,8 +671,10 @@ router.post(
 // 6. Delete tour (Admin only)
 router.delete("/:tourName", requireAdmin, async (req, res) => {
   try {
+    const tourNameDecoded = req.params.tourName.replace(/-/g, " ");
+    const safeRegexPattern = "^" + escapeRegex(tourNameDecoded) + "$";
     const tour = await Tour.findOneAndDelete({
-      name: { $regex: new RegExp("^" + req.params.tourName.replace(/-/g, " ") + "$", "i") },
+      name: { $regex: new RegExp(safeRegexPattern, "i") },
     });
 
     if (!tour) {
@@ -542,8 +701,9 @@ router.post(
       }
 
       const tourNameDecoded = req.params.tourName.replace(/-/g, " ");
+      const safeRegexPattern = "^" + escapeRegex(tourNameDecoded) + "$";
       const tour = await Tour.findOne({
-        name: { $regex: new RegExp("^" + tourNameDecoded + "$", "i") },
+        name: { $regex: new RegExp(safeRegexPattern, "i") },
       });
 
       if (!tour) {
@@ -596,6 +756,9 @@ router.post(
         photos: photoPaths,
       });
 
+      // Recalculate and persist updated rating averages
+      await updateTourRatingStats(tour._id);
+
       const tourUrlName = tour.name.replace(/\s+/g, "-").toLowerCase();
       res.redirect(`/tour/${tourUrlName}?success=Thank you for your review!`);
     } catch (error) {
@@ -626,7 +789,10 @@ router.delete("/comment/:commentId", async (req, res) => {
         .json({ message: "Not authorized to delete this comment" });
     }
 
+    const tourId = comment.tourId;
     await Comment.findByIdAndDelete(req.params.commentId);
+    await updateTourRatingStats(tourId);
+
     res.json({ message: "Comment deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting comment" });
@@ -674,7 +840,10 @@ router.delete("/admin/user/:userId", requireAdmin, async (req, res) => {
 });
 
 // Admin Enquiries Management
-router.get("/admin/dashboard/enquiries-details", requireAdmin, async (req, res) => {
+router.get(
+  ["/admin/dashboard/enquiries-details", "/admin/dashboard/enquiries"],
+  requireAdmin,
+  async (req, res) => {
   try {
     const enquiries = await Enquiry.find({}).sort({ createdAt: -1 }).lean();
     res.render("admin/enquiries-details", {
