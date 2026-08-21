@@ -28,6 +28,42 @@ function getTripEndDate(startDate, durationStr) {
   return endDate;
 }
 
+// Helper: Get list of valid upcoming departure dates configured by admin
+function getValidUpcomingDates(tour) {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  let validDates = [];
+  if (tour.availableDates && Array.isArray(tour.availableDates) && tour.availableDates.length > 0) {
+    validDates = tour.availableDates
+      .map((d) => new Date(d))
+      .filter((d) => !isNaN(d.getTime()) && d >= startOfToday);
+  }
+
+  // Fallback to tripStartDate if availableDates is empty and tripStartDate is upcoming
+  if (validDates.length === 0 && tour.tripStartDate) {
+    const sDate = new Date(tour.tripStartDate);
+    if (!isNaN(sDate.getTime()) && sDate >= startOfToday) {
+      validDates.push(sDate);
+    }
+  }
+
+  // Sort chronologically ascending
+  validDates.sort((a, b) => a.getTime() - b.getTime());
+  return validDates;
+}
+
+// Helper: Verify if a date string is in the valid fixed dates
+function isValidDepartureDate(tour, dateInput) {
+  if (!dateInput) return false;
+  const inputDate = new Date(dateInput);
+  if (isNaN(inputDate.getTime())) return false;
+  const inputDateStr = inputDate.toISOString().split("T")[0];
+
+  const validDates = getValidUpcomingDates(tour);
+  return validDates.some((d) => d.toISOString().split("T")[0] === inputDateStr);
+}
+
 // Route 1: Show Booking Page (GET)
 router.get("/book/:tourId", async (req, res) => {
   if (!req.user) {
@@ -45,19 +81,14 @@ router.get("/book/:tourId", async (req, res) => {
       return res.redirect("/tours?error=Tour not found");
     }
 
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-
-    if (tour.availableDates && Array.isArray(tour.availableDates)) {
-      tour.availableDates = tour.availableDates.filter((date) => {
-        const d = new Date(date);
-        return d >= startOfToday;
-      });
-    }
+    const validDates = getValidUpcomingDates(tour);
+    const selectedDate = req.query.date ? new Date(req.query.date).toISOString().split("T")[0] : null;
 
     res.render("booking", {
       user: req.user,
       tour: tour,
+      validDates: validDates,
+      selectedDate: selectedDate,
       error: null,
       success: null,
     });
@@ -78,6 +109,13 @@ router.post("/create-order", async (req, res) => {
     const tour = await Tour.findById(tourId);
     if (!tour) {
       return res.status(404).json({ error: "Tour not found" });
+    }
+
+    // Enforce fixed admin-scheduled departure date
+    if (!travelDate || !isValidDepartureDate(tour, travelDate)) {
+      return res.status(400).json({
+        error: "Please select an available scheduled departure date configured for this tour.",
+      });
     }
 
     const amountInRupees = tour.price * numberOfPeople;
@@ -132,6 +170,18 @@ router.post("/verify-payment", async (req, res) => {
       });
     }
 
+    const tour = await Tour.findById(tourId);
+    if (!tour) {
+      return res.status(404).json({ success: false, error: "Tour not found" });
+    }
+
+    if (!travelDate || !isValidDepartureDate(tour, travelDate)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid departure date selection. Please choose a scheduled departure batch.",
+      });
+    }
+
     if (!travelers || travelers.length !== parseInt(numberOfPeople, 10)) {
       return res.status(400).json({
         success: false,
@@ -155,7 +205,6 @@ router.post("/verify-payment", async (req, res) => {
       }
     }
 
-    const tour = await Tour.findById(tourId);
     const startDate = travelDate ? new Date(travelDate) : (tour ? tour.tripStartDate : new Date());
     const endDate = tour ? getTripEndDate(startDate, tour.duration) : startDate;
 

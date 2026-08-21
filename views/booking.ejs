@@ -240,11 +240,67 @@
         color: white;
       }
 
+      /* Departure Batch Grid */
+      .departure-batch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .departure-card {
+        background: #ffffff;
+        border: 2px solid #e2e8f0;
+        border-radius: var(--orbit-radius-md);
+        padding: 1.1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+      }
+
+      .departure-card:hover {
+        border-color: var(--orbit-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(2, 132, 199, 0.12);
+      }
+
+      .departure-card.active {
+        border-color: var(--orbit-primary);
+        background: #f0f9ff;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+      }
+
+      .badge-batch-tag {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        background: #e0f2fe;
+        color: #0369a1;
+        padding: 0.2rem 0.6rem;
+        border-radius: 9999px;
+      }
+
+      .departure-date-main {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--orbit-dark);
+        margin-bottom: 0.25rem;
+      }
+
+      .departure-date-duration {
+        font-size: 0.82rem;
+        color: #64748b;
+        font-weight: 600;
+      }
+
       @media (max-width: 768px) {
         .tour-summary-grid {
           grid-template-columns: repeat(2, 1fr);
         }
         .form-grid-2 {
+          grid-template-columns: 1fr;
+        }
+        .departure-batch-grid {
           grid-template-columns: 1fr;
         }
         .booking-form-body {
@@ -304,18 +360,73 @@
             <!-- Schedule Section -->
             <div class="form-block">
               <h2 class="form-block-title">
-                <i class="fas fa-calendar-alt"></i> Trip Scheduling & Party Size
+                <i class="fas fa-calendar-alt"></i> Select Departure Batch & Party Size
               </h2>
+
+              <% 
+                const availableBatches = locals.validDates && locals.validDates.length > 0 
+                  ? locals.validDates 
+                  : (tour.availableDates && tour.availableDates.length > 0 ? tour.availableDates : (tour.tripStartDate ? [tour.tripStartDate] : []));
+                
+                const todayZero = new Date();
+                todayZero.setHours(0, 0, 0, 0);
+                const futureBatches = availableBatches
+                  .map(d => new Date(d))
+                  .filter(d => !isNaN(d.getTime()) && d >= todayZero)
+                  .sort((a, b) => a.getTime() - b.getTime());
+
+                const preselectedDateStr = locals.selectedDate || (futureBatches.length > 0 ? futureBatches[0].toISOString().split('T')[0] : '');
+              %>
+
+              <% if (futureBatches.length === 0) { %>
+                <div class="alert alert-warning d-flex align-items-center gap-3 p-3 mb-4" style="border-radius: var(--orbit-radius-md); border-left: 4px solid #f59e0b;">
+                  <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                  <div>
+                    <strong>No open departure dates currently scheduled.</strong>
+                    <div style="font-size: 0.9rem;">Please <a href="/tour/enquire" class="text-primary fw-bold">submit a custom enquiry</a> or contact our concierge for upcoming schedule updates.</div>
+                  </div>
+                </div>
+              <% } else { %>
+                <div class="mb-4">
+                  <label class="orbit-label">Available Scheduled Departure Batches *</label>
+                  <div class="departure-batch-grid">
+                    <% futureBatches.forEach((batchDate, bIdx) => { 
+                      const bIso = batchDate.toISOString().split('T')[0];
+                      const bFormatted = batchDate.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+                      const isSelected = (bIso === preselectedDateStr) || (!preselectedDateStr && bIdx === 0);
+                    %>
+                      <div class="departure-card <%= isSelected ? 'active' : '' %>" data-date="<%= bIso %>" onclick="selectDepartureDate('<%= bIso %>')">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                          <span class="badge-batch-tag"><i class="fas fa-plane-departure me-1"></i> Batch <%= bIdx + 1 %></span>
+                          <i class="fas <%= isSelected ? 'fa-check-circle text-primary' : 'fa-circle text-muted' %> check-icon"></i>
+                        </div>
+                        <div class="departure-date-main"><%= bFormatted %></div>
+                        <div class="departure-date-duration"><i class="far fa-clock me-1"></i> <%= tour.duration %></div>
+                      </div>
+                    <% }) %>
+                  </div>
+                </div>
+              <% } %>
 
               <div class="form-grid-2">
                 <div>
-                  <label for="travelDate" class="orbit-label">Departure Date *</label>
-                  <input
-                    type="date"
-                    id="travelDate"
-                    class="orbit-input"
-                    required
-                  />
+                  <label for="travelDate" class="orbit-label">Selected Departure Date *</label>
+                  <select id="travelDate" name="travelDate" class="orbit-input" required <%= futureBatches.length === 0 ? 'disabled' : '' %> onchange="onDateSelectDropdown(this.value)">
+                    <% if (futureBatches.length === 0) { %>
+                      <option value="">No available departures</option>
+                    <% } else { %>
+                      <% futureBatches.forEach((batchDate, bIdx) => { 
+                        const bIso = batchDate.toISOString().split('T')[0];
+                        const bFormatted = batchDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                        const isSelected = (bIso === preselectedDateStr) || (!preselectedDateStr && bIdx === 0);
+                      %>
+                        <option value="<%= bIso %>" <%= isSelected ? 'selected' : '' %>>
+                          <%= bFormatted %> (<%= tour.duration %>)
+                        </option>
+                      <% }) %>
+                    <% } %>
+                  </select>
+                  <small class="text-muted mt-1 d-block"><i class="fas fa-lock me-1"></i> Fixed dates verified and guaranteed by OrbitRush.</small>
                 </div>
 
                 <div>
@@ -325,16 +436,18 @@
                     id="numberOfPeople"
                     class="orbit-input"
                     min="1"
-                    max="20"
+                    max="<%= tour.maxGroupSize || 20 %>"
                     value="1"
                     required
+                    <%= futureBatches.length === 0 ? 'disabled' : '' %>
                   />
+                  <small class="text-muted mt-1 d-block"><i class="fas fa-users me-1"></i> Max group size: <%= tour.maxGroupSize || 20 %> travelers.</small>
                 </div>
               </div>
 
               <div class="orbit-notice-box mt-3">
                 <i class="fas fa-info-circle"></i>
-                <span>Your booking and permit allocation are confirmed immediately upon verified payment.</span>
+                <span>Your booking and permit allocation are confirmed immediately upon verified payment for the selected batch.</span>
               </div>
             </div>
 
@@ -379,6 +492,33 @@
       const tourPrice = parseInt("<%= tour.price %>") || 0;
       const tourId = "<%= tour._id %>";
       const tourName = "<%= tour.name %>";
+
+      // Fixed Departure Date Sync Logic
+      function selectDepartureDate(dateIso) {
+        const select = document.getElementById("travelDate");
+        if (select) {
+          select.value = dateIso;
+        }
+        updateActiveDepartureCard(dateIso);
+      }
+
+      function onDateSelectDropdown(dateIso) {
+        updateActiveDepartureCard(dateIso);
+      }
+
+      function updateActiveDepartureCard(dateIso) {
+        document.querySelectorAll(".departure-card").forEach((card) => {
+          const cardDate = card.dataset.date;
+          const isSelected = cardDate === dateIso;
+          card.classList.toggle("active", isSelected);
+          const icon = card.querySelector(".check-icon");
+          if (icon) {
+            icon.className = isSelected
+              ? "fas fa-check-circle text-primary check-icon"
+              : "fas fa-circle text-muted check-icon";
+          }
+        });
+      }
 
       // Update total amount when number of people changes
       document
